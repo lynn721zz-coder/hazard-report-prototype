@@ -143,6 +143,21 @@
   .examples li::before{content:"";position:absolute;left:4px;top:13px;width:4px;height:4px;border-radius:50%;background:var(--gray-400)}
   .examples li:nth-child(-n+2)::before{background:var(--warning-400)}
   .examples .more{font-size:12px;color:var(--text-tertiary);padding-left:18px;margin-top:4px}
+  .examples .ex-org{display:inline-block;margin-left:8px;padding:0 8px;font-size:11px;line-height:18px;color:var(--sys-primary);background:var(--sys-primary-bg);border-radius:999px;white-space:nowrap;vertical-align:1px}
+  .ana-blocks{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 20px 4px;border-top:1px solid var(--border)}
+  .ana-block{border-radius:var(--radius-sm);padding:10px 14px}
+  .ana-block .ti{font-size:11px;font-weight:500;margin-bottom:6px;letter-spacing:.02em;display:flex;align-items:center;gap:5px}
+  .ana-block .ti .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .ana-block ul{list-style:none}
+  .ana-block li{font-size:12.5px;line-height:1.65;position:relative;padding-left:14px;color:var(--text-primary)}
+  .ana-block li::before{content:'';position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.45}
+  .ana-block.risks{background:#FDF6EC;border:1px solid #F2E3C9}
+  .ana-block.risks .ti{color:#B26A00}
+  .ana-block.risks li{color:#7A5218}
+  .ana-block.advice{background:#EFF6F0;border:1px solid #D8EADD}
+  .ana-block.advice .ti{color:#2E7D32}
+  .ana-block.advice li{color:#3E5B42}
+  @media (max-width:1100px){.ana-blocks{grid-template-columns:1fr}}
 
   .feedback-bar{padding:12px 20px;background:var(--bg-tertiary);border-top:1px solid var(--border)}
   .fb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -321,6 +336,11 @@
   .rpt-tag.ai{background:#F0EAF8;color:#7B5EA7}
   .rpt-tag.sc{background:var(--primary-50);color:var(--primary-800)}
   .rpt-go{color:var(--sys-primary);font-size:13px;font-weight:500;flex-shrink:0;white-space:nowrap}
+  .rpt-types{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+  .rpt-type-chip{font-size:11px;line-height:1.5;color:var(--sys-primary);background:rgba(10,77,162,.06);border:1px solid rgba(10,77,162,.16);border-radius:4px;padding:1px 7px;white-space:nowrap}
+  .rpt-type-chip.more{color:var(--text-secondary);background:var(--gray-50);border-color:var(--border);cursor:help}
+  .rpt-type-tip{position:fixed;z-index:9999;max-width:420px;background:#1F2937;color:#fff;font-size:12px;line-height:1.7;padding:8px 12px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);pointer-events:none}
+  .rpt-type-tip b{color:#9CC3F5;font-weight:500}
   .rpt-go:hover{text-decoration:underline}
   .rpt-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;align-self:center}
   .rpt-fb{display:flex;gap:6px}
@@ -352,6 +372,12 @@
   /* 报告列表：查询区 */
   .rpt-query{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:14px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
   .rq-field{display:flex;flex-direction:column;gap:5px}
+  .rq-input-wrap{position:relative;display:inline-flex;align-items:center}
+  .rq-input-wrap input{padding-right:24px}
+  .rq-clear{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:15px;height:15px;padding:0;border:none;background:transparent;color:var(--text-tertiary);cursor:pointer;display:none;align-items:center;justify-content:center}
+  .rq-clear svg{width:14px;height:14px;display:block}
+  .rq-clear:hover{color:var(--text-secondary)}
+  .rq-input-wrap.has-val .rq-clear{display:inline-flex}
   .rq-field>label{font-size:12px;color:var(--text-secondary);font-weight:500}
   .rq-field input,.rq-field select{height:32px;padding:0 10px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-size:12.5px;color:var(--text-primary);background:var(--bg-card);outline:none;transition:border-color .15s;font-family:inherit}
   .rq-field input:focus,.rq-field select:focus{border-color:var(--sys-primary)}
@@ -436,7 +462,7 @@
 <aside class="sidebar" id="sidebar" aria-label="系统菜单" data-page-node-id="1IDEmrl0pVGZ15BD3YbVXZ">
   <div class="side-body" data-page-node-id="wCXpCB2Ja6wmgG85HGePWa">
     <div class="side-title" data-page-node-id="9eF4oOm7tzYzbHbAmZHEny" style="">监管侧</div>
-    <nav id="menu" data-page-node-id="XbP8oL0CC9q8HjeLzee1Um"><div class="menu-group"><div class="menu-l1" data-grouptoggle="unconventional" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4L15 12l-3-3 2.7-2.7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path></svg>非常规作业<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="uc-apply" tabindex="0" role="button" style="">作业申请</div><div class="menu-l2" data-page="uc-approve" tabindex="0" role="button" style="">作业审批</div></div></div><div class="menu-group"><div class="menu-l1" data-grouptoggle="inspection" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"></circle><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"></circle><circle cx="12" cy="12" r="1" fill="currentColor"></circle></svg>智能巡检<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="insp-task" tabindex="0" role="button" style="">巡检任务</div><div class="menu-l2" data-page="insp-record" tabindex="0" role="button" style="">巡检记录</div></div></div><div class="menu-group" data-open="true"><div class="menu-l1 active-arrow" data-grouptoggle="dual" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path></svg>双重预防<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="dual-check" tabindex="0" role="button" style="">双重预防机制检验</div><div class="menu-l2" data-page="board" tabindex="0" role="button" style="">数据看板</div><div class="menu-l2" data-page="risk-list" tabindex="0" role="button" style="">风险清单</div><div class="menu-l2" data-page="risk-report" tabindex="0" role="button" style="">风险排查清单</div><div class="menu-l2 active" data-page="hazard-list" tabindex="0" role="button" style="">隐患清单</div><div class="menu-l2" data-page="hazard-urge" tabindex="0" role="button" style="">隐患督办</div><div class="menu-group" data-open="false" data-sub="true"><div class="menu-l2" data-subtoggle="hazard-stat" tabindex="0" role="button" style="padding-left:32px">隐患统计分析<svg class="arrow" viewBox="0 0 24 24" fill="none" style="margin-left:auto;width:12px;height:12px"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" style="padding-left:48px" data-page="stat-trend" tabindex="0" role="button">隐患趋势分析</div><div class="menu-l2" style="padding-left:48px" data-page="stat-dist" tabindex="0" role="button">隐患分布分析</div></div></div><div class="menu-l2" data-page="hazard-report" tabindex="0" role="button" style="font-weight:500">隐患分析报告</div><div class="menu-l2" data-page="duty-report" tabindex="0" role="button" style="">履职任务报表</div></div></div><div class="menu-group"><div class="menu-l1" data-grouptoggle="contractor" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.6"></rect><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.6"></path></svg>承包商HSE管理<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="ct-info" tabindex="0" role="button" style="">承包商档案</div><div class="menu-l2" data-page="ct-eval" tabindex="0" role="button" style="">承包商评价</div></div></div><div class="menu-group"><div class="menu-l1" data-grouptoggle="upload" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>数据上报情况<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="up-log" tabindex="0" role="button" style="">上报日志</div><div class="menu-l2" data-page="up-check" tabindex="0" role="button" style="">上报核查</div></div></div></nav>
+    <nav id="menu" data-page-node-id="XbP8oL0CC9q8HjeLzee1Um"><div class="menu-group"><div class="menu-l1" data-grouptoggle="unconventional" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4L15 12l-3-3 2.7-2.7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path></svg>非常规作业<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="uc-apply" tabindex="0" role="button" style="">作业申请</div><div class="menu-l2" data-page="uc-approve" tabindex="0" role="button" style="">作业审批</div></div></div><div class="menu-group"><div class="menu-l1" data-grouptoggle="inspection" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"></circle><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"></circle><circle cx="12" cy="12" r="1" fill="currentColor"></circle></svg>智能巡检<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="insp-task" tabindex="0" role="button" style="">巡检任务</div><div class="menu-l2" data-page="insp-record" tabindex="0" role="button" style="">巡检记录</div></div></div><div class="menu-group" data-open="true"><div class="menu-l1 active-arrow" data-grouptoggle="dual" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path></svg>双重预防<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="dual-check" tabindex="0" role="button" style="">双重预防驾驶舱</div><div class="menu-l2" data-page="board" tabindex="0" role="button" style="">数据看板</div><div class="menu-l2" data-page="risk-list" tabindex="0" role="button" style="">风险清单</div><div class="menu-l2" data-page="risk-report" tabindex="0" role="button" style="">风险排查清单</div><div class="menu-l2 active" data-page="hazard-list" tabindex="0" role="button" style="">隐患清单</div><div class="menu-l2" data-page="hazard-urge" tabindex="0" role="button" style="">隐患督办</div><div class="menu-group" data-open="false" data-sub="true"><div class="menu-l2" data-subtoggle="hazard-stat" tabindex="0" role="button" style="padding-left:32px">隐患统计分析<svg class="arrow" viewBox="0 0 24 24" fill="none" style="margin-left:auto;width:12px;height:12px"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" style="padding-left:48px" data-page="stat-trend" tabindex="0" role="button">隐患趋势分析</div><div class="menu-l2" style="padding-left:48px" data-page="stat-dist" tabindex="0" role="button">隐患分布分析</div></div></div><div class="menu-l2" data-page="hazard-report" tabindex="0" role="button" style="font-weight:500">隐患分析报告</div><div class="menu-l2" data-page="duty-report" tabindex="0" role="button" style="">履职任务报表</div></div></div><div class="menu-group"><div class="menu-l1" data-grouptoggle="contractor" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.6"></rect><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.6"></path></svg>承包商HSE管理<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="ct-info" tabindex="0" role="button" style="">承包商档案</div><div class="menu-l2" data-page="ct-eval" tabindex="0" role="button" style="">承包商评价</div></div></div><div class="menu-group"><div class="menu-l1" data-grouptoggle="upload" tabindex="0" role="button"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>数据上报情况<svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></div><div class="menu-children"><div class="menu-l2" data-page="up-log" tabindex="0" role="button" style="">上报日志</div><div class="menu-l2" data-page="up-check" tabindex="0" role="button" style="">上报核查</div></div></div></nav>
   </div>
   <div class="collapse-btn" id="collapse-btn" onclick="toggleSidebar()" role="button" tabindex="0" data-page-node-id="p4wD2rU28YCzlxEJduTNVn">
     <svg class="icon" viewBox="0 0 24 24" fill="none" data-page-node-id="tecYKFp6At9KUJejSFp2HE"><path d="M11 7l-5 5 5 5M18 7l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="hfUlkl3bBuJAz6dYg8FQVn"></path></svg>
@@ -448,7 +474,7 @@
   <div class="tabbar" role="tablist" aria-label="页签" data-page-node-id="26PoBDqz7iNCduNy6mAkSE">
     <div style="display:flex;gap:4px;overflow:hidden" id="page-tabs" data-page-node-id="3Kdmb7Ad9FZnyhdOWIXjpU">
     <span class="page-tab" role="tab" aria-selected="false" data-tab="workbench" tabindex="0">工作台</span>
-    <span class="page-tab" role="tab" aria-selected="false" data-tab="dual-check" tabindex="0">双重预防机制检验<span class="x" data-close="dual-check" role="button" aria-label="关闭 双重预防机制检验">×</span></span>
+    <span class="page-tab" role="tab" aria-selected="false" data-tab="dual-check" tabindex="0">双重预防驾驶舱<span class="x" data-close="dual-check" role="button" aria-label="关闭 双重预防驾驶舱">×</span></span>
     <span class="page-tab" role="tab" aria-selected="false" data-tab="hazard-report" tabindex="0">隐患分析报告<span class="x" data-close="hazard-report" role="button" aria-label="关闭 隐患分析报告">×</span></span>
     <span class="page-tab active" role="tab" aria-selected="true" data-tab="hazard-list" tabindex="0">隐患清单<span class="x" data-close="hazard-list" role="button" aria-label="关闭 隐患清单">×</span></span></div>
     <button class="tabbar-tool" aria-label="页签工具" data-page-node-id="opbpcXevVnsXniNCeFmp1V"><svg class="icon" viewBox="0 0 24 24" fill="none" data-page-node-id="F5QcU8eHZ8EqrZWEDsIaPA"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" data-page-node-id="Gt6So7GLwJrWQIKBHEFVBP"></path></svg></button>
@@ -572,8 +598,8 @@
       <button class="modal-close" id="rpt-fb-close" aria-label="关闭">×</button>
     </div>
     <div class="modal-body">
-      <div style="margin-bottom:14px">
-        <div class="field-label">问题快速标签 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选）</span></div>
+      <div style="margin-bottom:14px" id="rpt-fb-tag-block">
+        <div class="field-label" id="rpt-fb-label">问题快速标签 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选）</span></div>
         <div id="rpt-fb-tags" role="group"></div>
       </div>
       <div>
@@ -624,31 +650,32 @@
 /* ================= 数据 ================= */
 const TYPES=[
   {code:'EQUIP_DEFECT',no:'一',name:'设备本体及附件缺陷',count:484,ratio:'30.2%',risk:'设备完整性下降',hot:true,
-   examples:['打酸平台梯子腐蚀','西一氟碳三楼水碱洗区域隔间门锁坏','氟碳装置四楼南 R116 工段混合蒸发器夹套蒸汽疏水阀检测口阀门内漏','工程技术中心中试基地 8# 平台东南角房间静电地板破损','西区酸罐区盐酸储罐液位计显示不准'],fb:12,rate:0.33},
+   examples:['打酸平台梯子腐蚀','西一氟碳三楼水碱洗区域隔间门锁坏','氟碳装置四楼南 R116 工段混合蒸发器夹套蒸汽疏水阀检测口阀门内漏','工程技术中心中试基地 8# 平台东南角房间静电地板破损','西区酸罐区盐酸储罐液位计显示不准'],risks:['设备长期带缺陷运行，腐蚀减薄、构件松动可能扩展为泄漏甚至火灾爆炸事故','承压设备附件（安全附件、阀门、液位计）失效易引发物料突发性大量泄漏'],advice:['强化设备完整性管理：对腐蚀严重部位建立专项台账，加密测厚与防腐检测频次','对疏水阀、液位计等易损附件推行周期性预防性更换，变"坏了再修"为"到期即换"'],fb:12,rate:0.33},
   {code:'PHYS_GUARD',no:'二',name:'物理安全防护设施缺失',count:174,ratio:'10.8%',risk:'护栏/盖板/防护罩',
-   examples:['防火门关不到位','东区仓储部储配工段卸料区域','罐区三联锁未及时投用','动力二四楼机柜间 R142b_SIS_SC2 柜缺少保险丝','西一氟碳二楼平台护栏立柱松动'],fb:3,rate:0},
+   examples:['防火门关不到位','东区仓储部储配工段卸料区域','罐区三联锁未及时投用','动力二四楼机柜间 R142b_SIS_SC2 柜缺少保险丝','西一氟碳二楼平台护栏立柱松动'],risks:['护栏、盖板、防护罩缺失或失效，高处坠落、机械伤害风险显著上升','安全联锁未及时投用导致保护层失效，异常工况下失去自动保护能力'],advice:['开展防护设施专项普查，缺失损坏设施限期恢复并验收销号','建立安全联锁投用确认制度，摘除联锁须逐级审批并限期恢复'],fb:3,rate:0},
   {code:'ELEC_HAZARD',no:'三',name:'电气设备设施隐患',count:157,ratio:'9.8%',risk:'配电箱/电缆/防爆',
-   examples:['西区机修大厅的切割机电源线破损','总配 10kV 高压配电室南侧空调漏水','PVDF 配电室 1AA8 柜测温巡检环境温度未填写','05700022 在线测温测振防爆箱底部孔洞未封堵','西区仓库配电箱内接线端子过热变色'],fb:4,rate:0.10},
+   examples:['西区机修大厅的切割机电源线破损','总配 10kV 高压配电室南侧空调漏水','PVDF 配电室 1AA8 柜测温巡检环境温度未填写','05700022 在线测温测振防爆箱底部孔洞未封堵','西区仓库配电箱内接线端子过热变色'],risks:['电缆破损、端子过热是电气火灾的主要诱因，可能引燃周边可燃物','防爆区域电气密封失效形成点火源，遇泄漏介质可能引发爆炸'],advice:['定期开展配电回路红外测温，对过热缺陷即查即修','将防爆密封点纳入防爆检查清单逐台核查，孔洞未封堵严禁投用'],fb:4,rate:0.10},
   {code:'SIGN_IDENT',no:'四',name:'现场标识与信息识别',count:151,ratio:'9.4%',risk:'标识牌/警示标志',
-   examples:['西一车间 R113a 装置四楼危化品标识牌掉落','产品罐组 HSE 宣传栏内设备容积信息有误','五楼氯化 2# 干燥器就地压力表缺少合格证','西八操作室气体报警 GZA-41017 描述错误','东罐区消防通道地面标识线模糊不清'],fb:6,rate:0.20},
+   examples:['西一车间 R113a 装置四楼危化品标识牌掉落','产品罐组 HSE 宣传栏内设备容积信息有误','五楼氯化 2# 干燥器就地压力表缺少合格证','西八操作室气体报警 GZA-41017 描述错误','东罐区消防通道地面标识线模糊不清'],risks:['标识缺失、信息错误易导致误操作、误进入，应急状态下延误判断与疏散','报警点位描述错误使操作人员无法快速定位异常来源，延长处置时间'],advice:['按标准统一排查更新现场标识，建立标识台账并纳入日常巡检','对报警点位名称、描述开展专项校核，确保与 DCS/消防控制室信息一致'],fb:6,rate:0.20},
   {code:'MEDIA_LEAK',no:'五',name:'介质泄漏/密封点失效',count:147,ratio:'9.2%',risk:'法兰/软管/阀门',
-   examples:['西一氟碳 7 楼南 115HCL 分离塔顶冷凝器至气液分离罐法兰面渗漏','酸碱罐区液碱输送泵渗漏','除氟系统渗漏','西一氟碳一楼北分馏区域隔膜压缩机东侧洗眼器水管接头损坏','西一氟碳二楼 R113a 冷媒系统视镜处微渗'],fb:8,rate:0.25},
+   examples:['西一氟碳 7 楼南 115HCL 分离塔顶冷凝器至气液分离罐法兰面渗漏','酸碱罐区液碱输送泵渗漏','除氟系统渗漏','西一氟碳一楼北分馏区域隔膜压缩机东侧洗眼器水管接头损坏','西一氟碳二楼 R113a 冷媒系统视镜处微渗'],risks:['危化介质持续泄漏可能造成人员中毒、化学灼伤，并形成爆炸性混合气体','泄漏物料进入雨排、土壤引发环境污染事件，处置成本高'],advice:['推行 LDAR（泄漏检测与修复）管理，对渗漏点建档、跟踪、限期消漏','对高风险法兰、软管、密封件按周期检测更换，关键部位升级材质与密封形式'],fb:8,rate:0.25},
   {code:'OPS_CONTROL',no:'六',name:'作业管控与管理闭环',count:127,ratio:'7.9%',risk:'巡检/作业票/台账',
-   examples:['西区维保中心固定动火区域灭火器漏检','作业票中作业单位监护人未选择','外检回来的钢瓶皮重与实际皮重严重不符','东仓储罐区一北面','受限空间作业票气体分析数据未填写'],fb:2,rate:0},
+   examples:['西区维保中心固定动火区域灭火器漏检','作业票中作业单位监护人未选择','外检回来的钢瓶皮重与实际皮重严重不符','东仓储罐区一北面','受限空间作业票气体分析数据未填写'],risks:['作业票审批把关不严、气体分析缺失，直接作业环节风险失控','巡检漏检、台账不符暴露管理闭环失效，隐患发现与整改链条断点'],advice:['严格作业票审批与现场监护核查，对气体分析数据真实性开展抽查','建立"检查—整改—验收—销号"闭环机制，将漏检、超期问题纳入考核'],fb:2,rate:0},
   {code:'INSTRUMENT',no:'七',name:'仪表及监测附件缺陷',count:101,ratio:'6.3%',risk:'压力表/温度计/DCS',
-   examples:['5 号盐酸进料切断阀损坏','西一氟碳 3 楼南 1# 预热器出口管路温度计线管三通断裂','综合仓库机柜间供电机架故障','西区仓储部原料及成品罐区仪表接地圆钢未焊接连接','罐区一可燃气体报警器校验超期'],fb:3,rate:0.05},
+   examples:['5 号盐酸进料切断阀损坏','西一氟碳 3 楼南 1# 预热器出口管路温度计线管三通断裂','综合仓库机柜间供电机架故障','西区仓储部原料及成品罐区仪表接地圆钢未焊接连接','罐区一可燃气体报警器校验超期'],risks:['关键仪表失准、失效使工艺参数失去监控，超温超压工况无法及时报警联锁','可燃气体报警器校验超期导致泄漏探测灵敏度不可信，预警防线失效'],advice:['严格执行仪表周期检定校验制度，超期设备立即停用并限期校准','对关键联锁回路的仪表定期开展功能测试，确保"测得准、联得上"'],fb:3,rate:0.05},
   {code:'FIRE_RESP',no:'八',name:'消防与应急设施不足',count:92,ratio:'5.7%',risk:'灭火器/消火栓',
-   examples:['东区机修大厅 43 号消防手报无显示','东区钢瓶充装间消火栓阀口破损','动力三后 5# 变门口消防箱底部破损','消防箱遮挡','西仓储灭火器箱内压力表指针位于黄区'],fb:1,rate:0},
+   examples:['东区机修大厅 43 号消防手报无显示','东区钢瓶充装间消火栓阀口破损','动力三后 5# 变门口消防箱底部破损','消防箱遮挡','西仓储灭火器箱内压力表指针位于黄区'],risks:['灭火器材失效、消防设施遮挡损坏，初起火灾时无法有效处置，贻误最佳扑救时机','手报无显示使火灾报警链路中断，延误人员疏散与应急联动'],advice:['落实消防设施月度点检与年度专业维保，失效器材即查即换','开展消防通道、设施遮挡专项清理，严禁占用堵塞并纳入常态化检查'],fb:1,rate:0},
   {code:'STATIC_GROUND',no:'九',name:'静电接地/防雷防静电',count:81,ratio:'5.0%',risk:'接地线/跨接线',
-   examples:['罐区一卸料区域 R152a 鹤管气相管静电跨接脱落','仓储卸料区','HF 罐区尾气吸收装置碱洗塔备用泵基座缺少静电接地线','R113a 装置一楼热水回收泵出口压力表接线盒损坏','装卸车台静电接地夹钳口氧化接触不良'],fb:2,rate:0},
+   examples:['罐区一卸料区域 R152a 鹤管气相管静电跨接脱落','仓储卸料区','HF 罐区尾气吸收装置碱洗塔备用泵基座缺少静电接地线','R113a 装置一楼热水回收泵出口压力表接线盒损坏','装卸车台静电接地夹钳口氧化接触不良'],risks:['静电跨接脱落、接地不良使装卸可燃介质时静电积聚，放电火花可能引燃物料','接地设施锈蚀氧化造成"形同虚设"，防雷防静电体系隐性失效'],advice:['装卸车台、罐区等重点部位静电接地设施纳入班前点检确认','定期开展接地电阻检测，对氧化锈蚀接头及时除锈处理或更换'],fb:2,rate:0},
   {code:'ENV_POLLUTE',no:'十',name:'现场环境与污染控制',count:73,ratio:'4.5%',risk:'场地杂乱/孔洞',
-   examples:['西一 R113a 装置一楼东面楼梯口固废满溢未及时处理','维保中心办公楼进门口安全出口灯上方孔洞未封堵','氟碳装置二楼氟化反应器存在孔洞','维保中心动力一 DCS 机柜间照明灯损坏','西一装置区雨排口周边油污未及时清理'],fb:1,rate:0},
+   examples:['西一 R113a 装置一楼东面楼梯口固废满溢未及时处理','维保中心办公楼进门口安全出口灯上方孔洞未封堵','氟碳装置二楼氟化反应器存在孔洞','维保中心动力一 DCS 机柜间照明灯损坏','西一装置区雨排口周边油污未及时清理'],risks:['平台孔洞、封堵缺失导致高处坠落、小动物进入电气设施引发短路','油污、固废清理不及时污染雨排系统，存在环保处罚与次生风险'],advice:['推行现场定置管理与"工完、料尽、场地清"要求，纳入班组考核','对平台孔洞、封堵缺失建立排查清单，限期封堵并验收销号'],fb:1,rate:0},
   {code:'HUMAN_ACT',no:'十一',name:'人的不安全行为',count:16,ratio:'1.0%',risk:'高处作业/违章',
-   examples:['人员高处作业未规范系挂安全带','监护人临时离开作业现场','叉车超速行驶且未鸣笛示警','操作工未按规程佩戴安全帽','检修作业时擅自拆除安全联锁'],fb:0,rate:0},
+   examples:['人员高处作业未规范系挂安全带','监护人临时离开作业现场','叉车超速行驶且未鸣笛示警','操作工未按规程佩戴安全帽','检修作业时擅自拆除安全联锁'],risks:['违章作业是事故的直接触发因素，高处坠落、物体打击等事故多由此引起','监护人脱岗使作业风险管控出现真空，异常发生时无法及时处置'],advice:['强化作业前安全交底与行为观察（BBS），对典型违章开展警示教育','将违章行为与绩效考核联动，推行违章记分与约谈机制'],fb:0,rate:0},
   {code:'PPE_LACK',no:'十二',name:'个体防护不足',count:2,ratio:'0.1%',risk:'防护用品',
-   examples:['作业人员未佩戴护目镜','防爆区域未穿防静电工服','酸区操作人员防护面屏缺失','粉尘作业未佩戴防尘口罩','噪音区域员工未佩戴耳塞'],fb:0,rate:0}
+   examples:['作业人员未佩戴护目镜','防爆区域未穿防静电工服','酸区操作人员防护面屏缺失','粉尘作业未佩戴防尘口罩','噪音区域员工未佩戴耳塞'],risks:['防护用品缺失使人员在有毒、腐蚀、粉尘环境中直接暴露，造成急性伤害与职业病隐患','防爆区域防静电装备缺失，人体静电成为潜在点火源'],advice:['按岗位风险评估结果配齐配足防护用品，建立发放与更换台账','强化现场佩戴监督，同时改进装备舒适性与可用性，提升主动佩戴率'],fb:0,rate:0}
 ];
-const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险等级不当','整改建议不可行'];
+const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行'];
+const ORGS=['中国昊华','蓝天氟材料','中化蓝天','中化新材料','中化环境','中化装备'];
 const PLACEHOLDERS={
   EQUIP_DEFECT:'例：第 3 条「R116 工段阀门内漏」应归入「介质泄漏/密封点失效」而非「设备本体及附件缺陷」，请 AI 复核分类边界…',
   MEDIA_LEAK:'例：第 1 条法兰渗漏风险等级应升为高，涉及 HCL 介质，建议补充应急隔离措施…',
@@ -670,7 +697,7 @@ const MENU=[
   {id:'inspection',icon:IC.radar,name:'智能巡检',children:[
     {id:'insp-task',name:'巡检任务'},{id:'insp-record',name:'巡检记录'}]},
   {id:'dual',icon:IC.shield,name:'双重预防',open:true,children:[
-    {id:'dual-check',name:'双重预防机制检验'},
+    {id:'dual-check',name:'双重预防驾驶舱'},
     {id:'board',name:'数据看板'},
     {id:'risk-list',name:'风险清单'},
     {id:'risk-report',name:'风险排查清单'},
@@ -723,7 +750,7 @@ function bindMenu(){
 }
 
 /* ================= 页签 & 页面 ================= */
-let openTabs=[{id:'workbench',name:'工作台',fixed:true},{id:'dual-check',name:'双重预防机制检验'},{id:'hazard-report',name:'隐患分析报告'}];
+let openTabs=[{id:'workbench',name:'工作台',fixed:true},{id:'dual-check',name:'双重预防驾驶舱'},{id:'hazard-report',name:'隐患分析报告'}];
 let activePage='hazard-report';
 const pageCache={};
 
@@ -947,7 +974,7 @@ function toggleSidebar(){
 /* ================= 报告原型 ================= */
 function pct(n){return Math.round(n*100)+'%';}
 const REPORTS=[
-  {id:'RPT-202512-M',type:'scheduled',title:'隐患语义挖掘分析报告 · 第 1 批',time:'2025-12-01 09:00',range:'2025-2026 年度',count:1605,desc:'基于全部隐患描述识别安全屏障失效模式',org:'中国昊华'},
+  {id:'RPT-202512-M',type:'scheduled',title:'年度隐患分析报告 · 2026年度',time:'2025-12-01 09:00',range:'2025-2026 年度',count:1605,desc:'基于全部隐患描述识别安全屏障失效模式',org:'中国昊华'},
   {id:'RPT-202512-W48',type:'scheduled',title:'周度隐患分析报告 · 第 48 周',time:'2025-11-30 18:00',range:'11-24~11-30',count:412,desc:'本周新增隐患语义归类与风险洞察',org:'蓝天氟材料'},
   {id:'RPT-202512-W47',type:'scheduled',title:'周度隐患分析报告 · 第 47 周',time:'2025-11-23 18:00',range:'11-17~11-23',count:381,desc:'本周新增隐患语义归类与风险洞察',org:'中国昊华'},
   {id:'RPT-202511-M',type:'scheduled',title:'月度隐患分析报告 · 2025-11',time:'2025-12-01 08:00',range:'2025-11',count:1532,desc:'上月隐患语义归类与趋势分析',org:'中国昊华'}
@@ -1016,11 +1043,11 @@ function reportHTML(){
       <div class="rq-field"><label for="rq-from">生成时间</label><input type="date" id="rq-from" value="2025-11-01"></div>
       <span class="rq-sep">至</span>
       <div class="rq-field"><label for="rq-to">&nbsp;</label><input type="date" id="rq-to" value="2025-12-31"></div>
-      <div class="rq-field"><label for="rq-org">所属单位</label><input type="text" id="rq-org" list="rq-org-list" placeholder="输入单位名称，支持模糊" style="width:170px"><datalist id="rq-org-list"><option value="中国昊华"></option><option value="蓝天氟材料"></option></datalist></div>
-      <div class="rq-field"><label for="rq-type">隐患类型</label><input type="text" id="rq-type" list="rq-type-list" placeholder="输入类型名称，支持模糊" style="width:190px"><datalist id="rq-type-list"></datalist></div>
+      <div class="rq-field"><label for="rq-org">所属单位</label><span class="rq-input-wrap"><input type="text" id="rq-org" list="rq-org-list" placeholder="输入单位名称，支持模糊" style="width:170px"><button type="button" class="rq-clear" data-target="rq-org" title="清除所选单位" aria-label="清除所属单位输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="rq-org-list"><option value="中国昊华"></option><option value="蓝天氟材料"></option><option value="中化蓝天"></option><option value="中化新材料"></option><option value="中化环境"></option><option value="中化装备"></option></datalist></div>
+      <div class="rq-field"><label for="rq-type">隐患类型</label><span class="rq-input-wrap"><input type="text" id="rq-type" list="rq-type-list" placeholder="输入类型名称，支持模糊" style="width:190px"><button type="button" class="rq-clear" data-target="rq-type" title="清除所选类型" aria-label="清除隐患类型输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="rq-type-list"></datalist></div>
       <span class="rq-spacer"></span>
       <button class="rq-btn primary" id="rq-go">查询</button>
-      <button class="rq-btn" id="rq-reset">清除条件</button>
+      <button class="rq-btn" id="rq-reset">重置</button>
     </div>
     <div class="rpt-filter-tabs" role="tablist" aria-label="报告类型筛选">
       <button class="on" data-rfilter="all" role="tab" aria-selected="true">全部</button>
@@ -1038,7 +1065,10 @@ function reportHTML(){
           <h1 id="rpt-d-title">隐患分析报告</h1>
           <div class="subtitle" id="rpt-d-sub"></div>
         </div>
-        <div class="header-badges" id="rpt-d-badges"></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0">
+          <div class="header-badges" id="rpt-d-badges"></div>
+          <button class="btn-rpt-cfg" id="rpt-d-export" title="以 Word 文档导出当前报告" onclick="exportReportWord()"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>导出 Word</button>
+        </div>
       </div>
       <div class="meta" id="rpt-d-meta"></div>
     </header>
@@ -1065,7 +1095,10 @@ function renderCards(focusSet){
   try{
     const list=(focusSet&&focusSet.size)?TYPES.filter(t=>focusSet.has(t.name)):TYPES;
     wrap.innerHTML=list.map(t=>{
-    const examples=t.examples.slice(0,5).map((e,i)=>`<li>${i+1}. ${e}</li>`).join('')+(t.count>5?`<div class="more">… 共 ${t.count} 条</div>`:'');
+    const codeHash=[...t.code].reduce((s,c)=>s+c.charCodeAt(0),0);
+    const examples=t.examples.slice(0,5).map((e,i)=>`<li>${i+1}. ${e}<span class="ex-org">${ORGS[(codeHash+i)%ORGS.length]}</span></li>`).join('');
+    const risks=(t.risks||[]).map(r=>`<li>${r}</li>`).join('');
+    const advice=(t.advice||[]).map(a=>`<li>${a}</li>`).join('');
     const ph=PLACEHOLDERS[t.code]||'请描述这一类分析的问题，便于 AI 后续优化…';
     const fbHot=`<span class="fb-stat">本维度累计反馈 <span class="hot">${t.fb} 条</span></span>`;
     return `
@@ -1084,6 +1117,10 @@ function renderCards(focusSet){
       </div>
       <div class="card-body" id="body-${t.code}">
         <div class="examples"><div class="ti">真实隐患示例</div><ul>${examples}</ul></div>
+        <div class="ana-blocks">
+          <div class="ana-block risks"><div class="ti"><span class="dot" style="background:#D97706"></span>典型风险</div><ul>${risks}</ul></div>
+          <div class="ana-block advice"><div class="ti"><span class="dot" style="background:#2E7D32"></span>治理建议</div><ul>${advice}</ul></div>
+        </div>
         <div class="feedback-bar">
           <div class="fb-row">
             <span class="default-controls" style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -1091,12 +1128,12 @@ function renderCards(focusSet){
                 <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 11v8H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h3zM7 11l4-7a2 2 0 0 1 2 1.5L12 8h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 15.8 18H7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>点赞</button>
               <button class="fb-btn dislike" aria-pressed="false" onclick="setFeedback('${t.code}','dislike',event)">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" style="transform:rotate(180deg)"><path d="M7 11v8H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h3zM7 11l4-7a2 2 0 0 1 2 1.5L12 8h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 15.8 18H7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>点踩</button>
-              <button class="fb-btn" onclick="openFeedback('${t.code}')">意见反馈</button>
+              <button class="fb-btn" onclick="openFeedback('${t.code}','comment',event)">意见反馈</button>
             </span>
             <span class="fb-done"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>已提交反馈 · 感谢你的评价</span>
           </div>
           <div class="fb-expand" id="expand-${t.code}" data-show="false">
-            <div class="fb-tags" role="group" aria-label="问题快速标签">
+            <div class="fb-tags" role="group" aria-label="反馈快速标签" id="fbtags-${t.code}">
               ${TAGS.map(tg=>`<button class="tag" aria-pressed="false" onclick="toggleTag('${t.code}','${tg}',this)">${tg}</button>`).join('')}
             </div>
             <textarea class="fb-textarea" id="textarea-${t.code}" placeholder="${ph}" aria-label="反馈意见输入框"></textarea>
@@ -1139,7 +1176,22 @@ function setFeedback(code,type,e){
   if(st.type==='dislike')openFeedback(code);
   if(st.type==='like')submitLike(code);
 }
-function openFeedback(code){
+function openFeedback(code,from,e){
+  if(e)e.stopPropagation();
+  const st=state[code];
+  const twrap=document.getElementById('fbtags-'+code);
+  if(from==='comment'){
+    st.type=null;st.tags.clear();
+    const c0=document.getElementById('card-'+code);
+    c0.querySelector('.fb-btn.like').setAttribute('aria-pressed','false');
+    c0.querySelector('.fb-btn.dislike').setAttribute('aria-pressed','false');
+    if(twrap)twrap.hidden=true;
+  }else{
+    if(twrap){
+      twrap.hidden=false;
+      twrap.innerHTML=TAGS.map(tg=>`<button class="tag" aria-pressed="${st.tags.has(tg)}" onclick="toggleTag('${code}','${tg}',this)">${tg}</button>`).join('');
+    }
+  }
   const c=document.getElementById('card-'+code);
   c.dataset.open='true';
   c.querySelector('.card-head').setAttribute('aria-expanded','true');
@@ -1265,11 +1317,15 @@ function renderReportList(filter){
     const focusStr=(isAI&&r.focus&&r.focus.length)?`<span class="dot"></span>聚焦 ${r.focus.length} 个类型`:'';
     const org=r.org||r.orgDim||'—';
     const fb=rptFbState[r.id]||{};
+    const typeNames=isAI?(r.focus||[]):TYPES.map(t=>t.name);
+    const chips=typeNames.length
+      ?typeNames.slice(0,3).map(n=>`<span class="rpt-type-chip">${n}</span>`).join('')+(typeNames.length>3?`<span class="rpt-type-chip more">+${typeNames.length-3}</span>`:'')
+      :`<span class="rpt-desc">${r.desc}</span>`;
     return `<div class="rpt-card ${r.type}" data-rid="${r.id}" role="button" tabindex="0">
       <div class="rpt-ico"><svg viewBox="0 0 24 24">${ico}</svg></div>
       <div class="rpt-body">
         <div class="rpt-title">${r.title}${tag}</div>
-        <div class="rpt-desc">${r.desc}</div>
+        <div class="rpt-types"${typeNames.length?` data-tip="${typeNames.join('、')}"`:''}>${chips}</div>
         <div class="rpt-meta"><span>${r.time}</span><span class="dot"></span><span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>有效隐患 ${r.count.toLocaleString()} 条</span>${focusStr}</div>
       </div>
       <div class="rpt-side">
@@ -1319,7 +1375,14 @@ function openRptFbModal(id,from){
   const r=getAllReports().find(x=>x.id===id);
   document.getElementById('rpt-fb-sub').textContent=(r?`《${r.title}》`:'')+'针对整份报告的评价与意见，将回流至模型训练样本库。';
   const st=rptFbSt(id);
-  document.getElementById('rpt-fb-tags').innerHTML=TAGS.map(tg=>`<button class="tag" aria-pressed="${st.tags.has(tg)}" onclick="toggleRptFbTag('${tg}',this)">${tg}</button>`).join('');
+  const isDislike=from==='dislike';
+  document.getElementById('rpt-fb-tag-block').hidden=!isDislike;
+  if(isDislike){
+    document.getElementById('rpt-fb-label').innerHTML='问题快速标签 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选）</span>';
+    document.getElementById('rpt-fb-tags').innerHTML=TAGS.map(tg=>`<button class="tag" aria-pressed="${st.tags.has(tg)}" onclick="toggleRptFbTag('${tg}',this)">${tg}</button>`).join('');
+  }else{
+    st.tags.clear();
+  }
   document.getElementById('rpt-fb-textarea').value=st.comment||'';
   const m=document.getElementById('rpt-fb-modal');
   m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
@@ -1369,14 +1432,14 @@ function syncRptFbCard(id){
 /* ===== 反馈统计看板 ===== */
 let fbLog=[
   {time:'2025-12-08 10:24',scope:'type',target:'设备本体及附件缺陷',kind:'dislike',tags:['分析不准确','分类错误'],comment:'R116 工段阀门内漏应归入介质泄漏而非设备缺陷，建议复核分类边界',src:'报告详情页'},
-  {time:'2025-12-08 11:05',scope:'report',target:'隐患语义挖掘分析报告 · 第 1 批',kind:'like',tags:[],comment:'',src:'报告列表页'},
-  {time:'2025-12-09 09:41',scope:'type',target:'介质泄漏/密封点失效',kind:'comment',tags:['整改建议不可行'],comment:'法兰渗漏建议未明确责任装置与完成时限',src:'报告详情页'},
+  {time:'2025-12-08 11:05',scope:'report',target:'年度隐患分析报告 · 2026年度',kind:'like',tags:[],comment:'',src:'报告列表页'},
+  {time:'2025-12-09 09:41',scope:'type',target:'介质泄漏/密封点失效',kind:'comment',tags:['分类粒度可更细'],comment:'建议对法兰渗漏类进一步细分密封点失效形式，便于定向治理',src:'报告详情页'},
   {time:'2025-12-09 14:18',scope:'report',target:'周度隐患分析报告 · 第 48 周',kind:'dislike',tags:['部位定位不准'],comment:'多条隐患未定位到具体装置楼层，影响整改派单',src:'报告列表页'},
   {time:'2025-12-10 08:55',scope:'type',target:'现场标识与信息识别',kind:'like',tags:[],comment:'',src:'报告详情页'},
-  {time:'2025-12-11 16:30',scope:'type',target:'电气设备设施隐患',kind:'dislike',tags:['风险等级不当'],comment:'配电室空调漏水的风险等级建议上调，涉及高压区域',src:'报告详情页'},
+  {time:'2025-12-11 16:30',scope:'type',target:'电气设备设施隐患',kind:'dislike',tags:['风险分析不对'],comment:'配电室空调漏水的风险等级建议上调，涉及高压区域',src:'报告详情页'},
   {time:'2025-12-12 10:02',scope:'report',target:'月度隐患分析报告 · 2025-11',kind:'like',tags:[],comment:'',src:'报告列表页'},
-  {time:'2025-12-15 15:47',scope:'type',target:'消防与应急设施不足',kind:'comment',tags:['漏报'],comment:'消防水系统压力异常类隐患未在本类型中体现',src:'报告详情页'},
-  {time:'2025-12-16 09:12',scope:'report',target:'隐患语义挖掘分析报告 · 第 1 批',kind:'comment',tags:['分析不准确'],comment:'整体结论可用，建议补充类型间关联分析',src:'报告列表页'},
+  {time:'2025-12-15 15:47',scope:'type',target:'消防与应急设施不足',kind:'comment',tags:['建议增加趋势对比'],comment:'建议增加消防隐患月度趋势对比，便于观察整改成效',src:'报告详情页'},
+  {time:'2025-12-16 09:12',scope:'report',target:'年度隐患分析报告 · 2026年度',kind:'comment',tags:['建议补充关联分析'],comment:'整体结论可用，建议补充类型间关联分析',src:'报告列表页'},
   {time:'2025-12-18 13:26',scope:'type',target:'物理安全防护设施缺失',kind:'like',tags:[],comment:'',src:'报告详情页'},
   {time:'2025-12-19 17:03',scope:'type',target:'仪表及监测附件缺陷',kind:'dislike',tags:['部位定位不准','分析不准确'],comment:'仪表类隐患与设备缺陷存在混分',src:'报告详情页'},
   {time:'2025-12-22 10:48',scope:'report',target:'周度隐患分析报告 · 第 47 周',kind:'like',tags:[],comment:'',src:'报告列表页'}
@@ -1446,7 +1509,7 @@ function renderFbDashboard(){
     <div class="metric accent"><div class="label">反馈总量</div><div class="value">${list.length}<span class="unit">条</span></div><div class="hint">报告级 + 类型级汇总</div></div>
     <div class="metric"><div class="label">点赞</div><div class="value" style="color:var(--success-600,#16A34A)">${like}<span class="unit">条</span></div><div class="hint">正向评价，用于正向样本校准</div></div>
     <div class="metric danger"><div class="label">点踩</div><div class="value">${dislike}<span class="unit">条</span></div><div class="hint">负向评价，优先回流分析</div></div>
-    <div class="metric warn"><div class="label">意见反馈</div><div class="value" style="font-size:22px">${comment}<span class="unit">条</span></div><div class="hint">含问题标签与文字意见</div></div>`;
+    <div class="metric warn"><div class="label">意见反馈</div><div class="value" style="font-size:22px">${comment}<span class="unit">条</span></div><div class="hint">含反馈标签与文字意见</div></div>`;
   const sum=document.getElementById('fbd-dist');
   if(sum)sum.innerHTML=`<svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>统计口径：全量反馈记录 ${fbLog.length} 条（点赞 ${fbLog.filter(r=>r.kind==='like').length} / 点踩 ${fbLog.filter(r=>r.kind==='dislike').length} / 意见 ${fbLog.filter(r=>r.kind==='comment').length}），反馈每日汇总回流至模型训练样本库`;
   /* 对象分布 */
@@ -1468,7 +1531,7 @@ function renderFbDashboard(){
   if(cnt)cnt.textContent='共 '+list.length+' 条记录';
   document.getElementById('fbd-records').innerHTML=list.length?`
     <table class="his-table fbd-table">
-      <thead><tr><th style="width:120px">反馈时间</th><th>反馈对象</th><th style="width:72px">级别</th><th style="width:72px">反馈类型</th><th style="width:170px">问题标签</th><th>意见内容</th></tr></thead>
+      <thead><tr><th style="width:120px">反馈时间</th><th>反馈对象</th><th style="width:72px">级别</th><th style="width:72px">反馈类型</th><th style="width:170px">反馈标签</th><th>意见内容</th></tr></thead>
       <tbody>${list.map(r=>`
         <tr>
           <td class="his-time">${r.time}</td>
@@ -1483,7 +1546,7 @@ function renderFbDashboard(){
 function exportFbLog(){
   const list=filteredFbLog();
   if(!list.length){showToast('当前筛选条件下暂无可导出的反馈记录');return;}
-  const header=['反馈时间','反馈对象','反馈级别','反馈类型','问题标签','意见内容','来源页面'];
+  const header=['反馈时间','反馈对象','反馈级别','反馈类型','反馈标签','意见内容','来源页面'];
   const csv='\uFEFF'+[header.join(','),...list.map(r=>[r.time,r.target,r.scope==='report'?'报告级':'类型级',fbKindName(r.kind),r.tags?r.tags.join('；'):'',r.comment||'',r.src||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','))].join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');
@@ -1500,6 +1563,58 @@ function bindFbDashboard(){
   });
   document.getElementById('fbd-export').addEventListener('click',exportFbLog);
   renderFbDashboard();
+}
+function exportReportWord(id,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  const r=id?getAllReports().find(x=>x.id===id):currentReport;
+  if(!r){showToast('导出失败：未找到该报告');return;}
+  const isAI=r.type==='ai';
+  const focusList=(isAI&&r.focus&&r.focus.length)?r.focus:null;
+  const list=focusList?TYPES.filter(t=>focusList.includes(t.name)):TYPES;
+  const org=r.org||r.orgDim||'—';
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const F='font-family:SimSun,serif;font-size:12pt';
+  const H='font-family:SimHei,sans-serif;font-weight:bold';
+  /* 封面标题区 */
+  let body=`<div style="text-align:center;margin:24pt 0 6pt"><span style="${H};font-size:20pt">${esc(r.title)}</span></div>
+  <div style="text-align:center;margin-bottom:8pt"><span style="color:#555;font-size:11pt">${esc(r.desc)}</span></div>
+  <div style="text-align:center;margin-bottom:16pt"><span style="color:#777;font-size:10.5pt">报告类型：${isAI?'AI 辅助分析':'周期定时生成'}　|　生成时间：${esc(r.time)}　|　所属单位：${esc(org)}　|　统计范围：${esc(r.range)}</span></div>
+  <hr style="border:none;border-top:1.5pt solid #0A4DA2;margin:0 0 14pt">`;
+  /* 一、报告概览 */
+  body+=`<p style="${H};font-size:14pt;color:#0A4DA2;margin:12pt 0 6pt">一、报告概览</p>
+  <p style="${F};line-height:1.8;margin:0 0 6pt">本报告基于 HSE 管理系统隐患清单数据，经 AI 分析引擎（模型 v2.3）语义归类与风险洞察生成，${isAI?'并按用户配置聚焦展示指定隐患类型。':''}报告期内共归集有效隐患 <b>${r.count.toLocaleString()}</b> 条，覆盖 <b>${list.length}</b> 类隐患类型。</p>`;
+  if(isAI&&focusList){
+    body+=`<p style="${F};line-height:1.8;margin:0 0 6pt"><b>聚焦隐患类型：</b>${focusList.map(esc).join('、')}</p>`;
+    if(r.timeDim||r.orgDim)body+=`<p style="${F};line-height:1.8;margin:0 0 6pt"><b>分析维度：</b>时间维度 ${esc(r.timeDim||'—')}；所属单位 ${esc(r.orgDim||'—')}</p>`;
+  }
+  /* 二、统计汇总表 */
+  body+=`<p style="${H};font-size:14pt;color:#0A4DA2;margin:12pt 0 6pt">二、隐患类型统计汇总</p>
+  <table style="border-collapse:collapse;width:100%" cellpadding="0" cellspacing="0">
+  <tr>${['序号','隐患类型','数量','占比'].map(h=>`<td style="background:#0A4DA2;color:#fff;${H};font-size:11pt;border:.75pt solid #999;padding:5pt 8pt;text-align:center">${h}</td>`).join('')}</tr>
+  ${list.map((t,i)=>`<tr><td style="${F};border:.75pt solid #999;padding:4pt 8pt;text-align:center">${i+1}</td><td style="${F};border:.75pt solid #999;padding:4pt 8pt">${esc(t.name)}</td><td style="${F};border:.75pt solid #999;padding:4pt 8pt;text-align:center">${t.count}</td><td style="${F};border:.75pt solid #999;padding:4pt 8pt;text-align:center">${esc(t.ratio)}</td></tr>`).join('')}
+  </table>`;
+  /* 三、各类型明细 */
+  body+=`<p style="${H};font-size:14pt;color:#0A4DA2;margin:12pt 0 6pt">三、各隐患类型分析明细</p>`;
+  list.forEach((t,i)=>{
+    const cn=['一','二','三','四','五','六','七','八','九','十','十一','十二'][i]||i+1;
+    body+=`<p style="${H};font-size:12.5pt;margin:10pt 0 4pt">（${cn}）${esc(t.name)}<span style="font-weight:normal;font-size:11pt;color:#555">（${t.count} 条 · 占比 ${esc(t.ratio)}）</span></p>`;
+    body+=`<p style="${F};line-height:1.7;margin:0 0 4pt"><b style="color:#B26A00">【典型风险】</b></p>${(t.risks||[]).map(x=>`<p style="${F};line-height:1.7;margin:0 0 2pt 21pt">• ${esc(x)}</p>`).join('')}`;
+    body+=`<p style="${F};line-height:1.7;margin:4pt 0 2pt"><b style="color:#16A34A">【治理建议】</b></p>${(t.advice||[]).map(x=>`<p style="${F};line-height:1.7;margin:0 0 2pt 21pt">• ${esc(x)}</p>`).join('')}`;
+    body+=`<p style="${F};line-height:1.7;margin:4pt 0 2pt"><b>【真实隐患示例】</b></p>${(t.examples||[]).slice(0,5).map((x,j)=>`<p style="${F};line-height:1.7;margin:0 0 2pt 21pt">${j+1}. ${esc(x)}（所属单位：${ORGS[([...t.code].reduce((s,c)=>s+c.charCodeAt(0),0)+j)%ORGS.length]}）</p>`).join('')}${t.count>5?`<p style="${F};color:#888;margin:2pt 0 0 21pt">……（其余 ${t.count-5} 条详见系统隐患清单）</p>`:''}`;
+  });
+  /* 尾注 */
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const stamp=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+  body+=`<hr style="border:none;border-top:.75pt solid #BBB;margin:14pt 0 8pt"><p style="color:#888;font-size:9.5pt;line-height:1.6;margin:0">本文档由 HSE 管理系统「隐患分析报告」模块导出，导出时间 ${stamp}。报告数据为系统演示数据，正式环境以数据库归集结果为准。</p>`;
+  const doc=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(r.title)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]--><style>@page{size:A4;margin:2.54cm}body{font-family:SimSun,serif;font-size:12pt}div.page-break{page-break-before:always}</style></head><body>${body}</body></html>`;
+  const blob=new Blob(['\ufeff'+doc],{type:'application/msword;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=r.title+'.doc';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  showToast('已导出 Word 文档「'+r.title+'」，请在下载中查看');
 }
 function showReportDetail(id){
   console.log('[showReportDetail] called, id=',id);
@@ -1518,20 +1633,18 @@ function showReportDetail(id){
     const nCls=(focusSet&&focusSet.size)?focusSet.size:12;
     document.getElementById('rpt-d-meta').innerHTML=`<span>有效隐患 ${r.count.toLocaleString()} 条</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>AI 模型 v2.3</span>`;
     document.querySelector('[data-rview="detail"] .count').textContent=nCls+' 类';
-    let weakBadge='';
     if(focusSet){
       const cands=TYPES.filter(t=>focusSet.has(t.name));
       const weak=cands.slice().sort((a,b)=>b.fb-a.fb)[0];
       if(weak){
         document.getElementById('rpt-d-weak').textContent=weak.name;
         document.getElementById('rpt-d-weak-hint').textContent=weak.count+' 条 · 占比 '+weak.ratio;
-        weakBadge='<span class="badge badge-warning">反馈热点：'+weak.name+'</span>';
       }
     }else{
       document.getElementById('rpt-d-weak').textContent='设备本体及附件缺陷';
       document.getElementById('rpt-d-weak-hint').textContent='484 条 · 占比 30.2%';
     }
-    document.getElementById('rpt-d-badges').innerHTML=isAI?'<span class="badge badge-info">AI 辅助分析</span>'+weakBadge:'<span class="badge badge-info">AI 生成</span><span class="badge badge-warning">反馈热点：设备本体及附件缺陷</span>';
+    document.getElementById('rpt-d-badges').innerHTML='';
     document.getElementById('rpt-d-count').innerHTML=r.count.toLocaleString()+'<span class="unit">条</span>';
     document.getElementById('rpt-d-count-hint').textContent=isAI?'当前清单筛选范围':'原始 1,608 · 去重 3';
     const fbw=document.getElementById('rpt-focus-bar-wrap');
@@ -1543,10 +1656,14 @@ function showReportDetail(id){
     console.log('[showReportDetail] after renderCards, cards children=',document.getElementById('cards')?.children.length);
     updateMetrics(focusSet);
     renderBoard(focusSet);
-    if(focusSet){
-      const hit=TYPES.find(t=>focusSet.has(t.name));
-      if(hit)setTimeout(()=>{const c=document.getElementById('card-'+hit.code);if(c){c.dataset.open='true';c.querySelector('.card-head').setAttribute('aria-expanded','true');try{c.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}}},120);
-    }
+    /* 默认展开第一个类型卡片（AI 聚焦报告则展开第一个聚焦类型） */
+    setTimeout(()=>{
+      const first=document.querySelector('#cards .type-card');
+      if(first&&first.dataset.open!=='true'){
+        first.dataset.open='true';
+        first.querySelector('.card-head').setAttribute('aria-expanded','true');
+      }
+    },120);
     document.getElementById('content').scrollTop=0;
   }catch(err){
     console.error('[showReportDetail] THREW:',err);
@@ -1772,14 +1889,53 @@ function bindRptQuery(){
   fill();
   const doQuery=()=>{renderReportList(currentRFilter);showToast('查询完成');};
   document.getElementById('rq-go').addEventListener('click',doQuery);
+  ['rq-org','rq-type'].forEach(id=>{
+    const inp=document.getElementById(id);
+    const sync=()=>{const wrap=inp.closest('.rq-input-wrap');if(wrap)wrap.classList.toggle('has-val',!!inp.value.trim());};
+    inp.addEventListener('input',sync);inp.addEventListener('change',sync);sync();
+  });
+  document.querySelectorAll('.rq-clear').forEach(btn=>btn.addEventListener('click',()=>{
+    const inp=document.getElementById(btn.dataset.target);
+    if(!inp)return;
+    inp.value='';
+    const wrap=inp.closest('.rq-input-wrap');
+    if(wrap)wrap.classList.remove('has-val');
+    inp.focus();
+    renderReportList(currentRFilter);
+    showToast('已清除「'+(btn.dataset.target==='rq-org'?'所属单位':'隐患类型')+'」条件');
+  }));
   ['rq-org','rq-type'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')doQuery();}));
   document.getElementById('rq-reset').addEventListener('click',()=>{
     document.getElementById('rq-from').value='';document.getElementById('rq-to').value='';
     document.getElementById('rq-org').value='';document.getElementById('rq-type').value='';
-    renderReportList(currentRFilter);showToast('查询条件已清除');
+    document.querySelectorAll('.rq-input-wrap').forEach(w=>w.classList.remove('has-val'));
+    renderReportList(currentRFilter);showToast('查询条件已重置');
   });
 }
 function bindReport(){
+  /* 报告卡片隐患类型清单悬浮提示（事件委托，仅初始化一次） */
+  if(!window.__rptTypeTip){
+    const tip=document.createElement('div');
+    tip.className='rpt-type-tip';tip.hidden=true;
+    document.body.appendChild(tip);
+    window.__rptTypeTip=tip;
+    document.addEventListener('mouseover',e=>{
+      const row=e.target.closest('.rpt-types');
+      if(!row||!row.dataset.tip)return;
+      tip.innerHTML='<b>涵盖隐患类型（'+row.dataset.tip.split('、').length+' 类）</b><br>'+row.dataset.tip.split('、').map(n=>'· '+n).join('<br>');
+      tip.hidden=false;
+      const r=row.getBoundingClientRect();
+      tip.style.left='0px';tip.style.top='0px';
+      const tw=tip.offsetWidth,th=tip.offsetHeight;
+      let x=r.left,y=r.bottom+6;
+      if(x+tw>window.innerWidth-8)x=Math.max(8,window.innerWidth-tw-8);
+      if(y+th>window.innerHeight-8)y=Math.max(8,r.top-th-6);
+      tip.style.left=x+'px';tip.style.top=y+'px';
+    });
+    document.addEventListener('mouseout',e=>{
+      if(e.target.closest&&e.target.closest('.rpt-types'))window.__rptTypeTip.hidden=true;
+    });
+  }
   console.log('[bindReport] start, pendingAIReport=',pendingAIReport);
   renderReportList('all');
   renderCfgSummary();
