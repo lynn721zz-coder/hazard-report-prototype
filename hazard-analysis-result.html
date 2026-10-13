@@ -84,6 +84,8 @@
     animation: slideUp .28s ease-out;
   }
   @keyframes slideUp { from { transform: translateY(60px); opacity: .4; } to { transform: translateY(0); opacity: 1; } }
+  .sheet.closing { animation: slideDown .26s ease-in forwards; }
+  @keyframes slideDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(100%); opacity: .4; } }
 
   .sheet-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
   .sheet-title { font-size: 19px; font-weight: 700; }
@@ -243,7 +245,7 @@
   <div class="sheet" data-page-node-id="Vl3mDZOtONQaGGty2U2NUb">
     <div class="sheet-head" data-page-node-id="Zz1V7JfnMdqkTn0jPWi0Qv">
       <div class="sheet-title" data-page-node-id="msJm0GzSoWJAcAxAYQgs5R">隐患分析结果</div>
-      <button class="close-btn" onclick="toast('已收起分析结果')" data-page-node-id="hbZJG37zbhY06PVL9Knty8">✕</button>
+      <button class="close-btn" onclick="closeToRecognition()" data-page-node-id="hbZJG37zbhY06PVL9Knty8">✕</button>
     </div>
 
     <div class="ai-desc" data-page-node-id="yEFIzDAODXPD9yXy4KEvuf">
@@ -361,6 +363,19 @@
   }
   function closeFeedback() {
     document.getElementById('fbSheet').classList.remove('show');
+  }
+  // 关闭分析结果抽屉 → 返回 AI识隐患页
+  function closeToRecognition() {
+    var sheet = document.querySelector('.sheet');
+    if (sheet) sheet.classList.add('closing');
+    setTimeout(function(){
+      // 从 AI识隐患页跳转而来 → 浏览器返回；直接打开 → 兜底跳转 AI识隐患页
+      if (document.referrer && document.referrer.indexOf(location.host) !== -1 && history.length > 1) {
+        history.back();
+      } else {
+        location.href = 'ai-hazard-recognition.html';
+      }
+    }, 260);
   }
   function toggleTag(el) { el.classList.toggle('on'); }
   function submitFeedback() {
