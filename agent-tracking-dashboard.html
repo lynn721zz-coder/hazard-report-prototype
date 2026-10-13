@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="xdpAXeSAqVARJIofXW1koe">
+<head data-page-node-id="mkg3XLDcmGxZzQ4Fwf9NI6">
+<meta charset="UTF-8" data-page-node-id="vb7bIwfiaOMf64rZr7RvIq">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="KcexJKQXtyHdeNlOItMf0l">
+<title>隐患速报智能体 · 埋点事件统计分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#fff; --border:#e6ecf5; --text:#1f2a44; --sub:#6b7896;
+    --blue:#2f6df6; --blue-bg:#eaf1ff; --green:#18b58b; --green-bg:#e6f8f1;
+    --orange:#f59e0b; --orange-bg:#fdf3e0; --red:#f0436c; --red-bg:#fde8ee;
+    --gray:#8a96ad; --gray-bg:#eef1f7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  .header{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px 12px;position:sticky;top:0;z-index:10}
+  .header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .toolbar{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .toolbar .lbl{font-size:14px;color:#606266;white-space:nowrap}
+  .toolbar .sep{color:#c0c4cc}
+  .toolbar .spacer{flex:1}
+  .header-right{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+  .header h1{font-size:18px;font-weight:600}
+  .header .sub{font-size:12px;color:var(--sub);margin-top:2px}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .date-range{background:#fff;border:1px solid #dcdfe6;border-radius:4px;padding:0 10px;font-size:13px;color:#606266;width:140px;height:32px;flex:none;box-sizing:border-box;transition:border-color .2s}
+  .date-range:hover{border-color:#c0c4cc}
+  .date-range:focus{outline:none;border-color:#409eff}
+  .btn{height:32px;padding:0 15px;border-radius:4px;font-size:13px;cursor:pointer;border:1px solid #dcdfe6;background:#fff;color:#606266;transition:all .2s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex:none;box-sizing:border-box}
+  .btn:hover{color:#409eff;border-color:#c6e2ff;background:#ecf5ff}
+  .btn-primary{background:#409eff;border-color:#409eff;color:#fff}
+  .btn-primary:hover{background:#66b1ff;border-color:#66b1ff;color:#fff}
+  .tabs{display:flex;gap:4px;padding:14px 24px 0;background:transparent}
+  .tab{padding:9px 18px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px;color:var(--sub);border:1px solid transparent;border-bottom:none;background:transparent}
+  .tab.active{background:var(--card);color:var(--blue);border-color:var(--border);font-weight:600}
+  .tab-bar{border-bottom:1px solid var(--border);margin:0 24px}
+  .content{padding:18px 24px 40px}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+  .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .kpi .label{font-size:12px;color:var(--sub)}
+  .kpi .value{font-size:26px;font-weight:700;margin-top:4px}
+  .kpi .delta{font-size:11px;margin-top:4px}
+  .kpi .delta.up{color:var(--green)} .kpi .delta.down{color:var(--red)}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .card h3{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+  .card h3 .tag{font-size:11px;font-weight:400;color:var(--sub);background:var(--bg);padding:2px 8px;border-radius:10px}
+  .chart-wrap{position:relative;height:260px}
+  .chart-wrap.sm{height:220px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
+  th{background:var(--bg);color:var(--sub);font-weight:600;font-size:12px;position:sticky;top:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px}
+  .pill.blue{background:var(--blue-bg);color:var(--blue)}
+  .pill.green{background:var(--green-bg);color:var(--green)}
+  .pill.red{background:var(--red-bg);color:var(--red)}
+  .pill.gray{background:var(--gray-bg);color:var(--gray)}
+  .pill.orange{background:var(--orange-bg);color:var(--orange)}
+  .funnel{display:flex;flex-direction:column;gap:6px}
+  .funnel-row{display:flex;align-items:center;gap:10px}
+  .funnel-label{width:120px;font-size:12px;color:var(--sub);text-align:right}
+  .funnel-bar{flex:1;height:28px;border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:12px;font-weight:600}
+  .funnel-pct{width:60px;font-size:12px;color:var(--sub);text-align:left}
+  .feedback-list{max-height:340px;overflow-y:auto}
+  .feedback-list td{font-size:12.5px}
+  .tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tag-chip{font-size:11px;padding:3px 8px;border-radius:10px;background:var(--red-bg);color:var(--red)}
+  .empty{text-align:center;color:var(--gray);padding:30px;font-size:13px}
+  .modal-mask{display:none;position:fixed;inset:0;background:rgba(20,30,50,.45);z-index:100;align-items:center;justify-content:center}
+  .modal-mask.show{display:flex}
+  .modal{background:#fff;border-radius:10px;width:520px;max-width:92vw;max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
+  .modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .modal-head .t{font-size:14px;font-weight:600}
+  .modal-head .c{font-size:11px;color:var(--sub);margin-left:8px;font-weight:400}
+  .modal-close{cursor:pointer;color:var(--gray);font-size:18px;border:none;background:none}
+  .modal-body{overflow-y:auto;padding:0 0 8px}
+  .modal-body table th{background:var(--bg)}
+  .footer-note{font-size:11px;color:var(--gray);margin-top:18px;text-align:center}
+  @media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-page-node-id="ZDehawYKeOfZ7EUcVvBnnm">
+
+<div class="header" data-page-node-id="iB0sjV26AcwbjUkNHMvebV">
+  <div class="header-top" data-page-node-id="pSKMfNcz4yKag8J72IVLbd">
+    <div>
+      <h1 data-page-node-id="SEbrrcG4fXRovuGjKN2tOD">隐患速报智能体 · 埋点事件统计分析</h1>
+      <div class="sub" data-page-node-id="MY1pxcMHLTIISZjI1Wiluk">双重预防（企业侧）/ 隐患速报（APP+PC）· 数据来源：埋点事件统计</div>
+    </div>
+  </div>
+  <div class="toolbar" data-page-node-id="SqsW0Vg3DTZF42RE1mtWOp">
+    <span class="lbl" data-page-node-id="lb1">日期范围</span>
+    <input type="date" id="dateStart" class="date-range" data-page-node-id="ds1">
+    <span class="sep" data-page-node-id="sp1">~</span>
+    <input type="date" id="dateEnd" class="date-range" data-page-node-id="ds2">
+    <button class="btn" onclick="onQuery()" data-page-node-id="q1">🔍 查询</button>
+    <span class="spacer" data-page-node-id="spc"></span>
+    <button class="btn" onclick="exportWord()" data-page-node-id="rV1tlMkJPxJtf0Eye4CJ2G">📄 导出 Word</button>
+    <button class="btn btn-primary" onclick="exportExcel()" data-page-node-id="1UlnseEyceqzL6PHMn03wJ">📊 导出 Excel</button>
+  </div>
+</div>
+
+<div class="tabs" data-page-node-id="nAanNzgAsQT5A99rLp1BUE">
+  <div class="tab active" onclick="switchTab('tracking')" data-page-node-id="IGSsDZ6AXJW8FTsYhrIqT3">埋点情况</div>
+  <div class="tab" onclick="switchTab('feedback')" data-page-node-id="71kUQadVEFuFHEcPrVfiCq">点赞 · 点踩 · 反馈</div>
+</div>
+<div class="tab-bar" data-page-node-id="yuyfvrUywYr8HcH6lMAu9H"></div>
+
+<div class="content" data-page-node-id="JBtgSsD2msGaTohes6n7wK">
+
+<!-- ============ TAB 1: 埋点情况 ============ -->
+<div class="tab-panel active" id="tab-tracking" data-page-node-id="E2BhIAqU2FcG2EqiTbtCKb">
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)" data-page-node-id="5jcZk4yNwb9HQ9Nl9nGb9x">
+    <div class="kpi" data-page-node-id="mNYgnie7xQns6YcdV9cJwR"><div class="label" data-page-node-id="aaLltdFmYecILUET4IA4A3">AI识隐患结果页曝光</div><div class="value" style="color:var(--blue)" data-page-node-id="TfopEUN6tLqcODtYQfqd5L">3,842</div><div class="delta up" data-page-node-id="QtnqMUUQXWbhiSzoZSDymU">▲ 8.2%</div></div>
+    <div class="kpi" data-page-node-id="1ttXBVNZ8KTkgl5JAOEodA"><div class="label" data-page-node-id="nAKUiH9N7DM0wDECB7QakK">辅助分析点击</div><div class="value" style="color:var(--blue)" data-page-node-id="POilocxGoIGbOs2MBfeZQp">2,917</div><div class="delta up" data-page-node-id="uJCETIF8lr4HNXZcJ4A2OB">▲ 6.1%</div></div>
+    <div class="kpi" data-page-node-id="9GYyWkFYpRSJj9Pv08AGzz"><div class="label" data-page-node-id="kwqU5Sw2dbA9HSBloE3NxL">确认填入（提交）</div><div class="value" style="color:var(--green)" data-page-node-id="9hEEWISPlWvGexT32VLrKS">2,158</div><div class="delta up" data-page-node-id="AllqbxPhtMh6FqppP25DT2">▲ 4.7%</div></div>
+    <div class="kpi" data-page-node-id="F3Knv90wJCQbwJd8UtGnBk"><div class="label" data-page-node-id="BgLnCl3qovVEReRuIGD6MB">未提交关闭</div><div class="value" style="color:var(--red)" data-page-node-id="68VW2LjhZrZag3cJMGi6Me">759</div><div class="delta down" data-page-node-id="tBfZ3JW1fU2QRLynMuifgK">▼ 1.3%</div></div>
+  </div>
+
+  <div class="grid-2" data-page-node-id="Qh0rjlGRTIL9DTRzm3dNsb">
+    <div class="card" data-page-node-id="BAmkAj1Icn0VYsidahjiOz">
+      <h3 data-page-node-id="uTtsaGO8p9trZBGMlkDAMd">用户转化漏斗 <span class="tag" data-page-node-id="gXUVODNDzWOHVNMMdh1IOi">提交率 74.0%</span></h3>
+      <div class="funnel" id="funnel" data-page-node-id="UnCd4wWULPVDYwxfQHqH96"></div>
+      <div class="footer-note" data-page-node-id="qHF8e8zj4aEZbD9elEfnW3">提交率 = 确认填入 /（确认填入 + 未提交关闭），分母为两终态之和，不受曝光丢失影响</div>
+    </div>
+    <div class="card" data-page-node-id="9ClsD1Xrmw39Hr4wO9zDIw">
+      <h3 data-page-node-id="W68tTVoAbD5d5gIh1WqNiN">字段勾选率 & 不认可率 <span class="tag" data-page-node-id="7HaMsZXrABxzzbqqOnt06H">5 个字段</span></h3>
+      <div class="chart-wrap" data-page-node-id="ptBOYX0D4b6yWhHBXgrmH4"><canvas id="fieldChart" data-page-node-id="idzTsS3ytc4Bk03cN9ATsF"></canvas></div>
+      <div class="footer-note" data-page-node-id="6468fJ8TBuHETUWhzGAsU7">蓝色=勾选率，红色=不认可率（默认勾选后被取消）</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px" data-page-node-id="NI2wmiz0BUQ3v38DkDcWAy">
+      <h3 data-page-node-id="FQ7cqNwhzGyrjFXvD6M1YX">描述采纳情况 <span class="tag" data-page-node-id="MiDHCbKPtTu6g2gzMsMq4e">前置链路</span></h3>
+      <div class="chart-wrap sm" data-page-node-id="6ucJz45EOhXHQdzestHmiw"><canvas id="descChart" data-page-node-id="hYHzYAhdWuMEmUitMwXTMt"></canvas></div>
+      <div class="footer-note" data-page-node-id="RyL0HW8cZQOdf107GjuwVM">是否点击「辅助分析」= 图片识别描述是否被采纳；描述采纳率 = 辅助分析点击数 / AI识隐患结果页曝光数 = 76.0%</div>
+    </div>
+
+  <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
+    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw">埋点事件统计明细 <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">7 条事件</span></h3>
+    <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
+      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="pCtROaW4zDtsMzA2lucpxv">埋点属性</th><th data-page-node-id="g9GCthsHHalFGe9XLZCGz0">涉及页面</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th class="num" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th class="num" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th><th data-page-node-id="jI6BzvKQOFkr24m3mOufr7">状态</th></tr></thead>
+      <tbody data-page-node-id="5fk9VMW7vx5fy137OEmSte"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ TAB 2: 反馈 ============ -->
+<div class="tab-panel" id="tab-feedback" data-page-node-id="MKbEyJpxf59PLqVPoR4PlD">
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)" data-page-node-id="JsTBZ4IQ2TqJWVJemqFHJb">
+    <div class="kpi" data-page-node-id="liEF9Px7l3CpQeMXVk2gzx"><div class="label" data-page-node-id="d2iVXjuzWAY7N0QrbTYnEc">点赞数</div><div class="value" style="color:var(--green)" data-page-node-id="tU9K60qPdSnVwggL1pnrYu">1,284</div><div class="delta up" data-page-node-id="lH75wOK71ALF1GAbQx9BNe">▲ 5.2%</div></div>
+    <div class="kpi" data-page-node-id="Q3EOqVvrOmWnyFq1AkXkjJ"><div class="label" data-page-node-id="R7DoX1lhlroDHOR2dJ5ifY">点踩数</div><div class="value" style="color:var(--red)" data-page-node-id="UEyK7EIIgO5UbsiOnvefMO">312</div><div class="delta down" data-page-node-id="SGglKXuzDI3QXxw5cU769Q">▼ 2.1%</div></div>
+    <div class="kpi" data-page-node-id="25VVSVIwmvcNUZxnzk91AV"><div class="label" data-page-node-id="rONK5asWFtKlNmRAyCldkB">反馈提交数</div><div class="value" style="color:var(--orange)" data-page-node-id="6wFFyNbaGVt327GMr8LFuG">198</div><div class="delta up" data-page-node-id="AGT9aYkjhyByeETDiUI6lO">▲ 1.4%</div></div>
+    <div class="kpi" data-page-node-id="LDgT8y3kEQFmers3VFyLeX"><div class="label" data-page-node-id="paqkXRTEcAdsCfoD1LF3BS">净认可值 NLS</div><div class="value" style="color:var(--blue)" data-page-node-id="2WMKHJDyIZJk7osRaBANWO">+0.61</div><div class="delta up" data-page-node-id="Lr7AbDZKOTZxg8LBdXXAWK">▲ 0.04</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px" data-page-node-id="Mp23UM1vUkvoXtlTheeao4">
+      <h3 data-page-node-id="tk51Yr0qqjRWUCRZ5M09CN">赞踩分布 <span class="tag" data-page-node-id="cx0JOepMJtR3Z4rhyZVb8F">整体反馈</span></h3>
+      <div class="chart-wrap sm" data-page-node-id="34tw7XB47clOAXCmJDk9K7"><canvas id="thumbChart" data-page-node-id="fRr68Y2o5xYPq0YQaVzIva"></canvas></div>
+      <div class="footer-note" data-page-node-id="wXOHXvfy2AVylRMfBEHlTs">NLS = (点赞 − 点踩) / 反馈总数；反馈率 = (赞+踩) / 抽屉曝光数</div>
+    </div>
+
+  <div class="card" style="margin-bottom:14px" data-page-node-id="iHazcNUSB6yjKGs4IqVjpB">
+    <h3 data-page-node-id="U7BV9y7o8DwBK1mouOmVBI">问题标签分布 <span class="tag" data-page-node-id="VVPYdbWsMk1ERnWJDNoVFY">6 个标签 · 可多选</span></h3>
+    <div class="chart-wrap" data-page-node-id="CJm6prMARRBku147LXjaCo"><canvas id="tagChart" data-page-node-id="9defw0AxGk0Cb7RfF8hCGB"></canvas></div>
+    <div class="footer-note" data-page-node-id="UyG35gAFoGS64sntWbmB2j">标签命中次数 / 反馈提交数；用于定位改进方向（算法Prompt/知识库/RAG/业务规则/运营）</div>
+  </div>
+
+  <div class="card" data-page-node-id="GSlmfzLqfHfMRyhwKXJYIh">
+    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细 <span class="tag" data-page-node-id="epfEEqfgUbWQiGhjKK2wKM">最新 50 条</span><button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px" id="revealAllBtn" onclick="toggleAllReveal()">一键放开脱敏</button></h3>
+    <div class="feedback-list" data-page-node-id="egdSZ8jPAZDBYPyk25qb2C">
+      <table id="feedbackTable" data-page-node-id="pFFSRn4J7FjGeWhyBMqa0R">
+        <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th data-page-node-id="u2">隐患描述首词耗时</th><th data-page-node-id="u3">隐患描述总耗时</th><th data-page-node-id="u4">分级分类首词耗时</th><th data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th></tr></thead>
+        <tbody data-page-node-id="d5yIFIPPk5pydl6ZsIZbmf"></tbody>
+      </table>
+    </div>
+    <div class="footer-note" data-page-node-id="ZP7GCzLlOYWfSRiTSZiudI">用户名默认脱敏，可单条放开或一键批量放开；耗时为智能体流式输出毫秒级耗时；反馈内容完整展示</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ============ 日期初始化（默认近一个月） ============
+document.getElementById('dateStart').value = '2026-09-12';
+document.getElementById('dateEnd').value = '2026-10-12';
+function onQuery(){
+  const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
+  if(!s||!e){ alert('请选择起止日期'); return; }
+  if(s>e){ alert('起始日期不能晚于结束日期'); return; }
+  toast('查询成功：'+s+' ~ '+e);
+}
+function toast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg; t.style.cssText='position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1f2a44;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.15)';
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+
+// ============ Mock 数据 ============
+const fieldData = {
+  labels:['隐患等级','隐患专业分类','危害因素分类','整改措施','标准依据'],
+  check:[92,88,79,71,76],          // 勾选率%
+  uncheck:[18,22,28,34,24]         // 不认可率%（默认勾选后被取消）
+};
+const events = [
+  ['查看AI识隐患结果页','通用','AI识隐患结果页','前端埋点',3842,1210,'2026-10-12 17:58','已上线'],
+  ['AI识别隐患描述勾选','业务类','AI识隐患结果页','前端埋点',5621,1180,'2026-10-12 17:59','已上线'],
+  ['辅助分析点击','业务类','AI识隐患结果页','前端埋点',2917,980,'2026-10-12 17:59','已上线'],
+  ['AI分析结果字段勾选-保持默认','业务类','分析结果抽屉','前端埋点',8932,920,'2026-10-12 17:58','已上线'],
+  ['AI分析结果字段勾选-取消勾选（重点）','业务类','分析结果抽屉','前端埋点',1862,680,'2026-10-12 17:59','已上线'],
+  ['AI分析结果确认填入（提交）','业务类','分析结果抽屉','后端埋点',2158,890,'2026-10-12 17:59','已上线'],
+  ['AI分析结果未提交关闭','业务类','分析结果抽屉','前端埋点',759,410,'2026-10-12 17:56','已上线'],
+];
+// 各埋点事件的触发用户清单（mock）：用户 / 所属单位 / 触发次数
+const userLists = {
+  '查看AI识隐患结果页':[['张明','蓝星安迪苏',38],['李伟','北化机',29],['王芳','浙化院',25],['赵强','总部HSE部',18],['陈杰','蓝星安迪苏',12]],
+  'AI识别隐患描述勾选':[['张明','蓝星安迪苏',62],['李伟','北化机',48],['王芳','浙化院',41],['赵强','总部HSE部',33],['陈杰','蓝星安迪苏',28],['刘洋','浙化院',21]],
+  '辅助分析点击':[['张明','蓝星安迪苏',28],['李伟','北化机',24],['王芳','浙化院',21],['赵强','总部HSE部',16],['陈杰','蓝星安迪苏',11]],
+  'AI分析结果字段勾选-保持默认':[['张明','蓝星安迪苏',86],['李伟','北化机',72],['王芳','浙化院',65],['赵强','总部HSE部',58],['陈杰','蓝星安迪苏',49],['刘洋','浙化院',42],['周强','总部HSE部',35]],
+  'AI分析结果字段勾选-取消勾选（重点）':[['张明','蓝星安迪苏',22],['李伟','北化机',19],['王芳','浙化院',17],['赵强','总部HSE部',14],['陈杰','蓝星安迪苏',11],['刘洋','浙化院',9]],
+  'AI分析结果确认填入（提交）':[['张明','蓝星安迪苏',24],['李伟','北化机',21],['王芳','浙化院',18],['赵强','总部HSE部',15],['陈杰','蓝星安迪苏',12],['刘洋','浙化院',10]],
+  'AI分析结果未提交关闭':[['张明','蓝星安迪苏',9],['李伟','北化机',8],['王芳','浙化院',7],['赵强','总部HSE部',6],['陈杰','蓝星安迪苏',5]],
+};
+const feedbackList = [
+  // [时间, 脱敏名, 来源, 标签, 文本长度, 内容, 所属单位, 真实姓名, 描述首词ms, 描述总ms, 分级首词ms, 分级总ms]
+  ['2026-10-12 17:59','张*','点踩',['分析结果不准确'],86,'等级判定偏高，应为一般B级','蓝星安迪苏','张明',1240,5860,980,4320],
+  ['2026-10-12 17:57','黄*','点赞',[],0,'','北化机','黄磊',960,4720,870,3980],
+  ['2026-10-12 17:54','李*','点踩',['隐患描述不准'],42,'识别的描述与图片不符','浙化院','李强',1580,7240,1120,5210],
+  ['2026-10-12 17:51','徐*','点赞',[],0,'','总部HSE部','徐芳',880,4310,790,3650],
+  ['2026-10-12 17:48','王*','意见反馈',[],23,'希望能增加参考案例','蓝星安迪苏','王浩',1350,6480,1050,4870],
+  ['2026-10-12 17:42','赵*','点踩',['整改措施不适用'],118,'措施过于通用，缺乏针对性','北化机','赵敏',1720,8130,1290,6040],
+  ['2026-10-12 17:38','宋*','点赞',[],0,'','浙化院','宋江',1020,4980,910,4120],
+  ['2026-10-12 17:35','陈*','点踩',['标准依据有误'],15,'','总部HSE部','陈静',1190,5540,960,4410],
+  ['2026-10-12 17:21','刘*','意见反馈',['其他问题'],67,'界面加载有点慢','蓝星安迪苏','刘洋',1430,6890,1180,5320],
+  ['2026-10-12 17:08','周*','点踩',['分类判定错误'],94,'专业分类应属于机电类','北化机','周涛',1660,7620,1240,5730],
+  ['2026-10-12 16:54','吴*','点踩',['整改措施不适用','其他问题'],156,'措施不可行+建议增加验收环节','浙化院','吴斌',1810,8940,1370,6580],
+  ['2026-10-12 16:41','郑*','意见反馈',[],8,'','总部HSE部','郑爽',940,4560,830,3760],
+  ['2026-10-12 16:28','孙*','点踩',['分析结果不准确'],73,'等级判定有误','蓝星安迪苏','孙丽',1280,6150,1010,4630],
+];
+const tagDist = {labels:['分析结果不准确','隐患描述不准','整改措施不适用','标准依据有误','分类判定错误','其他问题'],data:[58,46,42,21,19,12]};
+const dismissDist = {labels:['关闭按钮','离开页面','超时收起','系统返回'],data:[342,218,142,57]};
+
+// ============ 漏斗（SVG 梯形） ============
+const funnelData = [
+  {label:'AI识隐患结果页曝光',val:3842,color:'#2f6df6'},
+  {label:'辅助分析点击',val:2917,color:'#3b82f6'},
+  {label:'确认填入',val:2158,color:'#18b58b'},
+];
+(function(){
+  const W=560,H=236,cx=W/2,maxW=330,layerH=62,gap=5,top0=10;
+  const max=funnelData[0].val;
+  const grads=[['#6aa1ff','#3a78f7'],['#5b93ff','#2f6df6'],['#33e0b2','#14a87e']];
+  let defs='';
+  grads.forEach((g,i)=>{ defs+=`<linearGradient id="fg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${g[0]}"/><stop offset="1" stop-color="${g[1]}"/></linearGradient>`; });
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block;margin:0 auto"><defs>${defs}</defs>`;
+  funnelData.forEach((d,i)=>{
+    const y=top0+i*(layerH+gap);
+    const wTop=d.val/max*maxW;
+    const nextVal=i<funnelData.length-1?funnelData[i+1].val:d.val*0.7;
+    const wBot=nextVal/max*maxW;
+    const pts=`${cx-wTop/2},${y} ${cx+wTop/2},${y} ${cx+wBot/2},${y+layerH} ${cx-wBot/2},${y+layerH}`;
+    svg+=`<polygon points="${pts}" fill="url(#fg${i})" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>`;
+    const midY=y+layerH/2;
+    svg+=`<text x="${cx}" y="${midY-2}" text-anchor="middle" font-size="11.5" fill="rgba(255,255,255,.92)">${d.label}</text>`;
+    svg+=`<text x="${cx}" y="${midY+16}" text-anchor="middle" font-size="14.5" fill="#fff" font-weight="700">${d.val.toLocaleString()}</text>`;
+    // 右侧：层间转化率 + 本层占比
+    svg+=`<text x="${cx+wTop/2+14}" y="${midY+4}" font-size="12" fill="#606266">占比 ${(d.val/max*100).toFixed(1)}%</text>`;
+    if(i>0){
+      const prev=funnelData[i-1];
+      svg+=`<text x="${cx+funnelData[i-1].val/max*maxW/2+14}" y="${y-3}" font-size="11" fill="#14a87e">↓ 转化 ${(d.val/prev.val*100).toFixed(1)}%</text>`;
+    }
+  });
+  svg+='</svg>';
+  document.getElementById('funnel').innerHTML=svg;
+})();
+
+
+// ============ 图表 ============
+const baseOpt = {plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}}},maintainAspectRatio:false};
+new Chart(document.getElementById('fieldChart'),{
+  type:'bar',
+  data:{labels:fieldData.labels,datasets:[
+    {label:'勾选率(%)',data:fieldData.check,backgroundColor:'#2f6df6'},
+    {label:'不认可率(%)',data:fieldData.uncheck,backgroundColor:'#f0436c'}
+  ]},
+  options:{...baseOpt,scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}
+});
+new Chart(document.getElementById('descChart'),{
+  type:'doughnut',
+  data:{labels:['已采纳·点击辅助分析(76.0%)','未采纳·未点击(24.0%)'],datasets:[{data:[2917,925],backgroundColor:['#18b58b','#eef1f7'],borderWidth:0}]},
+  options:{...baseOpt,cutout:'62%'}
+});
+new Chart(document.getElementById('thumbChart'),{
+  type:'doughnut',
+  data:{labels:['点赞','点踩'],datasets:[{data:[1284,312],backgroundColor:['#18b58b','#f0436c'],borderWidth:0}]},
+  options:{...baseOpt,cutout:'62%'}
+});
+new Chart(document.getElementById('tagChart'),{
+  type:'bar',
+  data:{labels:tagDist.labels,datasets:[{label:'命中次数',data:tagDist.data,backgroundColor:'#f0436c'}]},
+  options:{...baseOpt,indexAxis:'y',scales:{x:{beginAtZero:true}}}
+});
+
+// ============ 表格 ============
+const propMap = {'通用':'blue','业务类':'green'};
+const typeMap = {'前端埋点':'blue','后端埋点':'orange'};
+const statusMap = {'已上线':'green'};
+const tbody = document.querySelector('#eventTable tbody');
+events.forEach(e=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${e[0]}</td><td><span class="pill ${propMap[e[1]]}">${e[1]}</span></td>
+    <td>${e[2]}</td><td><span class="pill ${typeMap[e[3]]}">${e[3]}</span></td>
+    <td class="num">${e[4].toLocaleString()}</td>
+    <td class="num"><a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[5].toLocaleString()} 👥</a></td>
+    <td>${e[6]}</td><td><span class="pill ${statusMap[e[7]]}">${e[7]}</span></td>`;
+  tbody.appendChild(tr);
+});
+let currentUserEvent='';
+function showUsers(eventName){
+  currentUserEvent=eventName;
+  const list = userLists[eventName]||[];
+  const tb=document.getElementById('userTableBody');
+  tb.innerHTML = list.length? list.map(u=>`<tr><td>${u[0]}</td><td>${u[1]}</td><td style="text-align:center">${u[2]}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="empty">暂无数据</td></tr>';
+  document.getElementById('userModalTitle').textContent='触发用户清单 · '+eventName;
+  document.getElementById('userModalCount').textContent='共 '+list.length+' 位用户';
+  document.getElementById('userModal').style.display='flex';
+}
+function exportUserList(){
+  const list = userLists[currentUserEvent]||[];
+  if(!list.length){ toast('暂无数据可导出'); return; }
+  const ws = XLSX.utils.json_to_sheet(list.map(u=>({'用户':u[0],'所属单位':u[1],'触发次数':u[2]})));
+  ws['!cols']=[{wch:12},{wch:24},{wch:10}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'触发用户清单');
+  XLSX.writeFile(wb,'触发用户清单-'+currentUserEvent+'.xlsx');
+}
+function closeUserModal(){ document.getElementById('userModal').style.display='none'; }
+const fbTbody = document.querySelector('#feedbackTable tbody');
+const revealed = {};            // 单条脱敏放开状态
+let allRevealed = false;        // 批量放开状态
+const ms = v => v ? v.toLocaleString()+' ms' : '—';
+function renderFeedback(){
+  fbTbody.innerHTML = feedbackList.map((f,i)=>{
+    const tags = f[3].length? f[3].map(t=>`<span class="tag-chip">${t}</span>`).join(''):'<span class="pill gray">无</span>';
+    const srcMap={'点赞':'<span class="pill green">点赞</span>','点踩':'<span class="pill red">点踩</span>','意见反馈':'<span class="pill blue">意见反馈</span>'};
+    const src = srcMap[f[2]]||`<span class="pill gray">${f[2]}</span>`;
+    const txt = f[5]||'<span style="color:#bbb">—</span>';
+    const name = revealed[i]? f[7] : f[1];
+    const revealBtn = revealed[i]
+      ? `<a href="javascript:void(0)" onclick="toggleReveal(${i})" style="color:var(--gray);font-size:11px;margin-left:4px;text-decoration:underline">脱敏</a>`
+      : `<a href="javascript:void(0)" onclick="toggleReveal(${i})" style="color:var(--blue);font-size:11px;margin-left:4px;text-decoration:underline">放开</a>`;
+    return `<tr><td style="white-space:nowrap">${f[0]}</td>
+      <td style="white-space:nowrap">${name}${revealBtn}</td><td>${src}</td>
+      <td style="white-space:nowrap">${f[6]}</td><td>${tags}</td>
+      <td class="num" style="white-space:nowrap">${ms(f[8])}</td>
+      <td class="num" style="white-space:nowrap">${ms(f[9])}</td>
+      <td class="num" style="white-space:nowrap">${ms(f[10])}</td>
+      <td class="num" style="white-space:nowrap">${ms(f[11])}</td>
+      <td style="max-width:260px;color:#555">${txt}</td></tr>`;
+  }).join('');
+}
+function toggleReveal(i){ revealed[i]=!revealed[i]; renderFeedback(); }
+function toggleAllReveal(){
+  allRevealed=!allRevealed;
+  feedbackList.forEach((_,i)=>revealed[i]=allRevealed);
+  document.getElementById('revealAllBtn').textContent = allRevealed?'一键恢复脱敏':'一键放开脱敏';
+  renderFeedback();
+}
+renderFeedback();
+
+// ============ Tab 切换 ============
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',i===(t==='tracking'?0:1)));
+  document.getElementById('tab-tracking').classList.toggle('active',t==='tracking');
+  document.getElementById('tab-feedback').classList.toggle('active',t==='feedback');
+}
+
+// ============ 导出 Excel ============
+function exportExcel(){
+  const wb = XLSX.utils.book_new();
+  // Sheet1 埋点统计
+  const ws1 = XLSX.utils.json_to_sheet(events.map(e=>({
+    '埋点名称':e[0],'埋点属性':e[1],'涉及页面':e[2],'埋点类型':e[3],
+    '触发次数':e[4],'唯一用户':e[5],'最近触发':e[6],'状态':e[7]
+  })));
+  XLSX.utils.book_append_sheet(wb,ws1,'埋点事件统计');
+  // Sheet2 字段勾选率
+  const ws2 = XLSX.utils.json_to_sheet(fieldData.labels.map((l,i)=>({
+    '字段':l,'勾选率(%)':fieldData.check[i],'不认可率(%)':fieldData.uncheck[i]
+  })));
+  XLSX.utils.book_append_sheet(wb,ws2,'字段勾选统计');
+  // Sheet3 反馈明细
+  const ws3 = XLSX.utils.json_to_sheet(feedbackList.map((f,i)=>({
+    '时间':f[0],'用户':revealed[i]?f[7]:f[1],'来源':f[2],'所属单位':f[6],'问题标签':f[3].join('/'),
+    '隐患描述首词耗时(ms)':f[8],'隐患描述总耗时(ms)':f[9],'分级分类首词耗时(ms)':f[10],'分级分类总耗时(ms)':f[11],'反馈内容':f[5]
+  })));
+  XLSX.utils.book_append_sheet(wb,ws3,'反馈明细');
+  // Sheet4 问题标签分布
+  const ws4 = XLSX.utils.json_to_sheet(tagDist.labels.map((l,i)=>({'问题标签':l,'命中次数':tagDist.data[i]})));
+  XLSX.utils.book_append_sheet(wb,ws4,'问题标签分布');
+  XLSX.writeFile(wb,'隐患速报智能体-埋点统计分析.xlsx');
+}
+
+// ============ 导出 Word ============
+function exportWord(){
+  const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
+  const range = s&&e ? (s+' ~ '+e) : '全部';
+  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>隐患速报智能体埋点统计分析</title><style>body{font-family:'微软雅黑';font-size:11pt;color:#333}h1{font-size:16pt;text-align:center}h2{font-size:13pt;border-bottom:1px solid #999;padding-bottom:4px;margin-top:18px}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border:1px solid #999;padding:5px 7px;font-size:10pt}th{background:#eef1f7}.kpi{margin:6px 0}.note{font-size:9pt;color:#888}</style></head><body>`;
+  html += `<h1>隐患速报智能体 · 埋点事件统计分析</h1>`;
+  html += `<p style="text-align:center">日期范围：${range}</p>`;
+  // Tab1 埋点情况
+  html += `<h2>一、埋点情况</h2>`;
+  html += `<p class="kpi">AI识隐患结果页曝光：<b>3,842</b>　辅助分析点击：<b>2,917</b>　确认填入：<b>2,158</b>　未提交关闭：<b>759</b>　提交率：<b>74.0%</b></p>`;
+  html += `<h3>1. 埋点事件统计明细</h3>`;
+  html += `<table><tr><th>埋点名称</th><th>属性</th><th>涉及页面</th><th>类型</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th><th>状态</th></tr>`;
+  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[1]}</td><td>${ev[2]}</td><td>${ev[3]}</td><td>${ev[4].toLocaleString()}</td><td>${ev[5].toLocaleString()}</td><td>${ev[6]}</td><td>${ev[7]}</td></tr>`; });
+  html += `</table>`;
+  html += `<h3>2. 字段勾选率 & 不认可率</h3>`;
+  html += `<table><tr><th>字段</th><th>勾选率(%)</th><th>不认可率(%)</th></tr>`;
+  fieldData.labels.forEach((l,i)=>{ html += `<tr><td>${l}</td><td>${fieldData.check[i]}</td><td>${fieldData.uncheck[i]}</td></tr>`; });
+  html += `</table>`;
+  // Tab2 反馈
+  html += `<h2>二、点赞 · 点踩 · 反馈</h2>`;
+  html += `<p class="kpi">点赞：<b>1,284</b>　点踩：<b>312</b>　反馈提交：<b>198</b>　净认可值 NLS：<b>+0.61</b></p>`;
+  html += `<h3>1. 问题标签分布</h3>`;
+  html += `<table><tr><th>问题标签</th><th>命中次数</th></tr>`;
+  tagDist.labels.forEach((l,i)=>{ html += `<tr><td>${l}</td><td>${tagDist.data[i]}</td></tr>`; });
+  html += `</table>`;
+  html += `<h3>2. 反馈明细</h3>`;
+  html += `<table><tr><th>时间</th><th>用户</th><th>来源</th><th>所属单位</th><th>问题标签</th><th>隐患描述首词耗时</th><th>隐患描述总耗时</th><th>分级分类首词耗时</th><th>分级分类总耗时</th><th>反馈内容</th></tr>`;
+  feedbackList.forEach((f,i)=>{ html += `<tr><td>${f[0]}</td><td>${revealed[i]?f[7]:f[1]}</td><td>${f[2]}</td><td>${f[6]}</td><td>${f[3].join('/')||'—'}</td><td>${f[8]} ms</td><td>${f[9]} ms</td><td>${f[10]} ms</td><td>${f[11]} ms</td><td>${f[5]||'—'}</td></tr>`; });
+  html += `</table>`;
+  html += `<p class="note">注：数据为示例展示，正式使用时由埋点数据源接口返回。</p>`;
+  html += `</body></html>`;
+  const blob = new Blob(['\ufeff'+html], {type:'application/msword'});
+  const link = document.createElement('a');
+  link.download = '隐患速报智能体-埋点统计分析.doc';
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+</script>
+<!-- 用户清单弹窗 -->
+<div class="modal-mask" id="userModal" onclick="if(event.target===this)closeUserModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div><span class="t" id="userModalTitle">触发用户清单</span><span class="c" id="userModalCount"></span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn" style="height:28px;padding:0 12px;font-size:12px" onclick="exportUserList()">📊 导出</button>
+        <button class="modal-close" onclick="closeUserModal()">×</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <table>
+        <thead><tr><th>用户</th><th>所属单位</th><th style="text-align:center">触发次数</th></tr></thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
