@@ -335,11 +335,20 @@ function showUsers(eventName){
 function exportUserList(){
   const list = userLists[currentUserEvent]||[];
   if(!list.length){ toast('暂无数据可导出'); return; }
-  const ws = XLSX.utils.json_to_sheet(list.map(u=>({'用户':u[0],'所属单位':u[1],'触发次数':u[2]})));
-  ws['!cols']=[{wch:12},{wch:24},{wch:10}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'触发用户清单');
-  XLSX.writeFile(wb,'触发用户清单-'+currentUserEvent+'.xlsx');
+  const fname = '触发用户清单-'+currentUserEvent;
+  const rows = [['用户','所属单位','触发次数'], ...list.map(u=>[u[0],u[1],u[2]])];
+  if(typeof XLSX !== 'undefined' && XLSX.utils && XLSX.writeFile){
+    try{
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:12},{wch:24},{wch:10}];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,'触发用户清单');
+      XLSX.writeFile(wb,fname+'.xlsx');
+      toast('已生成并开始下载：'+fname+'.xlsx');
+      return;
+    }catch(err){ /* 降级 CSV */ }
+  }
+  downloadCSV(rows, fname+'.csv');
 }
 function closeUserModal(){ document.getElementById('userModal').style.display='none'; }
 const fbTbody = document.querySelector('#feedbackTable tbody');
@@ -382,30 +391,64 @@ function switchTab(t){
   document.getElementById('tab-feedback').classList.toggle('active',t==='feedback');
 }
 
+// ============ 通用下载 ============
+function triggerDownload(blob, filename){
+  try{
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = URL.createObjectURL(blob);
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(()=>{ document.body.removeChild(link); URL.revokeObjectURL(link.href); }, 1500);
+    toast('已生成并开始下载：'+filename);
+  }catch(err){ toast('下载失败：'+err.message); }
+}
+function downloadCSV(rows, filename){
+  const csv = rows.map(r=>r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  triggerDownload(new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'}), filename);
+}
+
 // ============ 导出 Excel ============
 function exportExcel(){
-  const wb = XLSX.utils.book_new();
-  // Sheet1 埋点统计
-  const ws1 = XLSX.utils.json_to_sheet(events.map(e=>({
-    '埋点名称':e[0],'埋点属性':e[1],'涉及页面':e[2],'埋点类型':e[3],
-    '触发次数':e[4],'唯一用户':e[5],'最近触发':e[6],'状态':e[7]
-  })));
-  XLSX.utils.book_append_sheet(wb,ws1,'埋点事件统计');
-  // Sheet2 字段勾选率
-  const ws2 = XLSX.utils.json_to_sheet(fieldData.labels.map((l,i)=>({
-    '字段':l,'勾选率(%)':fieldData.check[i],'不认可率(%)':fieldData.uncheck[i]
-  })));
-  XLSX.utils.book_append_sheet(wb,ws2,'字段勾选统计');
-  // Sheet3 反馈明细
-  const ws3 = XLSX.utils.json_to_sheet(feedbackList.map((f,i)=>({
-    '时间':f[0],'用户':revealed[i]?f[7]:f[1],'来源':f[2],'所属单位':f[6],'问题标签':f[3].join('/'),
-    '隐患描述首词耗时(ms)':f[8],'隐患描述总耗时(ms)':f[9],'分级分类首词耗时(ms)':f[10],'分级分类总耗时(ms)':f[11],'反馈内容':f[5]
-  })));
-  XLSX.utils.book_append_sheet(wb,ws3,'反馈明细');
-  // Sheet4 问题标签分布
-  const ws4 = XLSX.utils.json_to_sheet(tagDist.labels.map((l,i)=>({'问题标签':l,'命中次数':tagDist.data[i]})));
-  XLSX.utils.book_append_sheet(wb,ws4,'问题标签分布');
-  XLSX.writeFile(wb,'隐患速报智能体-埋点统计分析.xlsx');
+  const data = {
+    '埋点事件统计': [
+      ['埋点名称','埋点属性','涉及页面','埋点类型','触发次数','唯一用户','最近触发','状态'],
+      ...events.map(e=>[e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7]])
+    ],
+    '字段勾选统计': [
+      ['字段','勾选率(%)','不认可率(%)'],
+      ...fieldData.labels.map((l,i)=>[l,fieldData.check[i],fieldData.uncheck[i]])
+    ],
+    '反馈明细': [
+      ['时间','用户','来源','所属单位','问题标签','隐患描述首词耗时(ms)','隐患描述总耗时(ms)','分级分类首词耗时(ms)','分级分类总耗时(ms)','反馈内容'],
+      ...feedbackList.map((f,i)=>[f[0],revealed[i]?f[7]:f[1],f[2],f[6],f[3].join('/'),f[8],f[9],f[10],f[11],f[5]])
+    ],
+    '问题标签分布': [
+      ['问题标签','命中次数'],
+      ...tagDist.labels.map((l,i)=>[l,tagDist.data[i]])
+    ]
+  };
+  // SheetJS 可用时导出真 xlsx
+  if(typeof XLSX !== 'undefined' && XLSX.utils && XLSX.writeFile){
+    try{
+      const wb = XLSX.utils.book_new();
+      Object.entries(data).forEach(([name,rows])=>{
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name);
+      });
+      XLSX.writeFile(wb,'隐患速报智能体-埋点统计分析.xlsx');
+      toast('已生成并开始下载：隐患速报智能体-埋点统计分析.xlsx');
+      return;
+    }catch(err){ /* 降级 CSV */ }
+  }
+  // 降级：CSV（Excel 可直接打开）
+  let csv=[];
+  Object.entries(data).forEach(([name,rows])=>{
+    csv.push('【'+name+'】');
+    rows.forEach(r=>csv.push(r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')));
+    csv.push('');
+  });
+  triggerDownload(new Blob(['\ufeff'+csv.join('\r\n')], {type:'text/csv;charset=utf-8'}), '隐患速报智能体-埋点统计分析.csv');
 }
 
 // ============ 导出 Word ============
@@ -439,12 +482,7 @@ function exportWord(){
   html += `</table>`;
   html += `<p class="note">注：数据为示例展示，正式使用时由埋点数据源接口返回。</p>`;
   html += `</body></html>`;
-  const blob = new Blob(['\ufeff'+html], {type:'application/msword'});
-  const link = document.createElement('a');
-  link.download = '隐患速报智能体-埋点统计分析.doc';
-  link.href = URL.createObjectURL(blob);
-  link.click();
-  URL.revokeObjectURL(link.href);
+  triggerDownload(new Blob(['\ufeff'+html], {type:'application/msword'}), '隐患速报智能体-埋点统计分析.doc');
 }
 </script>
 <!-- 用户清单弹窗 -->
