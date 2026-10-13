@@ -84,6 +84,9 @@
   .modal-body{overflow-y:auto;padding:0 0 8px}
   .modal-body table th{background:var(--bg)}
   .footer-note{font-size:11px;color:var(--gray);margin-top:18px;text-align:center}
+  .eye-btn{background:none;border:none;padding:2px 3px;margin-left:4px;cursor:pointer;line-height:0;border-radius:3px;vertical-align:middle;transition:background .15s}
+  .eye-btn:hover{background:rgba(64,158,255,.08)}
+  #revealAllBtn svg{flex:none}
   @media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
 </style>
 </head>
@@ -188,7 +191,7 @@
   </div>
 
   <div class="card" data-page-node-id="GSlmfzLqfHfMRyhwKXJYIh">
-    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细 <span class="tag" data-page-node-id="epfEEqfgUbWQiGhjKK2wKM">最新 50 条</span><button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px" id="revealAllBtn" onclick="toggleAllReveal()">一键放开脱敏</button></h3>
+    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细 <span class="tag" data-page-node-id="epfEEqfgUbWQiGhjKK2wKM">最新 50 条</span><button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
     <div class="feedback-list" data-page-node-id="egdSZ8jPAZDBYPyk25qb2C">
       <table id="feedbackTable" data-page-node-id="pFFSRn4J7FjGeWhyBMqa0R">
         <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th data-page-node-id="u2">隐患描述首词耗时</th><th data-page-node-id="u3">隐患描述总耗时</th><th data-page-node-id="u4">分级分类首词耗时</th><th data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th></tr></thead>
@@ -371,6 +374,9 @@ function closeUserModal(){ document.getElementById('userModal').style.display='n
 const fbTbody = document.querySelector('#feedbackTable tbody');
 const revealed = {};            // 单条脱敏放开状态
 let allRevealed = false;        // 批量放开状态
+// 眼睛图标：睁眼=可见（真实姓名），闭眼=脱敏
+const SVG_EYE_OPEN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3" fill="#409eff" stroke="none"/></svg>`;
+const SVG_EYE_CLOSE = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#a8abb2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 const ms = v => v ? v.toLocaleString()+' ms' : '—';
 function renderFeedback(){
   fbTbody.innerHTML = feedbackList.map((f,i)=>{
@@ -379,9 +385,8 @@ function renderFeedback(){
     const src = srcMap[f[2]]||`<span class="pill gray">${f[2]}</span>`;
     const txt = f[5]||'<span style="color:#bbb">—</span>';
     const name = revealed[i]? f[7] : f[1];
-    const revealBtn = revealed[i]
-      ? `<a href="javascript:void(0)" onclick="toggleReveal(${i})" style="color:var(--gray);font-size:11px;margin-left:4px;text-decoration:underline">脱敏</a>`
-      : `<a href="javascript:void(0)" onclick="toggleReveal(${i})" style="color:var(--blue);font-size:11px;margin-left:4px;text-decoration:underline">放开</a>`;
+    // 睁眼=已放开可见，闭眼=脱敏中
+    const revealBtn = `<button class="eye-btn" title="${revealed[i]?'点击脱敏（隐藏真实姓名）':'点击放开脱敏（显示真实姓名）'}" onclick="toggleReveal(${i})">${revealed[i]?SVG_EYE_OPEN:SVG_EYE_CLOSE}</button>`;
     return `<tr><td style="white-space:nowrap">${f[0]}</td>
       <td style="white-space:nowrap">${name}${revealBtn}</td><td>${src}</td>
       <td style="white-space:nowrap">${f[6]}</td><td>${tags}</td>
@@ -396,10 +401,12 @@ function toggleReveal(i){ revealed[i]=!revealed[i]; renderFeedback(); }
 function toggleAllReveal(){
   allRevealed=!allRevealed;
   feedbackList.forEach((_,i)=>revealed[i]=allRevealed);
-  document.getElementById('revealAllBtn').textContent = allRevealed?'一键恢复脱敏':'一键放开脱敏';
+  document.getElementById('revealAllBtn').innerHTML = (allRevealed?SVG_EYE_OPEN:SVG_EYE_CLOSE)+'<span>'+(allRevealed?'一键恢复脱敏':'一键放开脱敏')+'</span>';
   renderFeedback();
 }
 renderFeedback();
+// 初始化批量按钮（睁眼/闭眼 + 文案）
+document.getElementById('revealAllBtn').innerHTML = SVG_EYE_CLOSE+'<span>一键放开脱敏</span>';
 
 // ============ Tab 切换 ============
 function switchTab(t){
