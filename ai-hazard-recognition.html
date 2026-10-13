@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="dDQ5Y0AVE0TzpMELnVzpOW">
+<head data-page-node-id="dPCyS0qslmS4fubD9mR6xo">
+<meta charset="UTF-8" data-page-node-id="isGUf5FGExUhxHHsdmOeBc">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="eKyAWExWIikEWtXxRnZvCu">
+<title>AI识隐患</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    background:#eef1f6;
+    display:flex; justify-content:center;
+    min-height:100vh;
+  }
+  .phone {
+    width:375px; max-width:100vw; min-height:100vh;
+    background:#eef1f6; position:relative;
+    padding-bottom:96px;
+  }
+  /* ===== 顶部导航 ===== */
+  .nav {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px 12px;
+  }
+  .nav-btn {
+    width:44px; height:44px; border-radius:12px;
+    background:#fff; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 4px rgba(31,58,110,.06);
+    flex:none;
+  }
+  .nav-icon-wrap { position:relative; }
+  .nav-icon-wrap .green-dot {
+    position:absolute; top:6px; right:6px;
+    width:8px; height:8px; border-radius:50%;
+    background:#22c55e; border:1.5px solid #fff;
+  }
+  .nav-text { flex:1; }
+  .nav-title { font-size:18px; font-weight:700; color:#1f2a44; }
+  .nav-status { display:flex; align-items:center; gap:5px; margin-top:3px; }
+  .nav-status .dot { width:7px; height:7px; border-radius:50%; background:#22c55e; }
+  .nav-status span { font-size:12.5px; color:#8a96ad; }
+
+  /* ===== 通用卡片 ===== */
+  .card {
+    background:#fff; border-radius:16px;
+    margin:0 12px 12px; padding:16px;
+    box-shadow:0 1px 4px rgba(31,58,110,.05);
+  }
+  .sec-head { display:flex; align-items:center; gap:7px; margin-bottom:12px; }
+  .sec-head svg { flex:none; }
+  .sec-head .t { font-size:16px; font-weight:700; color:#1f2a44; }
+
+  /* ===== 现场照片 ===== */
+  .photo-wrap {
+    border-radius:12px; overflow:hidden;
+    background:#dfe5ee; line-height:0;
+  }
+  .photo-wrap svg { width:100%; height:auto; display:block; }
+  .photo-name {
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    margin-top:12px; font-size:12.5px; color:#8a96ad;
+  }
+
+  /* ===== AI 提示卡 ===== */
+  .ai-card { display:flex; align-items:center; gap:12px; }
+  .ai-icon {
+    width:46px; height:46px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,#4d8bff,#2f6df6);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 10px rgba(47,109,246,.28);
+  }
+  .ai-title { font-size:16.5px; font-weight:700; color:#1f2a44; }
+  .ai-sub { font-size:12.5px; color:#8a96ad; margin-top:4px; }
+
+  /* ===== 深度分析行 ===== */
+  .depth-row {
+    display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer;
+  }
+  .depth-row .l { font-size:14.5px; color:#3d4a63; font-weight:500; }
+  .depth-row .r { display:flex; align-items:center; gap:2px; font-size:13px; color:#8a96ad; }
+  .depth-detail {
+    display:none; margin-top:12px; padding-top:12px;
+    border-top:1px dashed #e3e9f2;
+    font-size:12.5px; color:#6b7896; line-height:1.9;
+  }
+  .depth-detail.open { display:block; }
+  .depth-detail b { color:#2f6df6; font-weight:600; }
+
+  /* ===== 隐患描述卡片 ===== */
+  .hazard-card {
+    background:#fff; border-radius:16px;
+    margin:0 12px 12px; padding:16px;
+    border:1.5px solid transparent;
+    box-shadow:0 1px 4px rgba(31,58,110,.05);
+    position:relative; overflow:hidden;
+    cursor:pointer; transition:border-color .15s;
+  }
+  .hazard-card.selected { border-color:#2f6df6; }
+  .hz-head { display:flex; align-items:flex-start; gap:10px; padding-right:26px; }
+  .hz-warn {
+    width:38px; height:38px; border-radius:10px; flex:none;
+    background:#fff7e8;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hz-title { font-size:16px; font-weight:700; color:#2f6df6; margin-top:2px; }
+  .hz-desc { font-size:13.5px; color:#55617a; line-height:1.65; margin-top:9px; }
+  /* 选中角标 */
+  .corner-check {
+    position:absolute; top:0; right:0;
+    width:34px; height:34px;
+    display:none;
+  }
+  .hazard-card.selected .corner-check { display:block; }
+  .hz-foot {
+    display:flex; align-items:center; gap:6px; margin-top:14px;
+    font-size:13px; color:#2f6df6; font-weight:600;
+    visibility:hidden;
+  }
+  .hazard-card.selected .hz-foot { visibility:visible; }
+
+  /* ===== 底部操作栏 ===== */
+  .bottom-bar {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:375px; max-width:100vw;
+    background:#fff; border-radius:20px 20px 0 0;
+    box-shadow:0 -4px 16px rgba(31,58,110,.08);
+    padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+    z-index:20;
+  }
+  .sel-info { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+  .sel-info .txt { font-size:14px; font-weight:600; color:#1f2a44; }
+  .btn-row { display:flex; gap:12px; }
+  .btn {
+    flex:1; height:50px; border:none; border-radius:14px;
+    font-size:16px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    transition:all .15s;
+  }
+  .btn-cancel { background:#eef1f6; color:#55617a; }
+  .btn-cancel:active { background:#e2e7ef; }
+  .btn-primary {
+    flex:1.4;
+    background:linear-gradient(90deg,#3d82ff,#2f6df6);
+    color:#fff;
+    box-shadow:0 4px 12px rgba(47,109,246,.3);
+  }
+  .btn-primary:active { opacity:.9; }
+  .btn-primary.disabled {
+    background:#c6d4ec; box-shadow:none; cursor:not-allowed;
+  }
+
+  /* ===== toast ===== */
+  .toast {
+    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:rgba(23,32,54,.85); color:#fff;
+    padding:10px 18px; border-radius:10px;
+    font-size:13.5px; z-index:99; display:none;
+    pointer-events:none; max-width:80vw; text-align:center;
+  }
+</style>
+</head>
+<body data-page-node-id="EtKEMi6mGEHL9tTL1IYAqQ">
+<div class="phone" data-page-node-id="8BmDxFF6YrbUxuQxEUVrGQ">
+
+  <!-- 顶部导航 -->
+  <div class="nav" data-page-node-id="HUFpnkMH000X2FrvQ6BHWV">
+    <button class="nav-btn" onclick="goBack()" data-page-node-id="whBNe1yRVUcIVkeVvDYEvH">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" data-page-node-id="Z1yYk8lLzCpWGRFq6kKZNm"><path d="M15 5l-7 7 7 7" stroke="#1f2a44" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="MvvsgFeTHdXk8PF8Bo98dD"/></svg>
+    </button>
+    <div class="nav-btn nav-icon-wrap" data-page-node-id="C1s8qVD0WECWMTbYly44Xz">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" data-page-node-id="6sxdGsErG45av35W4seTwx"><rect x="3" y="4.5" width="18" height="12" rx="2" stroke="#2f6df6" stroke-width="1.8" data-page-node-id="ztQCLCzCzw32qwpTJaFIIo"/><path d="M9 20h6" stroke="#2f6df6" stroke-width="1.8" stroke-linecap="round" data-page-node-id="vY46F5pxjgB7dNTKEXha2E"/><path d="M12 16.5V20" stroke="#2f6df6" stroke-width="1.8" data-page-node-id="skr57s302lAZ35cviylfgQ"/></svg>
+      <span class="green-dot" data-page-node-id="1NpAap8SQw4bZK6OqqgukA"></span>
+    </div>
+    <div class="nav-text" data-page-node-id="KU9GP06vDgI7ZMHhpO47pA">
+      <div class="nav-title" data-page-node-id="cHxG5gBAoIE88NqZSXrkHF">AI识隐患</div>
+      <div class="nav-status" data-page-node-id="dlzprAjCKRInIAhgCriSOC"><span class="dot" data-page-node-id="wY9XcZfbBSWBxnDX4C6Zpt"></span><span data-page-node-id="shXkt4plnABSoEcoixErv2">智能分析完成</span></div>
+    </div>
+  </div>
+
+  <!-- 现场照片 -->
+  <div class="card" data-page-node-id="3ARxTyG9i739mikxpWRBGZ">
+    <div class="sec-head" data-page-node-id="XaONvzNzJaxsC8J5sKL65G">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" data-page-node-id="gnEK2BwERFgVTAz64DnwXE"><rect x="3" y="5" width="18" height="15" rx="2.5" stroke="#2f6df6" stroke-width="1.8" data-page-node-id="OoxnV3eSCMdo5RSEv5WeWZ"/><circle cx="8.5" cy="10" r="1.6" fill="#2f6df6" data-page-node-id="SvEFonQlUMP35VmJOiC67j"/><path d="M4 17.5l4.8-4.5 3.4 3.2 3.6-3.8L20 16" stroke="#2f6df6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="LuwrSSi3wMNeLarm8dgWW9"/></svg>
+      <span class="t" data-page-node-id="jbNrLbf9YYgFmVkSo1xHZp">现场照片</span>
+    </div>
+    <div class="photo-wrap" data-page-node-id="2QDEaPXLpY03zoKhSSmXwn">
+      <!-- 管廊现场示意图（含隐患红圈标注） -->
+      <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" data-page-node-id="dkLlnjf6S3qhjO2JaOtgGr">
+        <rect width="640" height="420" fill="#c9d3e0" data-page-node-id="0D10zkg5NCtqjErSCwWzoa"/>
+        <rect x="0" y="0" width="640" height="150" fill="#b3c2d4" data-page-node-id="jCjpDyO3hsqgoFRhWD1A5l"/>
+        <!-- 远处建筑 -->
+        <rect x="30" y="60" width="90" height="80" fill="#9fb0c6" data-page-node-id="eMe8EPEpveOrAhF6P449Ri"/>
+        <rect x="140" y="40" width="60" height="100" fill="#a8b8cc" data-page-node-id="zXwFDcIxVb3RMXFUfxEmb9"/>
+        <rect x="520" y="70" width="80" height="70" fill="#9fb0c6" data-page-node-id="mjtD2qOy8GNOT8bRQ980CJ"/>
+        <!-- 地面 -->
+        <rect x="0" y="300" width="640" height="120" fill="#8e9bb0" data-page-node-id="R3kHCpBocjfBEFSqBLGrGg"/>
+        <rect x="0" y="300" width="640" height="14" fill="#7c8aa0" data-page-node-id="4ZdezFXLbj39WBB7XN8ok8"/>
+        <!-- 黄黑警示条纹立柱 -->
+        <g data-page-node-id="AHfXqp6NXHYWnRFFBQs4g1">
+          <rect x="470" y="180" width="26" height="180" fill="#e8c34a" data-page-node-id="S4Ypk4PmEheHuUK4Olod6l"/>
+          <rect x="470" y="180" width="26" height="16" fill="#2b2f38" transform="skewX(-18)" data-page-node-id="PKdhlNORCGUHV2aB991BAP" />
+          <path d="M470 200 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="Ru0LXQ88FiwfuSnsuxXyDd"/>
+          <path d="M470 240 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="c2T4wEf1z1pgkKGey2wSCO"/>
+          <path d="M470 280 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="uHex0n04eoV4cwwxeiuBWY"/>
+          <path d="M470 320 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="kQMrhIvdt6mcoa6gB5cRhM"/>
+        </g>
+        <!-- 主管道（横） -->
+        <rect x="0" y="196" width="640" height="58" rx="8" fill="#d7dde6" data-page-node-id="lBdhWkojeUjoYqBd7i5jf5"/>
+        <rect x="0" y="196" width="640" height="16" fill="#eceff4" data-page-node-id="gD3zdpcazG5u0GBT2gbHZt"/>
+        <!-- 法兰盘 -->
+        <rect x="120" y="188" width="22" height="74" rx="4" fill="#b7c1cf" data-page-node-id="SAmDPFg3VG2pMkLSijCifJ"/>
+        <rect x="300" y="188" width="22" height="74" rx="4" fill="#b7c1cf" data-page-node-id="LJWDMyjf691smN8HGNU1SH"/>
+        <!-- 蓝色阀门主体 -->
+        <rect x="216" y="150" width="110" height="150" rx="14" fill="#3b6fd4" data-page-node-id="8AV0LtR5sDz8I2RGtWnNjB"/>
+        <rect x="216" y="150" width="110" height="150" rx="14" fill="url(#vshade)" data-page-node-id="dCSk4x8g9u6YHWAaka70B3"/>
+        <rect x="228" y="170" width="40" height="34" rx="6" fill="#5b8ae0" opacity=".8" data-page-node-id="MVuzD3CgtMN3AIalFvU7TS"/>
+        <!-- 阀门红色手轮（顶部） -->
+        <ellipse cx="271" cy="140" rx="64" ry="26" fill="#d9363e" data-page-node-id="FPdTknuc590JgouCklDABe"/>
+        <ellipse cx="271" cy="134" rx="64" ry="24" fill="#ef5350" data-page-node-id="Yv1YnZRv6zwSKbDEkguw26"/>
+        <ellipse cx="271" cy="134" rx="30" ry="11" fill="#c62828" data-page-node-id="ot1SKaOcQMOVnlkc15icBH"/>
+        <rect x="263" y="150" width="16" height="34" fill="#8f2b2b" data-page-node-id="Isy6fkgdNlO0EkX4pBoGT9"/>
+        <!-- 金属软管（下方波纹管） -->
+        <path d="M150 254 C 190 330, 260 340, 330 320 C 400 300, 430 280, 470 300" stroke="#cfd6df" stroke-width="26" fill="none" stroke-linecap="round" data-page-node-id="pphYFGbhzLnnEaMIEtEDYe"/>
+        <path d="M150 254 C 190 330, 260 340, 330 320 C 400 300, 430 280, 470 300" stroke="#aab4c2" stroke-width="26" fill="none" stroke-linecap="round" stroke-dasharray="4 10" data-page-node-id="ZcLiy6XgPOsl0xYnVniN25"/>
+        <!-- 支架 -->
+        <rect x="200" y="300" width="12" height="120" fill="#6d7a8e" data-page-node-id="Rwdd4XB1vJV1IscAqsmdP9"/>
+        <rect x="380" y="300" width="12" height="120" fill="#6d7a8e" data-page-node-id="wdtgu0le7UK7xDOH0YH3JK"/>
+        <!-- 红色隐患标注圈 -->
+        <circle cx="271" cy="200" r="72" fill="none" stroke="#e53935" stroke-width="5" opacity=".92" data-page-node-id="PYIeTt28vWONuFlbMWVn5I"/>
+        <defs data-page-node-id="hRyk5nPWJZUHdMsNVL357L">
+          <linearGradient id="vshade" x1="0" y1="0" x2="1" y2="1" data-page-node-id="Th1ABDN4XCPTIX4U0P2ACt">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".18" data-page-node-id="gZGBW6w7Z5kBfcCeAT3g7H"/>
+            <stop offset="1" stop-color="#000000" stop-opacity=".12" data-page-node-id="vW06zM5MKR1oMIwFQkpu2n"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="photo-name" data-page-node-id="VlB3qK79EePdELpthchcTi">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" data-page-node-id="2l0FpdMNkBfL6FIESctj9V"><rect x="3" y="5" width="18" height="15" rx="2.5" stroke="#8a96ad" stroke-width="1.8" data-page-node-id="WMRBEKfIoDvgAw2exXqnDa"/><circle cx="8.5" cy="10" r="1.6" fill="#8a96ad" data-page-node-id="KrMPkE8Iy1HF5BdE1QuhfQ"/><path d="M4 17.5l4.8-4.5 3.4 3.2 3.6-3.8L20 16" stroke="#8a96ad" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="VjaMxZoHZkAPSl3ATL4jGU"/></svg>
+      隐患2.jpg
+    </div>
+  </div>
+
+  <!-- AI 提示 -->
+  <div class="card ai-card" data-page-node-id="y2mlrFA4JDu7pEpEpANAHK">
+    <div class="ai-icon" data-page-node-id="1zimx5DtDhBTdATpFMQO6d">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" data-page-node-id="DVBhBYXtbvHWSUCFxZK7GH"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5v-6l7.5-3z" fill="#fff" opacity=".95" data-page-node-id="aPezn0R4Q2G84LNHBAJkhx"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4" stroke="#2f6df6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="heNtCCy8bfffcyxRfdILmT"/></svg>
+    </div>
+    <div data-page-node-id="Nvkh0W8VP5noafnmqQKzPd">
+      <div class="ai-title" data-page-node-id="wHbds0huFI30XSG0A42vcS">AI安全智能识别出以下隐患</div>
+      <div class="ai-sub" data-page-node-id="DHEVC9Z8xgsD3CBNaRVv6H">请选择一条隐患进行后续处理</div>
+    </div>
+  </div>
+
+  <!-- 深度分析行 -->
+  <div class="card depth-row" onclick="toggleDepth()" data-page-node-id="AdGns6lRnuWKK6HfHq7HMm">
+    <span class="l" data-page-node-id="N6yYa0nQoqbppFrCS13nrL">已深度分析（用时4秒）</span>
+    <span class="r" data-page-node-id="3W9OAvxvb0It4I1YyIBBbc"><span id="depthTxt" data-page-node-id="By4COBw7Mhw0LcBEu4yaA1">展开</span>
+      <svg id="depthArrow" width="14" height="14" viewBox="0 0 24 24" fill="none" style="transition:transform .2s" data-page-node-id="hDtlVbGJHRxhFpxqg22SOE"><path d="M9 5l7 7-7 7" stroke="#8a96ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="mG7uEodW3d6wIuPc1DtAex"/></svg>
+    </span>
+  </div>
+  <div class="depth-detail" id="depthDetail" style="margin:0 12px 12px; background:#fff; border-radius:16px; padding:14px 16px; box-shadow:0 1px 4px rgba(31,58,110,.05);" data-page-node-id="P1EOnz7KCYRnjlArDfsgaG">
+    · 图像识别：检测到作业区域<b data-page-node-id="GIwOTr0K507BJqQecftuor">未设置安全防护设施</b>、人员<b data-page-node-id="L0wtQkVrHKp0EDzemb4fsp">未佩戴防护用品</b>共 2 类风险特征<br data-page-node-id="2xYdHglDU8GyZQcRn2IkMg">
+    · 标准比对：比对《安全生产事故隐患排查通用标准》，匹配 <b data-page-node-id="cCdqHPCmr3JqdmA9g4KvYB">2</b> 条同类隐患判例<br data-page-node-id="EckkptwfWlsIasvV2QwJdn">
+    · 等级判定：综合发生概率与后果严重程度，初步判定为<b data-page-node-id="toYG3v71cbzUP7LvtgZbhQ">一般事故隐患</b><br data-page-node-id="ll5Nc2FfcXNqT4uhMdYoaO">
+    · 整改建议：基于企业历史整改案例生成对应整改措施与依据条款
+  </div>
+
+  <!-- 隐患描述列表 -->
+  <div id="hazardList" data-page-node-id="RTW2nc0gHXA6H8SKXsFqlc"></div>
+
+  <!-- 底部操作栏 -->
+  <div class="bottom-bar" data-page-node-id="Hy4nZRp6QGKbJFg9pccst3">
+    <div class="sel-info" data-page-node-id="BfyN55wqPllHF1QmcwjPgM">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" data-page-node-id="UDi6hwQiHaOvUCgHddjp9C"><circle cx="12" cy="12" r="10" fill="#2f6df6" data-page-node-id="wOW8xCTGv7Z57RRot7EAtp"/><path d="M8 12.3l2.6 2.6 5-5.4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="ZriZ0K9IcuhHvsJJVav5mw"/></svg>
+      <span class="txt" id="selCount" data-page-node-id="EPtZHvPvLNDktnnBdzDyo6">已选择 1 项</span>
+    </div>
+    <div class="btn-row" data-page-node-id="QewhFkUtaHyycss0ELbbVw">
+      <button class="btn btn-cancel" onclick="onCancel()" data-page-node-id="oJCmvmA3FihCYvcNryEpFn">取消</button>
+      <button class="btn btn-primary" id="analyzeBtn" onclick="onAnalyze()" data-page-node-id="ttPK66msaDyTTXhJFwwyZh">辅助分析 <span style="font-weight:400" data-page-node-id="HlkpS1Mci0b5DF3oDQykBH">→</span></button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" data-page-node-id="s937hopSMLpcKtCwm0FOts"></div>
+</div>
+
+<script>
+// ============ 隐患数据 ============
+const hazards = [
+  {
+    id: 'item_001',
+    title: '现场无防护设施',
+    desc: '作业区域未设置任何安全防护设施，存在人员坠落或物体打击风险。'
+  },
+  {
+    id: 'item_002',
+    title: '人员未佩戴防护用品',
+    desc: '现场作业人员未佩戴安全帽、安全带等必要防护用品，违反安全操作规程。'
+  }
+];
+
+let selectedId = 'item_001';   // 默认选中第一条（与截图一致）
+
+// ============ 渲染 ============
+const CHECK_BLUE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2f6df6"/><path d="M8 12.3l2.6 2.6 5-5.4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const WARN_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3.5L21.5 20h-19L12 3.5z" stroke="#f5a623" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.2" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.1" fill="#f5a623"/></svg>';
+
+function render(){
+  const wrap = document.getElementById('hazardList');
+  wrap.innerHTML = hazards.map(h=>{
+    const sel = h.id === selectedId;
+    return `
+    <div class="hazard-card ${sel?'selected':''}" onclick="selectHazard('${h.id}')">
+      <!-- 右上角选中角标 -->
+      <svg class="corner-check" viewBox="0 0 34 34"><path d="M0 0h34v34z" fill="#2f6df6" transform="translate(0,0)"/><path d="M34 0 L34 34 L0 0 Z" fill="#2f6df6"/><path d="M20.5 7.5 l3 3 5-5.4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="rotate(45 24 7)"/></svg>
+      <div class="hz-head">
+        <div class="hz-warn">${WARN_ICON}</div>
+        <div style="flex:1">
+          <div class="hz-title">${h.title}</div>
+          <div class="hz-desc">${h.desc}</div>
+        </div>
+      </div>
+      <div class="hz-foot">${CHECK_BLUE} 已选择</div>
+    </div>`;
+  }).join('');
+
+  const has = !!selectedId;
+  document.getElementById('selCount').textContent = has ? '已选择 1 项' : '未选择隐患';
+  const btn = document.getElementById('analyzeBtn');
+  btn.classList.toggle('disabled', !has);
+}
+
+// ============ 交互 ============
+function selectHazard(id){
+  selectedId = (selectedId === id) ? null : id;   // 点击已选中的可取消
+  render();
+  // 埋点：hse_agent_recognition_item_toggle（action=select/unselect）
+}
+
+function onCancel(){
+  if(!selectedId){ history.back(); return; }
+  selectedId = null;
+  render();
+  toast('已取消选择');
+}
+
+function onAnalyze(){
+  if(!selectedId){ toast('请先选择一条隐患'); return; }
+  const h = hazards.find(x=>x.id===selectedId);
+  // 埋点：hse_agent_assist_click（has_selection=selected, selected_item_ids=[selectedId]）
+  // 跳转隐患分析结果页（同目录存在则跳转，否则提示）
+  const target = 'hazard-analysis-result.html';
+  fetch(target, {method:'HEAD'}).then(r=>{
+    if(r.ok) location.href = target + '?item=' + encodeURIComponent(selectedId);
+    else toast('演示环境：即将进入「隐患分析结果」（'+h.title+'）');
+  }).catch(()=> toast('演示环境：即将进入「隐患分析结果」（'+h.title+'）'));
+}
+
+function goBack(){ history.back(); }
+
+function toggleDepth(){
+  const d = document.getElementById('depthDetail');
+  const open = d.classList.toggle('open');
+  document.getElementById('depthTxt').textContent = open ? '收起' : '展开';
+  document.getElementById('depthArrow').style.transform = open ? 'rotate(90deg)' : '';
+}
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.style.display='none', 1800);
+}
+
+render();
+</script>
+</body>
+</html>

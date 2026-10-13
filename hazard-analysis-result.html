@@ -380,6 +380,20 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
   }
+  // 接收「AI识隐患结果页」跳转传参：?item=item_001 → 回显选中的隐患描述
+  (function(){
+    try{
+      var item = new URLSearchParams(location.search).get('item');
+      if(!item) return;
+      var map = {
+        'item_001': '现场无防护设施',
+        'item_002': '人员未佩戴防护用品'
+      };
+      var title = map[item] || item;
+      // 埋点：hse_agent_output_show（source_item_ids=[item]，recognition_id 关联）
+      setTimeout(function(){ toast('已选入AI识别隐患：' + title); }, 400);
+    }catch(e){}
+  })();
 </script>
 </body>
 </html>
