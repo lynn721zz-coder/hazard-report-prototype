@@ -69,7 +69,13 @@
   .funnel-label{width:120px;font-size:12px;color:var(--sub);text-align:right}
   .funnel-bar{flex:1;height:28px;border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:12px;font-weight:600}
   .funnel-pct{width:60px;font-size:12px;color:var(--sub);text-align:left}
-  .feedback-list{max-height:340px;overflow-y:auto}
+  .feedback-list{max-height:520px;overflow-y:auto}
+  .pager{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}
+  .pager .pg-info{font-size:12px;color:#909399;margin-right:auto}
+  .pg-btn{min-width:28px;height:28px;padding:0 8px;border:1px solid #dcdfe6;background:#fff;border-radius:4px;font-size:12.5px;color:#606266;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit}
+  .pg-btn:hover:not(:disabled){color:#409eff;border-color:#409eff}
+  .pg-btn.active{background:#409eff;border-color:#409eff;color:#fff;cursor:default}
+  .pg-btn:disabled{color:#c0c4cc;cursor:not-allowed;background:#f5f7fa}
   .feedback-list td{font-size:12.5px}
   .tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .tag-chip{font-size:11px;padding:3px 8px;border-radius:10px;background:var(--red-bg);color:var(--red)}
@@ -191,13 +197,14 @@
   </div>
 
   <div class="card" data-page-node-id="GSlmfzLqfHfMRyhwKXJYIh">
-    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细 <span class="tag" data-page-node-id="epfEEqfgUbWQiGhjKK2wKM">最新 50 条</span><button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
+    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细<button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
     <div class="feedback-list" data-page-node-id="egdSZ8jPAZDBYPyk25qb2C">
       <table id="feedbackTable" data-page-node-id="pFFSRn4J7FjGeWhyBMqa0R">
         <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th data-page-node-id="u2">隐患描述首词耗时</th><th data-page-node-id="u3">隐患描述总耗时</th><th data-page-node-id="u4">分级分类首词耗时</th><th data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th></tr></thead>
         <tbody data-page-node-id="d5yIFIPPk5pydl6ZsIZbmf"></tbody>
       </table>
     </div>
+    <div class="pager" id="fbPager"></div>
     <div class="footer-note" data-page-node-id="ZP7GCzLlOYWfSRiTSZiudI">用户名默认脱敏，可单条放开或一键批量放开；耗时为智能体流式输出毫秒级耗时；反馈内容完整展示</div>
   </div>
 </div>
@@ -263,6 +270,19 @@ const feedbackList = [
   ['2026-10-12 16:41','郑*','意见反馈',[],8,'','总部HSE部','郑爽',940,4560,830,3760],
   ['2026-10-12 16:28','孙*','点踩',['分析结果不准确'],73,'等级判定有误','蓝星安迪苏','孙丽',1280,6150,1010,4630],
 ];
+// 扩充演示数据至 47 条（正式使用时由接口分页返回）
+(function(){
+  const base = feedbackList.slice();
+  let day=12, hour=16, minute=15;
+  while(feedbackList.length < 47){
+    const src = base[feedbackList.length % base.length];
+    const t = '2026-10-'+String(day).padStart(2,'0')+' '+String(hour).padStart(2,'0')+':'+String(minute).padStart(2,'0');
+    feedbackList.push([t,src[1],src[2],src[3],src[4],src[5],src[6],src[7],src[8],src[9],src[10],src[11]]);
+    minute -= 13;
+    if(minute < 0){ minute += 60; hour -= 1; }
+    if(hour < 8){ hour = 22; day -= 1; }
+  }
+})();
 const tagDist = {labels:['分析结果不准确','隐患描述不准','整改措施不适用','标准依据有误','分类判定错误','其他问题'],data:[58,46,42,21,19,12]};
 const dismissDist = {labels:['关闭按钮','离开页面','超时收起','系统返回'],data:[342,218,142,57]};
 
@@ -374,12 +394,20 @@ function closeUserModal(){ document.getElementById('userModal').style.display='n
 const fbTbody = document.querySelector('#feedbackTable tbody');
 const revealed = {};            // 单条脱敏放开状态
 let allRevealed = false;        // 批量放开状态
+let fbPage = 1;                 // 反馈明细当前页
+const FB_PAGE_SIZE = 10;        // 每页条数
 // 眼睛图标：睁眼=可见（真实姓名），闭眼=脱敏
 const SVG_EYE_OPEN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3" fill="#409eff" stroke="none"/></svg>`;
 const SVG_EYE_CLOSE = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#a8abb2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 const ms = v => v ? v.toLocaleString()+' ms' : '—';
 function renderFeedback(){
-  fbTbody.innerHTML = feedbackList.map((f,i)=>{
+  const total = feedbackList.length;
+  const totalPages = Math.max(1, Math.ceil(total/FB_PAGE_SIZE));
+  if(fbPage > totalPages) fbPage = totalPages;
+  const start = (fbPage-1)*FB_PAGE_SIZE;
+  const pageList = feedbackList.slice(start, start+FB_PAGE_SIZE);
+  fbTbody.innerHTML = pageList.map((f,j)=>{
+    const i = start + j;   // 全局索引，保证脱敏状态跨页正确
     const tags = f[3].length? f[3].map(t=>`<span class="tag-chip">${t}</span>`).join(''):'<span class="pill gray">无</span>';
     const srcMap={'点赞':'<span class="pill green">点赞</span>','点踩':'<span class="pill red">点踩</span>','意见反馈':'<span class="pill blue">意见反馈</span>'};
     const src = srcMap[f[2]]||`<span class="pill gray">${f[2]}</span>`;
@@ -396,7 +424,21 @@ function renderFeedback(){
       <td class="num" style="white-space:nowrap">${ms(f[11])}</td>
       <td style="max-width:260px;color:#555">${txt}</td></tr>`;
   }).join('');
+  renderPager(total, totalPages);
 }
+function renderPager(total, totalPages){
+  const pager = document.getElementById('fbPager');
+  // 页码按钮：显示全部（当前 5 页以内），超过则折叠省略号
+  let pages = [];
+  for(let p=1;p<=totalPages;p++) pages.push(p);
+  let btns = '';
+  const btn = (label,page,opts={})=>`<button class="pg-btn ${opts.active?'active':''}" ${opts.disabled?'disabled':''} onclick="${opts.fn||`goPage(${page})`}">${label}</button>`;
+  btns += btn('‹', fbPage-1, {disabled:fbPage===1});
+  pages.forEach(p=>{ btns += btn(p, p, {active:p===fbPage}); });
+  btns += btn('›', fbPage+1, {disabled:fbPage===totalPages});
+  pager.innerHTML = `<span class="pg-info">共 ${total} 条 · 第 ${fbPage}/${totalPages} 页</span>${btns}`;
+}
+function goPage(p){ fbPage = p; renderFeedback(); }
 function toggleReveal(i){ revealed[i]=!revealed[i]; renderFeedback(); }
 function toggleAllReveal(){
   allRevealed=!allRevealed;
