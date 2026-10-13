@@ -29,6 +29,7 @@
   .date-range{background:#fff;border:1px solid #dcdfe6;border-radius:4px;padding:0 10px;font-size:13px;color:#606266;width:140px;height:32px;flex:none;box-sizing:border-box;transition:border-color .2s}
   .date-range:hover{border-color:#c0c4cc}
   .date-range:focus{outline:none;border-color:#409eff}
+  select.date-range{cursor:pointer;appearance:auto}
   .btn{height:32px;padding:0 15px;border-radius:4px;font-size:13px;cursor:pointer;border:1px solid #dcdfe6;background:#fff;color:#606266;transition:all .2s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex:none;box-sizing:border-box}
   .btn:hover{color:#409eff;border-color:#c6e2ff;background:#ecf5ff}
   .btn-primary{background:#409eff;border-color:#409eff;color:#fff}
@@ -99,6 +100,21 @@
     <input type="date" id="dateStart" class="date-range" data-page-node-id="ds1">
     <span class="sep" data-page-node-id="sp1">~</span>
     <input type="date" id="dateEnd" class="date-range" data-page-node-id="ds2">
+    <span class="lbl" data-page-node-id="lb2">所属单位</span>
+    <select id="filterUnit" class="date-range" data-page-node-id="fu1">
+      <option value="">全部</option>
+      <option>蓝星安迪苏</option>
+      <option>北化机</option>
+      <option>浙化院</option>
+      <option>总部HSE部</option>
+    </select>
+    <span class="lbl" data-page-node-id="lb3">所属系统</span>
+    <select id="filterSystem" class="date-range" data-page-node-id="fs1">
+      <option value="">全部</option>
+      <option>双重预防-企业侧</option>
+      <option>双重预防-监管侧</option>
+      <option>AI+HSE</option>
+    </select>
     <button class="btn" onclick="onQuery()" data-page-node-id="q1">🔍 查询</button>
     <span class="spacer" data-page-node-id="spc"></span>
     <button class="btn" onclick="exportWord()" data-page-node-id="rV1tlMkJPxJtf0Eye4CJ2G">📄 导出 Word</button>
@@ -194,7 +210,9 @@ function onQuery(){
   const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
   if(!s||!e){ alert('请选择起止日期'); return; }
   if(s>e){ alert('起始日期不能晚于结束日期'); return; }
-  toast('查询成功：'+s+' ~ '+e);
+  const unit=document.getElementById('filterUnit').value||'全部单位';
+  const sys=document.getElementById('filterSystem').value||'全部系统';
+  toast('查询成功：'+s+' ~ '+e+' · '+unit+' · '+sys);
 }
 function toast(msg){
   const t=document.createElement('div');
@@ -454,10 +472,12 @@ function exportExcel(){
 // ============ 导出 Word ============
 function exportWord(){
   const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
+  const unit=document.getElementById('filterUnit').value||'全部单位';
+  const sys=document.getElementById('filterSystem').value||'全部系统';
   const range = s&&e ? (s+' ~ '+e) : '全部';
   let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>隐患速报智能体埋点统计分析</title><style>body{font-family:'微软雅黑';font-size:11pt;color:#333}h1{font-size:16pt;text-align:center}h2{font-size:13pt;border-bottom:1px solid #999;padding-bottom:4px;margin-top:18px}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border:1px solid #999;padding:5px 7px;font-size:10pt}th{background:#eef1f7}.kpi{margin:6px 0}.note{font-size:9pt;color:#888}</style></head><body>`;
   html += `<h1>隐患速报智能体 · 埋点事件统计分析</h1>`;
-  html += `<p style="text-align:center">日期范围：${range}</p>`;
+  html += `<p style="text-align:center">日期范围：${range}　|　所属单位：${unit}　|　所属系统：${sys}</p>`;
   // Tab1 埋点情况
   html += `<h2>一、埋点情况</h2>`;
   html += `<p class="kpi">AI识隐患结果页曝光：<b>3,842</b>　辅助分析点击：<b>2,917</b>　确认填入：<b>2,158</b>　未提交关闭：<b>759</b>　提交率：<b>74.0%</b></p>`;
