@@ -58,6 +58,7 @@
   th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border)}
   th{background:var(--bg);color:var(--sub);font-weight:600;font-size:12px;position:sticky;top:0}
   td.num{text-align:right;font-variant-numeric:tabular-nums}
+  td.ctr{text-align:center}
   .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px}
   .pill.blue{background:var(--blue-bg);color:var(--blue)}
   .pill.green{background:var(--green-bg);color:var(--green)}
@@ -200,7 +201,7 @@
     <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细<button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
     <div class="feedback-list" data-page-node-id="egdSZ8jPAZDBYPyk25qb2C">
       <table id="feedbackTable" data-page-node-id="pFFSRn4J7FjGeWhyBMqa0R">
-        <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th data-page-node-id="u2">隐患描述首词耗时</th><th data-page-node-id="u3">隐患描述总耗时</th><th data-page-node-id="u4">分级分类首词耗时</th><th data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th></tr></thead>
+        <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th style="text-align:center" data-page-node-id="u2">隐患描述首词耗时</th><th style="text-align:center" data-page-node-id="u3">隐患描述总耗时</th><th style="text-align:center" data-page-node-id="u4">分级分类首词耗时</th><th style="text-align:center" data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th></tr></thead>
         <tbody data-page-node-id="d5yIFIPPk5pydl6ZsIZbmf"></tbody>
       </table>
     </div>
@@ -418,10 +419,10 @@ function renderFeedback(){
     return `<tr><td style="white-space:nowrap">${f[0]}</td>
       <td style="white-space:nowrap">${name}${revealBtn}</td><td>${src}</td>
       <td style="white-space:nowrap">${f[6]}</td><td>${tags}</td>
-      <td class="num" style="white-space:nowrap">${ms(f[8])}</td>
-      <td class="num" style="white-space:nowrap">${ms(f[9])}</td>
-      <td class="num" style="white-space:nowrap">${ms(f[10])}</td>
-      <td class="num" style="white-space:nowrap">${ms(f[11])}</td>
+      <td class="num ctr" style="white-space:nowrap">${ms(f[8])}</td>
+      <td class="num ctr" style="white-space:nowrap">${ms(f[9])}</td>
+      <td class="num ctr" style="white-space:nowrap">${ms(f[10])}</td>
+      <td class="num ctr" style="white-space:nowrap">${ms(f[11])}</td>
       <td style="max-width:260px;color:#555">${txt}</td></tr>`;
   }).join('');
   renderPager(total, totalPages);
