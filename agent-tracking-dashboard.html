@@ -326,6 +326,8 @@ const funnelData = [
 
 // ============ 图表 ============
 const baseOpt = {plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}}},maintainAspectRatio:false};
+// 环形图统一配置：图例移至右侧
+const donutOpt = {...baseOpt, plugins:{legend:{position:'right',labels:{font:{size:11.5},padding:14,boxWidth:12}}}};
 new Chart(document.getElementById('fieldChart'),{
   type:'bar',
   data:{labels:fieldData.labels,datasets:[
@@ -337,12 +339,12 @@ new Chart(document.getElementById('fieldChart'),{
 new Chart(document.getElementById('descChart'),{
   type:'doughnut',
   data:{labels:['已采纳·点击辅助分析(76.0%)','未采纳·未点击(24.0%)'],datasets:[{data:[2917,925],backgroundColor:['#18b58b','#eef1f7'],borderWidth:0}]},
-  options:{...baseOpt,cutout:'62%'}
+  options:{...donutOpt,cutout:'62%'}
 });
 new Chart(document.getElementById('thumbChart'),{
   type:'doughnut',
   data:{labels:['点赞','点踩'],datasets:[{data:[1284,312],backgroundColor:['#18b58b','#f0436c'],borderWidth:0}]},
-  options:{...baseOpt,cutout:'62%'}
+  options:{...donutOpt,cutout:'62%'}
 });
 new Chart(document.getElementById('tagChart'),{
   type:'bar',
