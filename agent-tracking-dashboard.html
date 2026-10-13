@@ -170,7 +170,7 @@
   <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
     <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw">埋点事件统计明细 <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">7 条事件</span></h3>
     <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
-      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="pCtROaW4zDtsMzA2lucpxv">埋点属性</th><th data-page-node-id="g9GCthsHHalFGe9XLZCGz0">涉及页面</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th class="num" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th class="num" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th><th data-page-node-id="jI6BzvKQOFkr24m3mOufr7">状态</th></tr></thead>
+      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="pCtROaW4zDtsMzA2lucpxv">埋点属性</th><th data-page-node-id="g9GCthsHHalFGe9XLZCGz0">涉及页面</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th><th data-page-node-id="jI6BzvKQOFkr24m3mOufr7">状态</th></tr></thead>
       <tbody data-page-node-id="5fk9VMW7vx5fy137OEmSte"></tbody>
     </table>
   </div>
@@ -357,8 +357,8 @@ events.forEach(e=>{
   const tr=document.createElement('tr');
   tr.innerHTML=`<td>${e[0]}</td><td><span class="pill ${propMap[e[1]]}">${e[1]}</span></td>
     <td>${e[2]}</td><td><span class="pill ${typeMap[e[3]]}">${e[3]}</span></td>
-    <td class="num">${e[4].toLocaleString()}</td>
-    <td class="num"><a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[5].toLocaleString()} 👥</a></td>
+    <td class="num ctr">${e[4].toLocaleString()}</td>
+    <td class="num ctr"><a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[5].toLocaleString()} 👥</a></td>
     <td>${e[6]}</td><td><span class="pill ${statusMap[e[7]]}">${e[7]}</span></td>`;
   tbody.appendChild(tr);
 });
