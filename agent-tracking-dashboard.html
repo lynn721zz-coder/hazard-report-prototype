@@ -360,7 +360,7 @@ function exportUserList(){
       ws['!cols']=[{wch:12},{wch:24},{wch:10}];
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb,ws,'触发用户清单');
-      XLSX.writeFile(wb,fname+'.xlsx');
+      triggerDownload(new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})],{type:'application/octet-stream'}), fname+'.xlsx');
       toast('已生成并开始下载：'+fname+'.xlsx');
       return;
     }catch(err){ /* 降级 CSV */ }
@@ -411,14 +411,27 @@ function switchTab(t){
 // ============ 通用下载 ============
 function triggerDownload(blob, filename){
   try{
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = URL.createObjectURL(blob);
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(()=>{ document.body.removeChild(link); URL.revokeObjectURL(link.href); }, 1500);
-    toast('已生成并开始下载：'+filename);
+    const clickLink = (href)=>{
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = href;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(()=>{ document.body.removeChild(link); }, 1500);
+      if(href.startsWith('blob:')) setTimeout(()=>URL.revokeObjectURL(href), 3000);
+      toast('已生成并开始下载：'+filename);
+    };
+    if(location.protocol === 'file:'){
+      // file:// 协议下浏览器对 blob: 链接下载不可靠（会提示“未设定打开 URL 的应用程序”），
+      // 转成 base64 data URL 触发下载
+      const reader = new FileReader();
+      reader.onload = function(){ clickLink(reader.result); };
+      reader.onerror = function(){ toast('下载失败：文件编码异常，请改用在线地址访问'); };
+      reader.readAsDataURL(blob);
+      return;
+    }
+    clickLink(URL.createObjectURL(blob));
   }catch(err){ toast('下载失败：'+err.message); }
 }
 function downloadCSV(rows, filename){
@@ -453,7 +466,7 @@ function exportExcel(){
       Object.entries(data).forEach(([name,rows])=>{
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name);
       });
-      XLSX.writeFile(wb,'隐患速报智能体-埋点统计分析.xlsx');
+      triggerDownload(new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})],{type:'application/octet-stream'}), '隐患速报智能体-埋点统计分析.xlsx');
       toast('已生成并开始下载：隐患速报智能体-埋点统计分析.xlsx');
       return;
     }catch(err){ /* 降级 CSV */ }
