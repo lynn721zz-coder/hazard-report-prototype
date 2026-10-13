@@ -94,6 +94,8 @@
   .eye-btn{background:none;border:none;padding:2px 3px;margin-left:4px;cursor:pointer;line-height:0;border-radius:3px;vertical-align:middle;transition:background .15s}
   .eye-btn:hover{background:rgba(64,158,255,.08)}
   #revealAllBtn svg{flex:none}
+  .tbl-clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:default}
+  #fullTip{position:fixed;z-index:300;max-width:460px;background:#1f2a44;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.8;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;pointer-events:none;white-space:pre-wrap;max-height:60vh;overflow-y:auto}
   @media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
 </style>
 </head>
@@ -424,7 +426,7 @@ function renderFeedback(){
       <td class="num ctr" style="white-space:nowrap">${ms(f[10])}</td>
       <td class="num ctr" style="white-space:nowrap">${ms(f[11])}</td>
       <td style="max-width:220px;color:#555">${txt}</td>
-      <td style="max-width:320px;color:#555;font-size:12px;line-height:1.7">${f[12]||'<span style="color:#bbb">—</span>'}</td></tr>`;
+      <td style="max-width:320px;color:#555;font-size:12px;line-height:1.7">${f[12]?`<div class="tbl-clamp js-full">${f[12]}</div>`:'<span style="color:#bbb">—</span>'}</td></tr>`;
   }).join('');
   renderPager(total, totalPages);
 }
@@ -451,6 +453,31 @@ function toggleAllReveal(){
 renderFeedback();
 // 初始化批量按钮（睁眼/闭眼 + 文案）
 document.getElementById('revealAllBtn').innerHTML = SVG_EYE_CLOSE+'<span>一键放开脱敏</span>';
+
+// ============ 智能体输出完整内容：悬停气泡 ============
+(function(){
+  const tip = document.createElement('div');
+  tip.id = 'fullTip';
+  document.body.appendChild(tip);
+  fbTbody.addEventListener('mouseover', e=>{
+    const el = e.target.closest('.js-full');
+    if(!el) return;
+    tip.textContent = el.textContent;
+    tip.style.display = 'block';
+  });
+  fbTbody.addEventListener('mousemove', e=>{
+    if(tip.style.display !== 'block') return;
+    const pad = 14, tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    if(x + tw > window.innerWidth - 8) x = e.clientX - tw - pad;
+    if(y + th > window.innerHeight - 8) y = e.clientY - th - pad;
+    tip.style.left = Math.max(8,x)+'px';
+    tip.style.top = Math.max(8,y)+'px';
+  });
+  fbTbody.addEventListener('mouseout', e=>{
+    if(e.target.closest('.js-full')) tip.style.display = 'none';
+  });
+})();
 
 // ============ Tab 切换 ============
 function switchTab(t){
