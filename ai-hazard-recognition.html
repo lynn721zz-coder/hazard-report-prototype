@@ -155,9 +155,16 @@
   }
 
   /* ===== 悬浮反馈球（赞 / 踩 / 意见反馈）===== */
+  /* 外层容器与手机框同宽居中，保证小球始终悬浮在移动端页面内 */
+  .fb-fab-wrap {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:375px; max-width:100vw; height:0;
+    z-index:18; pointer-events:none;
+  }
   .fb-fab {
-    position:fixed; right:12px; bottom:130px; z-index:18;
+    position:absolute; right:12px; bottom:130px;
     display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+    pointer-events:auto;
   }
   .fb-fab-menu {
     display:flex; flex-direction:column; align-items:flex-end; gap:8px;
@@ -364,8 +371,9 @@
   <!-- 隐患描述列表 -->
   <div id="hazardList" data-page-node-id="RTW2nc0gHXA6H8SKXsFqlc"></div>
 
-  <!-- 悬浮反馈球：赞 / 踩 / 意见反馈（右侧常驻，无需滑到底部） -->
-  <div class="fb-fab" id="fbFab" data-page-node-id="fbFab001">
+  <!-- 悬浮反馈球：赞 / 踩 / 意见反馈（随手机框居中，始终在移动端页面内） -->
+  <div class="fb-fab-wrap" data-page-node-id="fbFabWrap001">
+    <div class="fb-fab" id="fbFab" data-page-node-id="fbFab001">
     <div class="fb-fab-menu">
       <button class="fb-fab-item" id="likeBtn" type="button" aria-label="点赞" aria-pressed="false" onclick="fabLike()" data-page-node-id="fbLike001">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" data-page-node-id="fbLikeSvg1"><path d="M2 21h4V9H2v12zM22 11c0-1.1-.9-2-2-2h-6.3l1-4.6v-.3c0-.4-.2-.8-.4-1L13 2 7.6 7.6C7.2 7.9 7 8.3 7 8.8V19c0 1.1.9 2 2 2h9c.8 0 1.5-.5 1.8-1.2l2.1-4.9c.1-.2.1-.4.1-.6v-3z"/></svg>
@@ -384,6 +392,7 @@
       <svg class="ic-fb" width="22" height="22" viewBox="0 0 24 24" fill="none" data-page-node-id="fbBallIcFb"><path d="M4 5.5h16a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H9.5L5 21v-3.5H4A1.5 1.5 0 012.5 16V7A1.5 1.5 0 014 5.5z" fill="#fff"/></svg>
       <svg class="ic-close" width="18" height="18" viewBox="0 0 24 24" fill="none" data-page-node-id="fbBallIcClose"><path d="M6 6l12 12M18 6L6 18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
     </button>
+    </div>
   </div>
 
   <!-- 底部操作栏 -->
