@@ -154,6 +154,81 @@
     background:#c6d4ec; box-shadow:none; cursor:not-allowed;
   }
 
+  /* ===== 反馈栏（赞/踩/意见反馈）===== */
+  .fb-bar {
+    display:flex; align-items:center; gap:8px;
+    margin:0 12px 12px; padding:12px 14px;
+    background:#fff; border-radius:16px;
+    box-shadow:0 1px 4px rgba(31,58,110,.05);
+  }
+  .fb-tip { font-size:12.5px; color:#8a96ad; margin-right:auto; white-space:nowrap; }
+  .fb-btn {
+    display:inline-flex; align-items:center; gap:5px;
+    border:1px solid #e3e9f2; background:#fff;
+    border-radius:16px; padding:5px 11px;
+    font-size:12.5px; color:#55617a;
+    cursor:pointer; white-space:nowrap;
+    transition:transform .15s, background .15s, border-color .15s, color .15s;
+  }
+  .fb-btn:active { transform:scale(.93); }
+  .fb-btn svg { flex:none; }
+  .fb-btn.like-on  { background:rgba(47,109,246,.08);  border-color:#2f6df6; color:#2f6df6; }
+  .fb-btn.dislike-on { background:rgba(240,67,108,.08); border-color:#f0436c; color:#f0436c; }
+
+  /* ===== 反馈弹层 ===== */
+  .fb-mask {
+    position:fixed; inset:0; z-index:30;
+    background:rgba(17,24,39,.35);
+    display:none; align-items:flex-end; justify-content:center;
+  }
+  .fb-mask.show { display:flex; }
+  .fb-sheet {
+    width:375px; max-width:100vw;
+    background:#fff; border-radius:20px 20px 0 0;
+    padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+    animation:slideUp .28s ease-out;
+  }
+  .fb-sheet-head {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .fb-sheet-title { font-size:16px; font-weight:700; color:#1f2a44; }
+  .fb-close {
+    width:30px; height:30px; border:none; border-radius:9px;
+    background:#f1f5fb; color:#55617a; font-size:14px;
+    cursor:pointer; transition:background .15s;
+  }
+  .fb-close:active { background:#e2e7ef; }
+  .fb-tags {
+    display:none; flex-wrap:wrap; gap:8px;
+    margin-bottom:12px;
+  }
+  .fb-tag {
+    border:1px solid #e3e9f2; border-radius:14px;
+    padding:5px 12px; font-size:12.5px; color:#55617a;
+    cursor:pointer; transition:all .15s;
+  }
+  .fb-tag:active { transform:scale(.95); }
+  .fb-tag.on {
+    background:rgba(47,109,246,.08); border-color:#2f6df6; color:#2f6df6;
+  }
+  .fb-textarea {
+    width:100%; min-height:92px; border:none; resize:none;
+    background:#f4f6fa; border-radius:10px;
+    padding:11px 12px; font-size:13.5px; color:#1f2a44;
+    font-family:inherit; line-height:1.6; outline:none;
+  }
+  .fb-textarea::placeholder { color:#9aa8bb; }
+  .fb-textarea:focus { background:#eef3fb; }
+  .fb-submit {
+    width:100%; height:44px; margin-top:12px;
+    border:none; border-radius:12px;
+    background:linear-gradient(90deg,#3d82ff,#2f6df6);
+    color:#fff; font-size:15px; font-weight:600;
+    cursor:pointer; transition:opacity .15s, transform .15s;
+  }
+  .fb-submit:active { transform:scale(.98); opacity:.9; }
+
   /* ===== toast ===== */
   .toast {
     position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
@@ -274,6 +349,23 @@
   <!-- 隐患描述列表 -->
   <div id="hazardList" data-page-node-id="RTW2nc0gHXA6H8SKXsFqlc"></div>
 
+  <!-- 识别结果反馈栏：赞 / 踩 / 意见反馈 -->
+  <div class="fb-bar" data-page-node-id="fbBar001">
+    <span class="fb-tip" data-page-node-id="fbTip001">识别结果有帮助吗？</span>
+    <button class="fb-btn" id="likeBtn" type="button" aria-label="点赞" aria-pressed="false" onclick="toggleLike()" data-page-node-id="fbLike001">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" data-page-node-id="fbLikeSvg1"><path d="M2 21h4V9H2v12zM22 11c0-1.1-.9-2-2-2h-6.3l1-4.6v-.3c0-.4-.2-.8-.4-1L13 2 7.6 7.6C7.2 7.9 7 8.3 7 8.8V19c0 1.1.9 2 2 2h9c.8 0 1.5-.5 1.8-1.2l2.1-4.9c.1-.2.1-.4.1-.6v-3z"/></svg>
+      赞
+    </button>
+    <button class="fb-btn" id="dislikeBtn" type="button" aria-label="点踩" aria-pressed="false" onclick="toggleDislike()" data-page-node-id="fbDislike001">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="transform:rotate(180deg)" data-page-node-id="fbDislikeSvg1"><path d="M2 21h4V9H2v12zM22 11c0-1.1-.9-2-2-2h-6.3l1-4.6v-.3c0-.4-.2-.8-.4-1L13 2 7.6 7.6C7.2 7.9 7 8.3 7 8.8V19c0 1.1.9 2 2 2h9c.8 0 1.5-.5 1.8-1.2l2.1-4.9c.1-.2.1-.4.1-.6v-3z"/></svg>
+      踩
+    </button>
+    <button class="fb-btn" type="button" aria-label="意见反馈" onclick="openFeedback(false,'意见反馈')" data-page-node-id="fbEntry001">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" data-page-node-id="fbEntrySvg1"><path d="M4 5.5h16a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H9.5L5 21v-3.5H4A1.5 1.5 0 012.5 16V7A1.5 1.5 0 014 5.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      意见反馈
+    </button>
+  </div>
+
   <!-- 底部操作栏 -->
   <div class="bottom-bar" data-page-node-id="Hy4nZRp6QGKbJFg9pccst3">
     <div class="sel-info" data-page-node-id="BfyN55wqPllHF1QmcwjPgM">
@@ -283,6 +375,25 @@
     <div class="btn-row" data-page-node-id="QewhFkUtaHyycss0ELbbVw">
       <button class="btn btn-cancel" onclick="onCancel()" data-page-node-id="oJCmvmA3FihCYvcNryEpFn">取消</button>
       <button class="btn btn-primary" id="analyzeBtn" onclick="onAnalyze()" data-page-node-id="ttPK66msaDyTTXhJFwwyZh">辅助分析 <span style="font-weight:400" data-page-node-id="HlkpS1Mci0b5DF3oDQykBH">→</span></button>
+    </div>
+  </div>
+
+  <!-- 反馈弹层 -->
+  <div class="fb-mask" id="fbMask" onclick="if(event.target===this)closeFeedback()" data-page-node-id="fbMask001">
+    <div class="fb-sheet" data-page-node-id="fbSheet001">
+      <div class="fb-sheet-head" data-page-node-id="fbSheetHead1">
+        <div class="fb-sheet-title" id="fbSheetTitle" data-page-node-id="fbTitle001">意见反馈</div>
+        <button class="fb-close" type="button" aria-label="关闭" onclick="closeFeedback()" data-page-node-id="fbClose001">✕</button>
+      </div>
+      <div class="fb-tags" id="fbTags" data-page-node-id="fbTagsWrap1">
+        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="fbTag01">识别结果不准确</span>
+        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="fbTag02">描述与图片不符</span>
+        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="fbTag03">漏检隐患</span>
+        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="fbTag04">识别内容重复</span>
+        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="fbTag05">其他问题</span>
+      </div>
+      <textarea class="fb-textarea" id="fbText" aria-label="反馈描述" placeholder="请补充说明您遇到的问题或建议（选填）" data-page-node-id="fbText001"></textarea>
+      <button class="fb-submit" type="button" onclick="submitFeedback()" data-page-node-id="fbSubmit001">提交反馈</button>
     </div>
   </div>
 
@@ -376,6 +487,60 @@ function toast(msg){
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>t.style.display='none', 1800);
+}
+
+// ============ 反馈：赞 / 踩 / 意见反馈 ============
+let likeOn = false, dislikeOn = false;
+
+function updateFbBtns(){
+  const lb = document.getElementById('likeBtn'), db = document.getElementById('dislikeBtn');
+  lb.classList.toggle('like-on', likeOn);
+  lb.setAttribute('aria-pressed', likeOn);
+  db.classList.toggle('dislike-on', dislikeOn);
+  db.setAttribute('aria-pressed', dislikeOn);
+}
+
+function toggleLike(){
+  likeOn = !likeOn;
+  if(likeOn) dislikeOn = false;   // 赞踩互斥
+  updateFbBtns();
+  // 埋点：hse_agent_thumb（page=ai_recognition, thumb_type=like/unlike）
+  toast(likeOn ? '感谢您的认可' : '已取消点赞');
+}
+
+function toggleDislike(){
+  dislikeOn = !dislikeOn;
+  if(dislikeOn) likeOn = false;  // 赞踩互斥
+  updateFbBtns();
+  if(dislikeOn){
+    openFeedback(true, '问题反馈');   // 点踩自动唤起问题反馈（含问题标签）
+  }else{
+    toast('已取消点踩');
+  }
+}
+
+function openFeedback(showTags, title){
+  document.getElementById('fbTags').style.display = showTags ? 'flex' : 'none';
+  document.getElementById('fbSheetTitle').textContent = title;
+  document.getElementById('fbMask').classList.add('show');
+  // 埋点：hse_agent_feedback_open（source=dislike / feedback_entry）
+}
+
+function closeFeedback(){
+  document.getElementById('fbMask').classList.remove('show');
+}
+
+function toggleTag(el){ el.classList.toggle('on'); }
+
+function submitFeedback(){
+  const tags = [...document.querySelectorAll('.fb-tag.on')].map(t=>t.textContent);
+  const text = document.getElementById('fbText').value.trim();
+  if(!tags.length && !text){ toast('请选择问题类型或填写描述'); return; }
+  // 埋点：hse_agent_feedback_submit（page=ai_recognition, tags, text_len）
+  closeFeedback();
+  document.getElementById('fbText').value = '';
+  document.querySelectorAll('.fb-tag.on').forEach(t=>t.classList.remove('on'));
+  toast('反馈已提交，感谢您的建议');
 }
 
 render();
