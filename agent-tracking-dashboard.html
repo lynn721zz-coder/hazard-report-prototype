@@ -337,14 +337,20 @@ new Chart(document.getElementById('fieldChart'),{
   ]},
   options:{...baseOpt,scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}
 });
+// 环形图标签拼接：名称 + 数量 + 占比
+const fmtNum = n=>n.toLocaleString();
+const withPct = (names, data)=>{
+  const total = data.reduce((a,b)=>a+b,0);
+  return names.map((n,i)=>`${n} ${fmtNum(data[i])}（${(data[i]/total*100).toFixed(1)}%）`);
+};
 new Chart(document.getElementById('descChart'),{
   type:'doughnut',
-  data:{labels:['已采纳·点击辅助分析(76.0%)','未采纳·未点击(24.0%)'],datasets:[{data:[2917,925],backgroundColor:['#18b58b','#eef1f7'],borderWidth:0}]},
+  data:{labels:withPct(['已采纳·点击辅助分析','未采纳·未点击'],[2917,925]),datasets:[{data:[2917,925],backgroundColor:['#18b58b','#eef1f7'],borderWidth:0}]},
   options:{...donutOpt,cutout:'62%'}
 });
 new Chart(document.getElementById('thumbChart'),{
   type:'doughnut',
-  data:{labels:['点赞','点踩'],datasets:[{data:[1284,312],backgroundColor:['#18b58b','#f0436c'],borderWidth:0}]},
+  data:{labels:withPct(['点赞','点踩'],[1284,312]),datasets:[{data:[1284,312],backgroundColor:['#18b58b','#f0436c'],borderWidth:0}]},
   options:{...donutOpt,cutout:'62%'}
 });
 new Chart(document.getElementById('tagChart'),{
