@@ -1536,7 +1536,7 @@ function renderReportList(filter){
     const genTag=isGen?' <span class="rpt-tag gen"><span class="gen-spin"></span>生成中</span>'+(r.retries>0?` <span class="rpt-tag gen">已自动重试 ${r.retries}/3</span>`:''):'';
     const failTag=isFail?' <span class="rpt-tag fail">生成失败</span> <span class="rpt-tag gen">已自动重试 3/3</span>':'';
     const focusStr=(isAI&&r.focus&&r.focus.length)?`<span class="dot"></span>聚焦 ${r.focus.length} 个类型`:'';
-    const genElapsed=isGen?`<span class="dot"></span><span class="gen-elapsed" data-start="${r.genStart||Date.now()}">已等待 00:00</span>`:'';
+    const genElapsed='';
     const org=r.org||r.orgDim||'—';
     const ownerStr=curRole==='admin'?`<span class="dot"></span><span>归属：${r.owner||CUR_USER_NAME}</span>`:'';
     const fb=rptFbState[r.id]||{};
@@ -1562,7 +1562,7 @@ function renderReportList(filter){
         <div class="rpt-title">${r.title}${tag}${genTag}${failTag}</div>
         <div class="rpt-types"${(!isGen&&!isFail&&typeNames.length)?` data-tip="${typeNames.join('、')}"`:''}>${chips}</div>
         ${genBar}
-        <div class="rpt-meta"><span>${r.time}</span><span class="dot"></span><span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>隐患总数 ${r.count.toLocaleString()} 条</span>${focusStr}${genElapsed}${ownerStr}</div>
+        <div class="rpt-meta">${isGen?'':`<span>${r.time}</span><span class="dot"></span>`}<span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>隐患总数 ${r.count.toLocaleString()} 条</span>${focusStr}${genElapsed}${ownerStr}</div>
       </div>
       <div class="rpt-side">
         ${isGen
