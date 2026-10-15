@@ -555,13 +555,13 @@
           <span class="tag-pick" data-pd="每周">每周</span>
           <span class="tag-pick" data-pd="每月">每月</span>
           <span class="tag-pick" data-pd="每季度">每季度</span>
+          <span class="tag-pick" data-pd="每年">每年</span>
           <span class="tag-pick" data-pd="自定义">自定义</span>
         </div>
         <div id="cfg-custom" hidden>
           <div class="cfg-row">
             <span class="cfg-lb">重复频率</span>
             <select id="cfg-freq">
-              <option value="day">每天</option>
               <option value="week" selected>每周</option>
               <option value="month">每月</option>
               <option value="quarter">每季度</option>
@@ -1547,7 +1547,7 @@ function renderReportList(filter){
       :(isFail
         ?`<span class="rpt-desc">AI 分析任务失败：自动重试 3 次仍未成功，请点击「重新发起」重新提交任务</span>`
         :(typeNames.length
-          ?typeNames.slice(0,3).map(n=>`<span class="rpt-type-chip">${n}</span>`).join('')+(typeNames.length>3?`<span class="rpt-type-chip more">+${typeNames.length-3}</span>`:'')
+          ?typeNames.slice(0,5).map(n=>`<span class="rpt-type-chip">${n}</span>`).join('')+(typeNames.length>5?`<span class="rpt-type-chip more">+${typeNames.length-5}</span>`:'')
           :`<span class="rpt-desc">${r.desc}</span>`));
     const genBar=isGen?`<div class="gen-think" data-start="${r.genStart||Date.now()}" data-dur="${r.genDur||12000}" data-cnt="${r.count}">
       <div class="gen-steps">
