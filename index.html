@@ -45,6 +45,30 @@
   .avatar-chip{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:var(--radius-sm)}
   .avatar-chip:hover{background:var(--gray-50)}
   .avatar-dot{width:24px;height:24px;border-radius:50%;background:var(--sys-primary-bg);color:var(--sys-primary-deep);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  /* 消息中心弹窗（右上角铃铛点击弹出） */
+  .msg-card{position:fixed;top:56px;right:14px;width:620px;max-width:calc(100vw - 28px);height:min(720px,calc(100vh - 80px));background:var(--bg-card);border-radius:var(--radius-xl);box-shadow:0 14px 44px rgba(15,23,42,.22);display:flex;flex-direction:column;overflow:hidden;transform:translateY(10px);transition:transform .22s cubic-bezier(.2,.7,.3,1)}
+  .modal-mask.show .msg-card{transform:translateY(0)}
+  .msg-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border)}
+  .msg-title{font-size:16px;font-weight:600;color:var(--text-primary)}
+  .msg-actions{display:flex;align-items:center;gap:14px}
+  .msg-readall{font-size:13px;color:var(--sys-primary);cursor:pointer}
+  .msg-readall:hover{text-decoration:underline}
+  .msg-list{flex:1;overflow-y:auto;border-bottom:1px solid var(--border)}
+  .msg-item{padding:13px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+  .msg-item:hover{background:var(--gray-50)}
+  .msg-item .row1{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .msg-item .m-title{font-size:14.5px;font-weight:600;color:var(--text-primary)}
+  .msg-item.unread .m-title::after{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#E60012;margin-left:6px;vertical-align:2px}
+  .msg-item .m-time{font-size:12.5px;color:var(--text-tertiary);white-space:nowrap}
+  .msg-item .row2{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:5px}
+  .msg-item .m-content{font-size:13px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+  .msg-item .m-go{font-size:12.5px;color:var(--text-tertiary);white-space:nowrap}
+  .msg-item:hover .m-go{color:var(--sys-primary)}
+  .msg-foot{display:flex;align-items:center;justify-content:center;gap:20px;padding:11px 20px;font-size:13px;color:var(--text-secondary)}
+  .msg-pager{display:flex;align-items:center;gap:10px}
+  .msg-pager button{border:1px solid var(--border-strong);background:var(--bg-card);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--text-secondary);line-height:1}
+  .msg-pager button:hover:not(:disabled){background:var(--gray-50)}
+  .msg-pager button:disabled{opacity:.35;cursor:default}
 
   /* ===== 侧栏 ===== */
   .sidebar{position:fixed;top:48px;left:0;bottom:0;width:216px;background:var(--bg-card);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:150;transition:width .25s ease}
@@ -335,6 +359,25 @@
   .rpt-tag{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:var(--radius-full);font-weight:500}
   .rpt-tag.ai{background:#F0EAF8;color:#7B5EA7}
   .rpt-tag.sc{background:var(--primary-50);color:var(--primary-800)}
+  .rpt-tag.gen{background:#FFF4E0;color:#B26A00;gap:5px}
+  .rpt-tag.fail{background:#FDEBEC;color:#C0392B}
+  .gen-spin{width:10px;height:10px;border-radius:50%;border:2px solid rgba(178,106,0,.25);border-top-color:#B26A00;animation:genrot .8s linear infinite}
+  @keyframes genrot{to{transform:rotate(360deg)}}
+  .gen-elapsed{color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+  .gen-think{margin-top:8px;display:flex;flex-direction:column;gap:7px}
+  .gen-steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.5px}
+  .gen-step{display:inline-flex;align-items:center;gap:4px;color:var(--text-tertiary)}
+  .gen-step.done{color:#1E8E5A}
+  .gen-step.cur{color:#B26A00;font-weight:600}
+  .gen-step.cur .gen-spin{width:9px;height:9px;border-width:1.5px;margin:0}
+  .gen-step-arrow{color:var(--border);margin-right:2px}
+  .gen-thought{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text-secondary);line-height:1.55;padding:7px 10px;background:#FFF9F0;border:1px solid #F2E2C4;border-radius:var(--radius-sm)}
+  .gen-thought .think-dot{flex-shrink:0;display:inline-flex;gap:2.5px;margin-top:6px}
+  .gen-thought .think-dot i{width:4px;height:4px;border-radius:50%;background:#B26A00;animation:thinkpulse 1.2s ease-in-out infinite}
+  .gen-thought .think-dot i:nth-child(2){animation-delay:.2s}
+  .gen-thought .think-dot i:nth-child(3){animation-delay:.4s}
+  .gen-thought-txt{transition:opacity .25s}
+  @keyframes thinkpulse{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
   .rpt-go{color:var(--sys-primary);font-size:13px;font-weight:500;flex-shrink:0;white-space:nowrap}
   .rpt-types{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
   .rpt-type-chip{font-size:11px;line-height:1.5;color:var(--sys-primary);background:rgba(10,77,162,.06);border:1px solid rgba(10,77,162,.16);border-radius:4px;padding:1px 7px;white-space:nowrap}
@@ -417,6 +460,7 @@
   #cfg-tags .tag-pick .tag-rm{position:absolute;top:-6px;right:-4px;width:15px;height:15px;border-radius:50%;background:var(--gray-200);color:var(--text-secondary);font-size:11px;line-height:15px;text-align:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
   #cfg-tags .tag-pick:hover .tag-rm{opacity:1}
   #cfg-tags .tag-pick .tag-rm:hover{background:var(--danger-500,#E24B4A);color:#fff}
+  #cfg-tags .tag-pick .tag-def{display:inline-block;margin-left:5px;padding:0 5px;font-size:10px;line-height:15px;border-radius:4px;background:var(--sys-primary-bg);color:var(--sys-primary);font-weight:500;vertical-align:1px}
   /* 修订记录 */
   .his-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .his-table th{text-align:left;font-weight:500;color:var(--text-secondary);background:var(--gray-50);padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -451,7 +495,7 @@
   </div>
   <div class="tb-right" data-page-node-id="LWSrSaE5ZF1L0bPjHTkPuk">
     
-    <span class="bell" aria-label="通知，99+ 未读" data-page-node-id="L0p6vc5TC27UQS7lnkVJdQ">
+    <span class="bell" id="notify-bell" role="button" tabindex="0" aria-label="通知" data-page-node-id="L0p6vc5TC27UQS7lnkVJdQ">
       <svg class="icon" viewBox="0 0 24 24" fill="none" data-page-node-id="ECYfVW5Exn4FCd2VUY67ZA"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6M10.5 19a2 2 0 0 0 3 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="8aS2mHME1jDLmGiaTQXYPm"></path></svg>
       <span class="bubble" data-page-node-id="Pq57pgAhtjChmp4DJblgr8">99+</span>
     </span>
@@ -493,6 +537,18 @@
       <button class="modal-close" id="rpt-cfg-close" aria-label="关闭">×</button>
     </div>
     <div class="modal-body">
+      <div style="margin-bottom:16px">
+        <div class="field-label">所属单位 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（周期报告分析的数据单位范围）</span></div>
+        <select id="cfg-org" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);color:var(--text-primary)">
+          <option value="中国中化" selected>中国中化</option>
+          <option value="中国昊华">中国昊华</option>
+          <option value="蓝天氟材料">蓝天氟材料</option>
+          <option value="中化蓝天">中化蓝天</option>
+          <option value="中化新材料">中化新材料</option>
+          <option value="中化环境">中化环境</option>
+          <option value="中化装备">中化装备</option>
+        </select>
+      </div>
       <div style="margin-bottom:16px">
         <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span></div>
         <div id="cfg-period">
@@ -546,12 +602,12 @@
         </div>
       </div>
       <div>
-        <div class="field-label">下一阶段关注的隐患类型 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（您个人配置，可多选，标签可新增 / 移除，作为您下期报告的重点分析维度）</span></div>
+        <div class="field-label">下一阶段关注的隐患类型 <span class="req">*</span> <span id="cfg-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选，每份报告最多 15 种；标注"通用"的为系统默认类型，仅管理员可删除）</span></div>
         <div id="cfg-tags"></div>
         <div class="cfg-add-row">
           <input type="text" id="cfg-new-type" placeholder="输入新的隐患类型名称…" maxlength="20">
           <button type="button" class="cfg-add-btn" id="cfg-type-add">＋ 新增类型</button>
-          <span class="cfg-hint">点击标签右上角 × 可移除该类型</span>
+          <span class="cfg-hint">自定义类型可点击标签右上角 × 移除；默认通用类型仅管理员可删除</span>
         </div>
       </div>
     </div>
@@ -584,7 +640,6 @@
     <div class="modal-head">
       <div>
         <div class="modal-title" id="rpt-fb-title">报告整体反馈</div>
-        <div class="modal-desc" id="rpt-fb-sub">针对整份报告的评价与意见，将回流至模型训练样本库。</div>
       </div>
       <button class="modal-close" id="rpt-fb-close" aria-label="关闭">×</button>
     </div>
@@ -606,6 +661,28 @@
   </div>
 </div>
 
+<!-- 消息中心：点击右上角铃铛弹出；消息按 AI 辅助分析报告生成提醒展示，点击消息跳转报告详情 -->
+<div class="modal-mask" id="msg-center-modal" hidden>
+  <div class="msg-card" role="dialog" aria-modal="true" aria-label="消息中心">
+    <div class="msg-head">
+      <div class="msg-title">消息中心</div>
+      <div class="msg-actions">
+        <span class="msg-readall" id="msg-readall">全部已读</span>
+        <button class="modal-close" id="msg-close" aria-label="关闭">×</button>
+      </div>
+    </div>
+    <div class="msg-list" id="msg-list"></div>
+    <div class="msg-foot">
+      <span id="msg-total">共 0 条</span>
+      <div class="msg-pager">
+        <button id="msg-prev" aria-label="上一页">‹</button>
+        <span id="msg-page-ind">1 / 1</span>
+        <button id="msg-next" aria-label="下一页">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-mask" id="ai-modal" role="dialog" aria-modal="true" aria-labelledby="ai-modal-title" hidden="" data-page-node-id="hJtrsGoWtS0T49Fw1JjMfi">
   <div class="modal-card" data-page-node-id="C94PTDrLNshabrigLrzYz6">
     <div class="modal-head" data-page-node-id="tVQK0K3wxRQFTminuDXFej">
@@ -617,7 +694,7 @@
     </div>
     <div class="modal-body" data-page-node-id="PMaOJjghUjsDtB7UIrTcLo">
       <div style="margin-bottom:16px" data-page-node-id="tQc27IEvr5ANeYnL9cG2dC">
-        <div class="field-label" data-page-node-id="boY0Jf9KEfxBGuvAD6XGdg">关注的隐患类型 <span class="req" data-page-node-id="CsFN6zuRof3pnB6OCcnYH2">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400" data-page-node-id="NFksgexLRPCGfy7uneRinq">（可多选）</span></div>
+        <div class="field-label" data-page-node-id="boY0Jf9KEfxBGuvAD6XGdg">关注的隐患类型 <span class="req" data-page-node-id="CsFN6zuRof3pnB6OCcnYH2">*</span> <span id="ai-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400" data-page-node-id="NFksgexLRPCGfy7uneRinq">（可多选，每份报告最多 15 种）</span></div>
         <div id="ai-tags" data-page-node-id="18BBYBwFUHqeAPAylznn3A">
           <span class="tag-pick" data-page-node-id="bSPpXbEIuAnQVCdHgMPDSd">设备本体及附件缺陷</span>
           <span class="tag-pick" data-page-node-id="hLsEnBxLsYWl8NYVv2d2uz">物理安全防护设施缺失</span>
@@ -665,7 +742,7 @@ const TYPES=[
   {code:'PPE_LACK',no:'十二',name:'个体防护不足',count:2,ratio:'0.1%',risk:'防护用品',
    examples:['作业人员未佩戴护目镜','防爆区域未穿防静电工服','酸区操作人员防护面屏缺失','粉尘作业未佩戴防尘口罩','噪音区域员工未佩戴耳塞'],risks:['防护用品缺失使人员在有毒、腐蚀、粉尘环境中直接暴露，造成急性伤害与职业病隐患','防爆区域防静电装备缺失，人体静电成为潜在点火源'],advice:['按岗位风险评估结果配齐配足防护用品，建立发放与更换台账','强化现场佩戴监督，同时改进装备舒适性与可用性，提升主动佩戴率'],fb:0,rate:0}
 ];
-const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行'];
+const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行','其他'];
 const ORGS=['中国昊华','蓝天氟材料','中化蓝天','中化新材料','中化环境','中化装备'];
 const PLACEHOLDERS={
   EQUIP_DEFECT:'例：第 3 条「R116 工段阀门内漏」应归入「介质泄漏/密封点失效」而非「设备本体及附件缺陷」，请 AI 复核分类边界…',
@@ -866,15 +943,32 @@ function bindHazardList(){
   });
   document.getElementById('hz-listmode').addEventListener('click',()=>showToast('列配置面板（原型演示）'));
   const aiModal=document.getElementById('ai-modal');
-  function openAIModal(){aiModal.hidden=false;requestAnimationFrame(()=>aiModal.classList.add('show'));}
+  function openAIModal(){
+    /* 候选类型与生成配置共用同一候选池（含用户新增类型），每次打开动态渲染 */
+    const wrap=document.getElementById('ai-tags');
+    if(wrap)wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick">${t}</span>`).join('');
+    bindAITagSelect();
+    aiModal.hidden=false;requestAnimationFrame(()=>aiModal.classList.add('show'));
+  }
   function closeAIModal(){aiModal.classList.remove('show');setTimeout(()=>{aiModal.hidden=true;},220);}
   document.getElementById('hz-ai').addEventListener('click',openAIModal);
   document.getElementById('ai-modal-close').addEventListener('click',closeAIModal);
   document.getElementById('ai-modal-cancel').addEventListener('click',closeAIModal);
   aiModal.addEventListener('click',e=>{if(e.target===aiModal)closeAIModal();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!aiModal.hidden)closeAIModal();});
-  aiModal.querySelectorAll('#ai-tags .tag-pick').forEach(t=>t.addEventListener('click',()=>t.classList.toggle('on')));
-  document.getElementById('ai-modal-go').addEventListener('click',()=>{
+  function syncAICnt(){const c=document.getElementById('ai-type-cnt');if(c)c.textContent='已选 '+aiModal.querySelectorAll('#ai-tags .tag-pick.on').length+'/'+MAX_RPT_TYPES;}
+  function bindAITagSelect(){
+    aiModal.querySelectorAll('#ai-tags .tag-pick').forEach(t=>t.addEventListener('click',()=>{
+      if(!t.classList.contains('on')&&aiModal.querySelectorAll('#ai-tags .tag-pick.on').length>=MAX_RPT_TYPES){
+        showToast('每份报告最多可选择 '+MAX_RPT_TYPES+' 种隐患类型');
+        syncAICnt();return;
+      }
+      t.classList.toggle('on');
+      syncAICnt();
+    }));
+  }
+  document.getElementById('ai-modal-go').addEventListener('click',(e)=>{
+    eventShiftFired=!!(e&&e.shiftKey); /* Shift+点击：演示失败与自动重试场景 */
     const picked=[...aiModal.querySelectorAll('#ai-tags .tag-pick.on')].map(t=>t.textContent.trim());
     if(picked.length===0){showToast('请至少选择一个关注的隐患类型');return;}
     const listPage=document.getElementById('page-hazard-list');
@@ -886,15 +980,100 @@ function bindHazardList(){
     closeAIModal();
     const now=new Date(),pad=n=>String(n).padStart(2,'0');
     const time=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
-    const rpt={id:'AI-'+now.getTime(),type:'ai',title:'隐患清单 AI 辅助分析报告',time,range:timeDim,count:6496,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,timeDim,orgDim,owner:CUR_USER_NAME};
+    const rpt={id:'AI-'+now.getTime(),type:'ai',status:'generating',genStart:Date.now(),retries:0,title:'隐患清单 AI 辅助分析报告',time,range:timeDim,count:6496,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,timeDim,orgDim,owner:CUR_USER_NAME};
     aiReports.unshift(rpt);
-    pendingAIReport=rpt.id;
-    showToast('AI 辅助分析完成，正在跳转至分析报告…');
+    /* 异步任务：分阶段进度展示；失败自动重试最多 3 次，仍失败提供「重新发起」（原型以秒级模拟真实 5-10 分钟耗时；按住 Shift 点击可演示失败场景） */
+    scheduleAIGen(rpt.id);
+    showToast('已提交 AI 分析任务，预计 5-10 分钟完成，完成后将通知您');
     setTimeout(()=>{
       openPage('hazard-report','隐患分析报告');
-      if(pendingAIReport){const id=pendingAIReport;pendingAIReport=null;showReportDetail(id);}
+      /* 跳转后重置查询条件，确保新提交的"生成中"任务对用户可见 */
+      ['rq-from','rq-to','rq-org','rq-type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      renderReportList('all');
     },600);
   });
+  /* 模拟 AI 报告异步生成任务：排队中→AI 分析→报告组装 */
+  let eventShiftFired=false;
+  const GEN_STAGES=['排队中','AI 分析','报告组装'];
+  /* 各阶段"AI 思考思路"文案池（{N} 会替换为隐患总数数量），按时间轮换播报 */
+  const GEN_THOUGHTS=[
+    ['正在等待分析资源就绪，任务已进入生成队列','已受理分析请求，即将开始处理'],
+    ['正在读取清单中的 {N} 条隐患记录…','正在对隐患描述做分词与语义向量化','正在过滤重复与无效记录，锁定有效分析样本','正在基于隐患描述归纳风险模式，定位高频失效场景…','正在对比各类型隐患的分布与关联关系…','正在评估各类型的典型风险，并匹配历史治理经验…','正在梳理治理建议，优先参考整改成效良好的做法…'],
+    ['正在组织分析结论，按类型装配方报告结构…','正在生成汇总统计与趋势解读，即将完成']
+  ];
+  const GEN_RETRY_MAX=3;
+  function scheduleAIGen(id,attemptStart){
+    const r=aiReports.find(x=>x.id===id);
+    if(!r)return;
+    if(!attemptStart){
+      r.genStart=Date.now();r.retries=0;
+      r.genFail=eventShiftFired||Math.random()<0.12;
+      eventShiftFired=false;
+    }
+    const dur=attemptStart?(4000+Math.random()*3000):(8000+Math.random()*10000);
+    r.genDur=dur;
+    setTimeout(()=>{
+      const cur=aiReports.find(x=>x.id===id);
+      if(!cur||cur.status!=='generating')return;
+      const lp=document.getElementById('page-hazard-report');
+      if(cur.genFail){
+        if(cur.retries<GEN_RETRY_MAX){
+          cur.retries++;
+          showToast('「'+cur.title+'」生成失败，正在自动重试（第 '+cur.retries+'/'+GEN_RETRY_MAX+' 次）…');
+          scheduleAIGen(id,true);
+        }else{
+          cur.status='failed';
+          if(lp&&!lp.hidden)renderReportList(currentRFilter);
+          showToast('「'+cur.title+'」自动重试 '+GEN_RETRY_MAX+' 次仍失败，请点击「重新发起」');
+        }
+      }else{
+        cur.status='ready';
+        cur.time=nowStr();
+        notifications.unshift({id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成提醒',content:'【AI 辅助分析报告】您发起的《隐患清单 AI 辅助分析报告》（聚焦 '+((cur.focus||[]).length)+' 类隐患，共 '+cur.count.toLocaleString()+' 条）已生成完成，请查看报告详情。',time:cur.time,read:false,rid:cur.id});
+        updateBellBubble();
+        if(lp&&!lp.hidden)renderReportList(currentRFilter);
+        showToast('通知：「'+cur.title+'」已生成完成，可在报告列表中查看');
+      }
+    },r.genFail?dur*0.55:dur);
+  }
+  /* 手动重试（自动重试耗尽后提供） */
+  function retryAIGen(id,e){
+    if(e)e.stopPropagation();
+    const r=aiReports.find(x=>x.id===id);
+    if(!r)return;
+    r.status='generating';r.retries=0;r.genFail=false;
+    renderReportList(currentRFilter);
+    showToast('已重新发起 AI 分析任务，预计 5-10 分钟完成，完成后将通知您');
+    scheduleAIGen(id);
+  }
+  window.retryAIGen=retryAIGen; /* 列表卡片内联 onclick 调用 */
+  /* "生成中"卡片：已等待时间 + 分阶段进度（排队中→AI 分析→报告组装） */
+  setInterval(()=>{
+    document.querySelectorAll('.gen-elapsed[data-start]').forEach(el=>{
+      const s=Math.max(0,Math.floor((Date.now()-Number(el.dataset.start))/1000));
+      el.textContent='已等待 '+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    });
+    document.querySelectorAll('.gen-think[data-start][data-dur]').forEach(el=>{
+      const start=Number(el.dataset.start),dur=Number(el.dataset.dur)||12000;
+      const p=Math.min(97,Math.max(0,(Date.now()-start)/dur*100));
+      const si=Math.min(2,Math.floor(p/33.34));
+      el.querySelectorAll('.gen-step').forEach(st=>{
+        const i=Number(st.dataset.si);
+        st.classList.toggle('done',i<si);
+        st.classList.toggle('cur',i===si);
+        const t=st.querySelector('.gen-step-txt');
+        if(t)t.textContent=(i<si?'✓ ':'')+GEN_STAGES[i];
+      });
+      const th=el.querySelector('.gen-thought-txt');
+      if(th){
+        const cnt=el.dataset.cnt||'';
+        const pool=GEN_THOUGHTS[si];
+        const k=Math.floor((Date.now()-start)/2600)%pool.length;
+        const msg=pool[k].replace('{N}',cnt);
+        if(th.textContent!==msg){th.style.opacity='0';setTimeout(()=>{th.textContent=msg;th.style.opacity='1';},180);}
+      }
+    });
+  },600);
   document.getElementById('hz-export').addEventListener('click',()=>showToast('导出任务已创建，请在下载中心查看'));
   document.querySelectorAll('#page-hazard-list .link-detail').forEach(el=>{
     el.addEventListener('click',e=>{e.stopPropagation();showToast('隐患详情 HL-2025-'+el.dataset.detail+'（原型演示）');});
@@ -979,16 +1158,44 @@ let aiReports=[],currentReport=null,pendingAIReport=null,currentRFilter='all',cu
 let rptFbState={};
 let rptFbTarget=null,rptFbFrom=null;
 /* 报告生成配置：每位用户仅能配置自身所需的报告，配置数据按登录用户隔离存储（原型中默认当前用户） */
-let rptConfig={period:'每周 + 每月',periods:['每周','每月'],types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效'],custom:null};
+let rptConfig={period:'每周 + 每月',periods:['每周','每月'],org:'中国中化',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效'],custom:null};
 let cfgTypeOptions=['设备本体及附件缺陷','物理安全防护设施缺失','电气设备设施隐患','介质泄漏/密封点失效','现场标识与信息识别','个体防护不足','人的不安全行为','现场环境与污染控制'];
+/* 默认通用隐患类型：系统内置候选，仅管理员可删除；每份报告最多可选择 15 种隐患类型 */
+const DEFAULT_TYPE_NAMES=cfgTypeOptions.slice();
+const MAX_RPT_TYPES=15;
 let cfgTypeSel=[];
-let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'每周 + 每月',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效']}];
+let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'每周 + 每月',org:'中国中化',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效']}];
+/* 历史已完成的 AI 辅助分析报告（供消息中心提醒与详情跳转演示） */
+aiReports.push(
+  {id:'AI-1013',type:'ai',status:'ready',title:'隐患清单 AI 辅助分析报告',time:'2026-10-13 16:40',range:'2025-11-01 ~ 2025-11-30',count:2387,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效'],timeDim:'2025-11',orgDim:'中国中化',owner:'张伟'},
+  {id:'AI-1012',type:'ai',status:'ready',title:'隐患清单 AI 辅助分析报告',time:'2026-10-12 10:15',range:'2025-10-01 ~ 2025-10-31',count:1204,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:['现场标识与信息识别','个体防护不足','人的不安全行为'],timeDim:'2025-10',orgDim:'中国中化',owner:'张伟'}
+);
+/* 消息中心数据：消息标题与内容均按 AI 辅助分析报告生成提醒展示，点击消息跳转对应报告详情 */
+let notifications=[];let msgPage=1;const MSG_PAGE_SIZE=10;let msgSeq=0;
+function makeAIMsg(rid,time,focusN,count,read){
+  return {id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成提醒',content:'【AI 辅助分析报告】您发起的《隐患清单 AI 辅助分析报告》（聚焦 '+focusN+' 类隐患，共 '+count.toLocaleString()+' 条）已生成完成，请查看报告详情。',time:time,read:!!read,rid:rid};
+}
+notifications=[
+  makeAIMsg('AI-1013','2026-10-13 16:40',3,2387,false),
+  makeAIMsg('AI-1012','2026-10-12 10:15',3,1204,false),
+  makeAIMsg('AI-1012','2026-10-11 18:02',3,1204,true),
+  makeAIMsg('AI-1013','2026-10-11 09:26',3,2387,true),
+  makeAIMsg('AI-1012','2026-10-10 15:47',3,1204,true),
+  makeAIMsg('AI-1013','2026-10-10 08:31',3,2387,true),
+  makeAIMsg('AI-1012','2026-10-09 20:12',3,1204,true),
+  makeAIMsg('AI-1013','2026-10-09 11:58',3,2387,true),
+  makeAIMsg('AI-1012','2026-10-08 17:23',3,1204,true),
+  makeAIMsg('AI-1013','2026-10-08 09:05',3,2387,true),
+  makeAIMsg('AI-1012','2026-10-07 14:49',3,1204,true),
+  makeAIMsg('AI-1013','2026-10-07 08:16',3,2387,true)
+];
 function nowStr(){
   const n=new Date(),pad=x=>String(x).padStart(2,'0');
   return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())+' '+pad(n.getHours())+':'+pad(n.getMinutes());
 }
 function buildCfgChanges(oldC,newC){
   const ch=[];
+  if(oldC.org!==newC.org)ch.push('所属单位：'+oldC.org+' → '+newC.org);
   if(oldC.period!==newC.period)ch.push('生成周期：'+oldC.period+' → '+newC.period);
   const added=newC.types.filter(t=>!oldC.types.includes(t));
   const removed=oldC.types.filter(t=>!newC.types.includes(t));
@@ -1008,7 +1215,7 @@ function renderHistory(){
       <td><span class="his-badge ${h.action==='initial'?'initial':'rev'}">${h.action==='initial'?'初始配置':'修订'}</span></td>
       <td class="his-time">${h.time}</td>
       <td class="his-changes">${h.action==='initial'?'完成初始配置':(h.changes.length?h.changes.join('；'):'<span style="color:var(--text-tertiary)">无内容变更</span>')}</td>
-      <td>${h.period} 生成<span class="his-snap">关注 ${h.types.length} 个类型：${h.types.join('、')}</span></td>
+      <td>${h.period} 生成<span class="his-snap">所属单位：${h.org||'—'}；关注 ${h.types.length} 个类型：${h.types.join('、')}</span></td>
     </tr>`).join('');
   wrap.innerHTML=`
     <table class="his-table">
@@ -1068,13 +1275,16 @@ function reportHTML(){
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0">
           <div class="header-badges" id="rpt-d-badges"></div>
-          <button class="btn-rpt-cfg" id="rpt-d-export" title="以 Word 文档导出当前报告" onclick="exportReportWord()"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>导出 Word</button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-rpt-cfg" id="rpt-d-excel" title="下载当前报告覆盖的原始隐患数据清单（Excel）" onclick="exportHazardExcel(event)"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M4 3h16v18H4zM4 9h16M9 9v12M4 15h16" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>下载原始数据</button>
+            <button class="btn-rpt-cfg" id="rpt-d-export" title="以 Word 文档导出当前报告" onclick="exportReportWord()"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>导出报告（Word）</button>
+          </div>
         </div>
       </div>
       <div class="meta" id="rpt-d-meta"></div>
     </header>
     <section class="metrics" aria-label="报告统计概览">
-      <div class="metric"><div class="label">有效隐患</div><div class="value" id="rpt-d-count">0<span class="unit">条</span></div><div class="hint" id="rpt-d-count-hint"></div></div>
+      <div class="metric"><div class="label">隐患总数</div><div class="value" id="rpt-d-count">0<span class="unit">条</span></div><div class="hint" id="rpt-d-count-hint"></div></div>
       <div class="metric accent"><div class="label">隐患类型</div><div class="value">12<span class="unit">类</span></div><div class="hint">主语义单标签归类</div></div>
       <div class="metric warn"><div class="label">反馈热点维度</div><div class="value" id="rpt-d-weak">设备本体及附件缺陷</div><div class="hint" id="rpt-d-weak-hint">484 条 · 占比 30.2%</div></div>
       <div class="metric danger"><div class="label">累计反馈</div><div class="value"><span id="total-fb">42</span><span class="unit">条</span></div><div class="hint" id="total-hint">覆盖 12 个隐患类型</div></div>
@@ -1200,7 +1410,6 @@ function openFeedback(code,from,e){
   setTimeout(()=>document.getElementById('textarea-'+code).focus(),320);
 }
 function toggleTag(code,tag,el){
-  el.stopPropagation();
   const st=state[code];
   if(st.tags.has(tag)){st.tags.delete(tag);el.setAttribute('aria-pressed','false');}
   else{st.tags.add(tag);el.setAttribute('aria-pressed','true');}
@@ -1218,6 +1427,7 @@ function cancelFeedback(code){
 function submitLike(code){applySubmit(code,'点赞已记录，将用于 AI 正向样本校准');}
 function submitFeedback(code){
   const st=state[code];
+  if(st.type==='dislike'&&st.tags.size===0){showToast('请至少选择一个问题标签，以便精准定位问题');return;}
   st.comment=document.getElementById('textarea-'+code).value.trim();
   const tagStr=st.tags.size?`，标签：${[...st.tags].join('、')}`:'';
   applySubmit(code,`反馈已提交${tagStr}，将回流至模型训练样本库`);
@@ -1318,25 +1528,47 @@ function renderReportList(filter){
   if(!list.length){wrap.innerHTML='<div class="rpt-empty">暂无符合条件的报告，请调整查询条件或检查报告生成配置</div>';return;}
   wrap.innerHTML=list.map(r=>{
     const isAI=r.type==='ai';
+    const isGen=r.status==='generating';
+    const isFail=r.status==='failed';
     const ico=isAI?'<path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/>':'<path d="M5 4h14v4H5zM5 11h14v9H5zM8 15h3M8 18h3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
     const tag=isAI?'<span class="rpt-tag ai">AI 辅助分析</span>':'<span class="rpt-tag sc">周期定时</span>';
+    const genTag=isGen?' <span class="rpt-tag gen"><span class="gen-spin"></span>生成中</span>'+(r.retries>0?` <span class="rpt-tag gen">已自动重试 ${r.retries}/3</span>`:''):'';
+    const failTag=isFail?' <span class="rpt-tag fail">生成失败</span> <span class="rpt-tag gen">已自动重试 3/3</span>':'';
     const focusStr=(isAI&&r.focus&&r.focus.length)?`<span class="dot"></span>聚焦 ${r.focus.length} 个类型`:'';
+    const genElapsed=isGen?`<span class="dot"></span><span class="gen-elapsed" data-start="${r.genStart||Date.now()}">已等待 00:00</span>`:'';
     const org=r.org||r.orgDim||'—';
     const ownerStr=curRole==='admin'?`<span class="dot"></span><span>归属：${r.owner||CUR_USER_NAME}</span>`:'';
     const fb=rptFbState[r.id]||{};
     const typeNames=isAI?(r.focus||[]):TYPES.map(t=>t.name);
-    const chips=typeNames.length
-      ?typeNames.slice(0,3).map(n=>`<span class="rpt-type-chip">${n}</span>`).join('')+(typeNames.length>3?`<span class="rpt-type-chip more">+${typeNames.length-3}</span>`:'')
-      :`<span class="rpt-desc">${r.desc}</span>`;
-    return `<div class="rpt-card ${r.type}" data-rid="${r.id}" role="button" tabindex="0">
+    const chips=isGen
+      ?`<span class="rpt-desc">AI 正在基于所选 ${typeNames.length} 个类型对 ${r.count.toLocaleString()} 条隐患进行聚焦分析…</span>`
+      :(isFail
+        ?`<span class="rpt-desc">AI 分析任务失败：自动重试 3 次仍未成功，请点击「重新发起」重新提交任务</span>`
+        :(typeNames.length
+          ?typeNames.slice(0,3).map(n=>`<span class="rpt-type-chip">${n}</span>`).join('')+(typeNames.length>3?`<span class="rpt-type-chip more">+${typeNames.length-3}</span>`:'')
+          :`<span class="rpt-desc">${r.desc}</span>`));
+    const genBar=isGen?`<div class="gen-think" data-start="${r.genStart||Date.now()}" data-dur="${r.genDur||12000}" data-cnt="${r.count}">
+      <div class="gen-steps">
+        <span class="gen-step cur" data-si="0"><span class="gen-step-txt">排队中</span></span>
+        <span class="gen-step" data-si="1"><span class="gen-step-arrow">→</span><span class="gen-step-txt">AI 分析</span></span>
+        <span class="gen-step" data-si="2"><span class="gen-step-arrow">→</span><span class="gen-step-txt">报告组装</span></span>
+      </div>
+      <div class="gen-thought"><span class="think-dot"><i></i><i></i><i></i></span><span class="gen-thought-txt">正在等待分析资源就绪，任务已进入生成队列</span></div>
+    </div>`:'';
+    return `<div class="rpt-card ${r.type}" data-rid="${r.id}" ${isGen?'data-gen="1"':''} ${isFail?'data-fail="1"':''} role="button" tabindex="0">
       <div class="rpt-ico"><svg viewBox="0 0 24 24">${ico}</svg></div>
       <div class="rpt-body">
-        <div class="rpt-title">${r.title}${tag}</div>
-        <div class="rpt-types"${typeNames.length?` data-tip="${typeNames.join('、')}"`:''}>${chips}</div>
-        <div class="rpt-meta"><span>${r.time}</span><span class="dot"></span><span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>有效隐患 ${r.count.toLocaleString()} 条</span>${focusStr}${ownerStr}</div>
+        <div class="rpt-title">${r.title}${tag}${genTag}${failTag}</div>
+        <div class="rpt-types"${(!isGen&&!isFail&&typeNames.length)?` data-tip="${typeNames.join('、')}"`:''}>${chips}</div>
+        ${genBar}
+        <div class="rpt-meta"><span>${r.time}</span><span class="dot"></span><span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>隐患总数 ${r.count.toLocaleString()} 条</span>${focusStr}${genElapsed}${ownerStr}</div>
       </div>
       <div class="rpt-side">
-        <span class="rpt-go">查看详情 ›</span>
+        ${isGen
+          ?'<span class="rpt-go" style="color:var(--text-tertiary)">AI 分析中…</span>'
+          :(isFail
+            ?`<button class="fb-btn" title="重新发起 AI 分析任务" onclick="retryAIGen('${r.id}',event)">↻ 重新发起</button>`
+            :`<span class="rpt-go">查看详情 ›</span>
         <div class="rpt-fb" role="group" aria-label="报告整体反馈">
           <button class="fb-btn like" aria-pressed="${fb.type==='like'}" title="对报告整体点赞" onclick="rptFb('${r.id}','like',event)">
             <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 11v8H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h3zM7 11l4-7a2 2 0 0 1 2 1.5L12 8h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 15.8 18H7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>点赞</button>
@@ -1344,14 +1576,14 @@ function renderReportList(filter){
             <svg class="icon" viewBox="0 0 24 24" fill="none" style="transform:rotate(180deg)"><path d="M7 11v8H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h3zM7 11l4-7a2 2 0 0 1 2 1.5L12 8h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 15.8 18H7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>点踩</button>
           <button class="fb-btn" title="对报告整体提意见" onclick="openRptFb('${r.id}',event)">意见</button>
         </div>
-        ${fb.submitted?'<span class="rpt-fb-done"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>已提交报告反馈</span>':''}
+        ${fb.submitted?'<span class="rpt-fb-done"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>已提交报告反馈</span>':''}`)}
       </div>
     </div>`;
   }).join('');
   wrap.querySelectorAll('.rpt-card').forEach(c=>{
     const go=()=>showReportDetail(c.dataset.rid);
-    c.onclick=go;
-    c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+    c.onclick=c.dataset.gen?()=>showToast('报告生成中（预计 5-10 分钟），完成后将通知您'):(c.dataset.fail?()=>showToast('任务生成失败，请点击右侧「重新发起」重新提交'):go);
+    c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.onclick();}};
   });
 }
 function showReportList(){
@@ -1380,7 +1612,6 @@ function openRptFb(id,e){
 function openRptFbModal(id,from){
   rptFbTarget=id;rptFbFrom=from;
   const r=getAllReports().find(x=>x.id===id);
-  document.getElementById('rpt-fb-sub').textContent=(r?`《${r.title}》`:'')+'针对整份报告的评价与意见，将回流至模型训练样本库。';
   const st=rptFbSt(id);
   const isDislike=from==='dislike';
   document.getElementById('rpt-fb-tag-block').hidden=!isDislike;
@@ -1413,6 +1644,7 @@ function cancelRptFb(){
 }
 function submitRptFb(){
   const st=rptFbSt(rptFbTarget);
+  if(rptFbFrom==='dislike'&&st.tags.size===0){showToast('请至少选择一个问题标签，以便精准定位问题');return;}
   st.comment=document.getElementById('rpt-fb-textarea').value.trim();
   st.submitted=true;
   fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===rptFbTarget)||{}).title||rptFbTarget,kind:st.type==='dislike'?'dislike':'comment',tags:[...st.tags],comment:st.comment,src:'报告列表页'});
@@ -1571,8 +1803,53 @@ function bindFbDashboard(){
   document.getElementById('fbd-export').addEventListener('click',exportFbLog);
   renderFbDashboard();
 }
-function exportReportWord(id,ev){
+/* 报告详情页：下载原始隐患数据清单（Excel，兼容 MS Excel HTML 格式） */
+function exportHazardExcel(ev){
   if(ev){ev.stopPropagation();ev.preventDefault();}
+  const r=currentReport;
+  if(!r){showToast('下载失败：未找到当前报告');return;}
+  const isAI=r.type==='ai';
+  const focusList=(isAI&&r.focus&&r.focus.length)?r.focus:null;
+  const list=focusList?TYPES.filter(t=>focusList.includes(t.name)):TYPES;
+  const org=r.org||r.orgDim||'—';
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const codeHash=t=>{let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))>>>0;return h;};
+  /* 从报告统计范围解析日期区间，为示例记录生成发现日期 */
+  const dates=(String(r.range).match(/\d{4}-\d{2}-\d{2}/g))||[];
+  const dFrom=dates[0]||'2025-12-01',dTo=dates[1]||'2025-12-31';
+  const tFrom=new Date(dFrom).getTime(),tTo=new Date(dTo).getTime();
+  const fmt=ts=>{const d=new Date(ts),p=x=>String(x).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());};
+  const levels=['一般隐患','一般隐患','一般隐患','较大隐患'];
+  const grades=['C级','D级','C级','B级'];
+  const checks=['公司级排查','厂级排查','车间级排查','班组级排查'];
+  const states=['已整改','整改中','已整改','已整改','整改中'];
+  let rows='',idx=0;
+  list.forEach(t=>{
+    const code=codeHash(t.name);
+    (t.examples||[]).forEach((ex,i)=>{
+      idx++;
+      const org2=ORGS[(code+i)%ORGS.length];
+      const dt=fmt(tFrom+(code+i*97)%Math.max(1,(tTo-tFrom)));
+      const st=states[(code+i)%states.length];
+      rows+=`<tr><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${idx}</td><td style="border:.75pt solid #999;padding:3pt 6pt">${esc(ex)}</td><td style="border:.75pt solid #999;padding:3pt 6pt">${esc(t.name)}</td><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${esc(org2)}</td><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${levels[(code+i)%levels.length]}</td><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${grades[(code+i)%grades.length]}</td><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${checks[(code+i)%checks.length]}</td><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${dt}</td><td style="border:.75pt solid #999;padding:3pt 6pt;text-align:center">${st}</td></tr>`;
+    });
+  });
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>原始隐患数据</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>
+  <table border="0"><tr><td colspan="9" style="font-family:SimHei;font-size:14pt;font-weight:bold">${esc(r.title)} · 原始隐患数据清单</td></tr>
+  <tr><td colspan="9" style="font-family:SimSun;font-size:10pt;color:#555">所属单位：${esc(org)}　|　统计范围：${esc(r.range)}　|　隐患总数：${r.count.toLocaleString()} 条　|　导出说明：本清单为报告覆盖类型的原始隐患记录（每类列举代表性样本），导出时间 ${nowStr()}</td></tr></table>
+  <table border="1" style="border-collapse:collapse">
+  <tr>${['序号','隐患描述','隐患类型','所属单位','隐患等级','风险等级','排查级别','发现日期','整改状态'].map(h=>`<td style="background:#0A4DA2;color:#fff;font-family:SimHei;font-weight:bold;font-size:10.5pt;border:.75pt solid #999;padding:4pt 6pt;text-align:center">${h}</td>`).join('')}</tr>
+  ${rows}
+  </table></body></html>`;
+  const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=r.title+'-原始隐患数据清单.xls';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  showToast('已下载原始隐患数据清单（Excel），共 '+idx+' 条代表性记录');
+}
+function exportReportWord(id,ev){  if(ev){ev.stopPropagation();ev.preventDefault();}
   const r=id?getAllReports().find(x=>x.id===id):currentReport;
   if(!r){showToast('导出失败：未找到该报告');return;}
   const isAI=r.type==='ai';
@@ -1589,7 +1866,7 @@ function exportReportWord(id,ev){
   <hr style="border:none;border-top:1.5pt solid #0A4DA2;margin:0 0 14pt">`;
   /* 一、报告概览 */
   body+=`<p style="${H};font-size:14pt;color:#0A4DA2;margin:12pt 0 6pt">一、报告概览</p>
-  <p style="${F};line-height:1.8;margin:0 0 6pt">本报告基于 HSE 管理系统隐患清单数据，经 AI 分析引擎（模型 v2.3）语义归类与风险洞察生成，${isAI?'并按用户配置聚焦展示指定隐患类型。':''}报告期内共归集有效隐患 <b>${r.count.toLocaleString()}</b> 条，覆盖 <b>${list.length}</b> 类隐患类型。</p>`;
+  <p style="${F};line-height:1.8;margin:0 0 6pt">本报告基于 HSE 管理系统隐患清单数据，经 AI 分析引擎（模型 v2.3）语义归类与风险洞察生成，${isAI?'并按用户配置聚焦展示指定隐患类型。':''}报告期内共归集隐患总数 <b>${r.count.toLocaleString()}</b> 条，覆盖 <b>${list.length}</b> 类隐患类型。</p>`;
   if(isAI&&focusList){
     body+=`<p style="${F};line-height:1.8;margin:0 0 6pt"><b>聚焦隐患类型：</b>${focusList.map(esc).join('、')}</p>`;
     if(r.timeDim||r.orgDim)body+=`<p style="${F};line-height:1.8;margin:0 0 6pt"><b>分析维度：</b>时间维度 ${esc(r.timeDim||'—')}；所属单位 ${esc(r.orgDim||'—')}</p>`;
@@ -1638,7 +1915,7 @@ function showReportDetail(id){
     const focusSet=isAI&&r.focus?new Set(r.focus):null;
     currentFocusSet=focusSet;
     const nCls=(focusSet&&focusSet.size)?focusSet.size:12;
-    document.getElementById('rpt-d-meta').innerHTML=`<span>有效隐患 ${r.count.toLocaleString()} 条</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>AI 模型 v2.3</span>`;
+    document.getElementById('rpt-d-meta').innerHTML=`<span>隐患总数 ${r.count.toLocaleString()} 条</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>AI 模型 v2.3</span>`;
     document.querySelector('[data-rview="detail"] .count').textContent=nCls+' 类';
     if(focusSet){
       const cands=TYPES.filter(t=>focusSet.has(t.name));
@@ -1753,32 +2030,37 @@ function syncCustomRows(){
 function renderCfgSummary(){
   const el=document.getElementById('rpt-cfg-summary');
   if(!el)return;
-  el.innerHTML=`<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>我的生成配置：<b>${rptConfig.period}</b> 生成 · 下一阶段关注：<b>${rptConfig.types.length?rptConfig.types.join('、'):'未设置'}</b>`;
+  el.innerHTML=`<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>我的生成配置：<b>${rptConfig.period}</b> 生成 · 所属单位：<b>${rptConfig.org||'中国中化'}</b> · 下一阶段关注：<b>${rptConfig.types.length?rptConfig.types.join('、'):'未设置'}</b>`;
 }
 function renderCfgTypeTags(){
   const wrap=document.getElementById('cfg-tags');
   if(!wrap)return;
-  wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}" data-type="${t}">${t}<span class="tag-rm" title="移除" role="button" tabindex="0" aria-label="移除 ${t}">×</span></span>`).join('');
+  wrap.innerHTML=cfgTypeOptions.map(t=>{
+    const isDef=DEFAULT_TYPE_NAMES.includes(t);
+    const rm=(isDef&&curRole!=='admin')?'':`<span class="tag-rm" title="${isDef?'删除默认通用类型（仅管理员）':'移除'}" role="button" tabindex="0" aria-label="移除 ${t}">×</span>`;
+    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}${isDef?' def':''}" data-type="${t}">${t}${isDef?'<span class="tag-def">通用</span>':''}${rm}</span>`;
+  }).join('');
+  const cnt=document.getElementById('cfg-type-cnt');
+  if(cnt)cnt.textContent='已选 '+cfgTypeSel.length+'/'+MAX_RPT_TYPES;
+  const syncCnt=()=>{const c=document.getElementById('cfg-type-cnt');if(c)c.textContent='已选 '+cfgTypeSel.length+'/'+MAX_RPT_TYPES;};
   wrap.querySelectorAll('.tag-pick').forEach(t=>{
-    t.addEventListener('click',e=>{
-      if(e.target.classList.contains('tag-rm'))return;
+    const toggle=()=>{
       const name=t.dataset.type;
       t.classList.toggle('on');
-      if(t.classList.contains('on')){if(!cfgTypeSel.includes(name))cfgTypeSel.push(name);}
-      else cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
-    });
-    t.addEventListener('keydown',e=>{
-      if((e.key==='Enter'||e.key===' ')&&!e.target.classList.contains('tag-rm')){
-        e.preventDefault();
-        const name=t.dataset.type;
-        t.classList.toggle('on');
-        if(t.classList.contains('on')){if(!cfgTypeSel.includes(name))cfgTypeSel.push(name);}
-        else cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
-      }
-    });
-    t.querySelector('.tag-rm').addEventListener('click',e=>{
+      if(t.classList.contains('on')){
+        if(cfgTypeSel.includes(name))return;
+        if(cfgTypeSel.length>=MAX_RPT_TYPES){t.classList.remove('on');showToast('每份报告最多可选择 '+MAX_RPT_TYPES+' 种隐患类型');return;}
+        cfgTypeSel.push(name);
+      }else cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
+      syncCnt();
+    };
+    t.addEventListener('click',e=>{if(e.target.classList.contains('tag-rm'))return;toggle();});
+    t.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.classList.contains('tag-rm')){e.preventDefault();toggle();}});
+    const rm=t.querySelector('.tag-rm');
+    if(rm)rm.addEventListener('click',e=>{
       e.stopPropagation();
       const name=t.dataset.type;
+      if(DEFAULT_TYPE_NAMES.includes(name)&&curRole!=='admin'){showToast('「'+name+'」为默认通用隐患类型，仅管理员可删除');return;}
       cfgTypeOptions=cfgTypeOptions.filter(x=>x!==name);
       cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
       renderCfgTypeTags();
@@ -1789,7 +2071,8 @@ function renderCfgTypeTags(){
 function openCfgModal(){
   const m=document.getElementById('rpt-cfg-modal');
   const selPeriods=rptConfig.periods||(rptConfig.custom?['自定义']:[rptConfig.period]);
-  /* 回显我的配置：周期多选 */
+  /* 回显我的配置：所属单位 + 周期多选 */
+  document.getElementById('cfg-org').value=rptConfig.org||'中国中化';
   m.querySelectorAll('#cfg-period .tag-pick').forEach(t=>t.classList.toggle('on',selPeriods.includes(t.dataset.pd)));
   cfgTypeSel=rptConfig.types.slice();
   renderCfgTypeTags();
@@ -1871,6 +2154,7 @@ function bindCfgModal(){
   document.getElementById('rpt-cfg-save').addEventListener('click',()=>{
     const periods=[...m.querySelectorAll('#cfg-period .tag-pick.on')].map(t=>t.dataset.pd);
     const types=cfgTypeSel.slice();
+    const org=document.getElementById('cfg-org').value||'中国中化';
     if(!periods.length){showToast('请至少选择一个报告生成周期');return;}
     let custom=null;
     const periodParts=[];
@@ -1883,12 +2167,12 @@ function bindCfgModal(){
     periods.filter(p=>p!=='自定义').forEach(p=>periodParts.push(p));
     const periodText=periodParts.join(' + ');
     if(types.length===0){showToast('请至少选择一个下一阶段关注的隐患类型');return;}
-    const oldCfg={period:rptConfig.period,types:rptConfig.types};
-    rptConfig={period:periodText,periods,types,custom};
-    rptCfgHistory.unshift({time:nowStr(),action:'rev',changes:buildCfgChanges(oldCfg,rptConfig),period:periodText,types:types.slice()});
+    const oldCfg={period:rptConfig.period,org:rptConfig.org,types:rptConfig.types};
+    rptConfig={period:periodText,periods,org,types,custom};
+    rptCfgHistory.unshift({time:nowStr(),action:'rev',changes:buildCfgChanges(oldCfg,rptConfig),period:periodText,org,types:types.slice()});
     renderCfgSummary();
     closeCfgModal();
-    showToast('报告生成配置已保存：'+periodText+' 生成 · 关注 '+types.length+' 个类型');
+    showToast('报告生成配置已保存：'+periodText+' 生成 · 所属单位 '+org+' · 关注 '+types.length+' 个类型');
   });
 }
 function bindRptQuery(){
@@ -1975,6 +2259,47 @@ renderMenu();
 renderTabs();
 activatePage('hazard-report');
 document.querySelector('[data-menu-id="workbench"]').addEventListener('click',()=>openPage('workbench','工作台'));
+/* ===== 消息中心：铃铛点击弹出；消息点击跳转报告详情（全局作用域，供任务完成回调调用） ===== */
+const bellEl=document.getElementById('notify-bell');
+function updateBellBubble(){
+  const un=notifications.filter(n=>!n.read).length;
+  const b=bellEl.querySelector('.bubble');
+  if(b){if(un>0){b.style.display='';b.textContent=un>99?'99+':String(un);}else{b.style.display='none';}}
+  bellEl.setAttribute('aria-label','通知'+(un>0?'，'+un+' 条未读':'，无未读'));
+}
+function renderMsgList(){
+  const totalPages=Math.max(1,Math.ceil(notifications.length/MSG_PAGE_SIZE));
+  if(msgPage>totalPages)msgPage=totalPages;if(msgPage<1)msgPage=1;
+  const startI=(msgPage-1)*MSG_PAGE_SIZE;
+  const items=notifications.slice(startI,startI+MSG_PAGE_SIZE);
+  document.getElementById('msg-list').innerHTML=items.map(n=>
+    `<div class="msg-item${n.read?'':' unread'}" data-mid="${n.id}" role="button" tabindex="0">
+      <div class="row1"><span class="m-title">${n.title}</span><span class="m-time">${n.time}</span></div>
+      <div class="row2"><span class="m-content">${n.content}</span><span class="m-go">查看详情 ▶</span></div>
+    </div>`).join('');
+  document.getElementById('msg-total').textContent='共 '+notifications.length+' 条';
+  document.getElementById('msg-page-ind').textContent=msgPage+' / '+totalPages;
+  document.getElementById('msg-prev').disabled=msgPage<=1;
+  document.getElementById('msg-next').disabled=msgPage>=totalPages;
+}
+function openMsgCenter(){msgPage=1;renderMsgList();const m=document.getElementById('msg-center-modal');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));updateBellBubble();}
+function closeMsgCenter(){const m=document.getElementById('msg-center-modal');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+bellEl.addEventListener('click',e=>{e.stopPropagation();const m=document.getElementById('msg-center-modal');m.hidden?openMsgCenter():closeMsgCenter();});
+bellEl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();const m=document.getElementById('msg-center-modal');m.hidden?openMsgCenter():closeMsgCenter();}});
+document.getElementById('msg-close').addEventListener('click',closeMsgCenter);
+document.getElementById('msg-readall').addEventListener('click',()=>{notifications.forEach(n=>n.read=true);renderMsgList();updateBellBubble();showToast('已全部标记为已读');});
+document.getElementById('msg-prev').addEventListener('click',()=>{msgPage--;renderMsgList();});
+document.getElementById('msg-next').addEventListener('click',()=>{msgPage++;renderMsgList();});
+document.getElementById('msg-list').addEventListener('click',e=>{
+  const item=e.target.closest('.msg-item');if(!item)return;
+  const n=notifications.find(x=>x.id===item.dataset.mid);if(!n)return;
+  n.read=true;updateBellBubble();closeMsgCenter();
+  openPage('hazard-report','隐患分析报告');
+  showReportDetail(n.rid);
+});
+document.getElementById('msg-center-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMsgCenter();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('msg-center-modal').hidden)closeMsgCenter();});
+updateBellBubble();
 </script>
 
 
