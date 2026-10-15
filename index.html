@@ -1056,12 +1056,11 @@ function bindHazardList(){
       goBtn.classList.remove('btn-batch-mode');
     }else{
       status.textContent='已超限';
-      hint.innerHTML='当前数据量 <b>'+c.toLocaleString()+'</b> 条，超出 AI 单次分析上限 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条。<b>无法直接发起分析</b>，请使用下方分批方案，或返回缩小时间范围 / 单位 / 类型筛选条件后重试。';
-      const plan=buildBatchPlan(c);
-      bpList.innerHTML=plan.map(b=>'<div class="bp-item"><span class="bp-tag">'+b.tag+'</span><span class="bp-range">'+b.range+'</span><span class="bp-cnt">'+b.cnt.toLocaleString()+' 条</span></div>').join('');
-      bp.style.display='block';
-      goBtn.textContent='分批分析';
-      goBtn.classList.add('btn-batch-mode');
+      const over=c-AI_MAX_COUNT;
+      hint.innerHTML='当前数据量 <b>'+c.toLocaleString()+'</b> 条，超出 AI 单次分析上限 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条。提交后<b>仅处理前 '+AI_MAX_COUNT.toLocaleString()+' 条</b>，超出 '+over.toLocaleString()+' 条<b>不纳入本次分析结果</b>（报告为整体性分析，无法分批合并）。如需分析全部数据，请缩小时间范围 / 单位 / 类型筛选条件后分多次发起。';
+      bp.style.display='none';
+      goBtn.textContent='开始分析';
+      goBtn.classList.remove('btn-batch-mode');
     }
   }
   function openAIModal(){
@@ -1098,7 +1097,9 @@ function bindHazardList(){
     if(picked.length===0){showToast('请至少选择一个关注的隐患类型');return;}
     const c=getAICount();
     const lv=getAILevel(c);
-    const isBatch=(lv==='over');
+    /* 超限时仅处理前 10 万条，超出部分不纳入（报告为整体性分析，无法分批合并） */
+    const isOver=(lv==='over');
+    const analyzedCount=isOver?AI_MAX_COUNT:c;
     const listPage=document.getElementById('page-hazard-list');
     const inputs=listPage?[...listPage.querySelectorAll('.fi-input')].map(i=>i.value.trim()):[];
     const dates=inputs.filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v));
@@ -1108,29 +1109,15 @@ function bindHazardList(){
     closeAIModal();
     const now=new Date(),pad=n=>String(n).padStart(2,'0');
     const time=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
-    if(isBatch){
-      /* 超限分批模式：按方案拆分为多个 AI 任务，每批 ≤ AI_BATCH_SIZE */
-      const plan=buildBatchPlan(c);
-      plan.forEach((b,i)=>{
-        const rpt={id:'AI-'+now.getTime()+'-B'+(i+1),type:'ai',status:'generating',genStart:Date.now()+(i*200),retries:0,title:'隐患清单 AI 辅助分析报告（第'+(i+1)+'批/共'+plan.length+'批）',time,range:b.range,count:b.cnt,desc:'基于当前清单第 '+(i+1)+' 批数据（'+b.range+'，'+b.cnt.toLocaleString()+' 条），围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,batchIdx:i,batchTotal:plan.length,orgDim,owner:CUR_USER_NAME};
-        aiReports.unshift(rpt);
-        scheduleAIGen(rpt.id);
-      });
-      showToast('已提交 '+plan.length+' 个分批 AI 分析任务（共 '+c.toLocaleString()+' 条，每批 ≤ '+AI_BATCH_SIZE.toLocaleString()+' 条），完成后将分别通知');
-      setTimeout(()=>{
-        openPage('hazard-report','隐患分析报告');
-        ['rq-from','rq-to','rq-org','rq-type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-        renderReportList('all');
-      },600);
-      return;
-    }
-    /* 正常/预警模式：count 用实际数据量 */
-    const rpt={id:'AI-'+now.getTime(),type:'ai',status:'generating',genStart:Date.now(),retries:0,title:'隐患清单 AI 辅助分析报告',time,range:timeDim,count:c,desc:'基于当前清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,timeDim,orgDim,owner:CUR_USER_NAME};
+    /* count=实际处理量；rawCount=原始总量；truncated=是否截断 */
+    const rpt={id:'AI-'+now.getTime(),type:'ai',status:'generating',genStart:Date.now(),retries:0,title:'隐患清单 AI 辅助分析报告',time,range:timeDim,count:analyzedCount,rawCount:c,truncated:isOver,desc:isOver?'基于当前清单前 '+AI_MAX_COUNT.toLocaleString()+' 条数据（原始 '+c.toLocaleString()+' 条，超出部分未纳入），围绕所关注类型进行 AI 聚焦分析与风险洞察':'基于当前清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,timeDim,orgDim,owner:CUR_USER_NAME};
     aiReports.unshift(rpt);
     /* 异步任务：分阶段进度展示；失败自动重试最多 3 次，仍失败提供「重新发起」（原型以秒级模拟真实 5-10 分钟耗时；按住 Shift 点击可演示失败场景） */
     scheduleAIGen(rpt.id);
-    if(lv==='warn'){
-      showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），AI 将优先分析前 '+AI_MAX_COUNT.toLocaleString()+' 条，超出部分建议另行分批发起');
+    if(isOver){
+      showToast('已提交 AI 分析任务（原始 '+c.toLocaleString()+' 条，本次仅分析前 '+AI_MAX_COUNT.toLocaleString()+' 条，超出 '+(c-AI_MAX_COUNT).toLocaleString()+' 条不纳入），预计 5-10 分钟完成');
+    }else if(lv==='warn'){
+      showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），数据量接近上限，如需全量分析建议缩小筛选范围');
     }else{
       showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），预计 5-10 分钟完成，完成后将通知您');
     }
@@ -1178,7 +1165,8 @@ function bindHazardList(){
       }else{
         cur.status='ready';
         cur.time=nowStr();
-        notifications.unshift({id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成提醒',content:'【AI 辅助分析报告】您发起的《隐患清单 AI 辅助分析报告》（聚焦 '+((cur.focus||[]).length)+' 类隐患，共 '+cur.count.toLocaleString()+' 条）已生成完成，请查看报告详情。',time:cur.time,read:false,rid:cur.id});
+        const cntTxt=cur.truncated?'共 '+cur.count.toLocaleString()+' 条（原始 '+cur.rawCount.toLocaleString()+' 条，仅分析前 '+AI_MAX_COUNT.toLocaleString()+' 条）':'共 '+cur.count.toLocaleString()+' 条';
+        notifications.unshift({id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成提醒',content:'【AI 辅助分析报告】您发起的《隐患清单 AI 辅助分析报告》（聚焦 '+((cur.focus||[]).length)+' 类隐患，'+cntTxt+'）已生成完成，请查看报告详情。',time:cur.time,read:false,rid:cur.id});
         updateBellBubble();
         if(lp&&!lp.hidden)renderReportList(currentRFilter);
         showToast('通知：「'+cur.title+'」已生成完成，可在报告列表中查看');
@@ -2070,7 +2058,7 @@ function showReportDetail(id){
     const focusSet=isAI&&r.focus?new Set(r.focus):null;
     currentFocusSet=focusSet;
     const nCls=(focusSet&&focusSet.size)?focusSet.size:12;
-    document.getElementById('rpt-d-meta').innerHTML=`<span>隐患总数 ${r.count.toLocaleString()} 条</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>AI 模型 v2.3</span>`;
+    document.getElementById('rpt-d-meta').innerHTML=`<span>隐患总数 ${r.count.toLocaleString()} 条${r.truncated?'<span style="color:var(--danger-600);font-size:11px"> · 仅分析前 '+AI_MAX_COUNT.toLocaleString()+' 条（原始 '+r.rawCount.toLocaleString()+' 条）</span>':''}</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>AI 模型 v2.3</span>`;
     document.querySelector('[data-rview="detail"] .count').textContent=nCls+' 类';
     if(focusSet){
       const cands=TYPES.filter(t=>focusSet.has(t.name));
@@ -2085,7 +2073,7 @@ function showReportDetail(id){
     }
     document.getElementById('rpt-d-badges').innerHTML='';
     document.getElementById('rpt-d-count').innerHTML=r.count.toLocaleString()+'<span class="unit">条</span>';
-    document.getElementById('rpt-d-count-hint').textContent=isAI?'当前清单筛选范围':'原始 1,608 · 去重 3';
+    document.getElementById('rpt-d-count-hint').textContent=isAI?(r.truncated?'原始 '+r.rawCount.toLocaleString()+' 条 · 仅分析前 '+AI_MAX_COUNT.toLocaleString()+' 条':'当前清单筛选范围'):'原始 1,608 · 去重 3';
     const fbw=document.getElementById('rpt-focus-bar-wrap');
     if(isAI&&r.focus&&r.focus.length){
       fbw.innerHTML=`<div class="rpt-focus-bar"><span class="fl-label"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>本次聚焦维度</span><span class="fl-tags">${r.focus.map(f=>`<span class="fl-tag">${f}</span>`).join('')}</span><span style="font-size:12px;color:var(--text-secondary);margin-left:auto"><svg viewBox="0 0 24 24" fill="none" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>时间维度：${r.timeDim||'2025-12-01 ~ 2025-12-31'}</span><span style="font-size:12px;color:var(--text-secondary)"><svg viewBox="0 0 24 24" fill="none" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>所属单位：${r.orgDim||'蓝天氟材料'}</span>${r.note?`<div style="flex-basis:100%;font-size:12.5px;color:#5B4A7E;background:rgba(255,255,255,.65);border:1px dashed #D9C9EE;border-radius:8px;padding:8px 12px;margin-top:2px"><b>关注说明：</b>${r.note}</div>`:''}</div>`;
