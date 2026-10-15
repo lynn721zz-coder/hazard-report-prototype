@@ -749,7 +749,7 @@
         <span>演示数据量（真实环境由清单查询结果决定）：</span>
         <select id="ai-demo-count">
           <option value="6496">6,496 条 · 正常</option>
-          <option value="85000">85,000 条 · 预警</option>
+          <option value="95000">95,000 条 · 正常（接近上限）</option>
           <option value="120000">120,000 条 · 超限</option>
           <option value="268000">268,000 条 · 超限</option>
         </select>
@@ -1010,10 +1010,9 @@ function bindHazardList(){
     const sel=document.getElementById('ai-demo-count');
     return sel?parseInt(sel.value,10):6496;
   }
-  /* 数据量级别判定：ok 正常 / warn 预警(≥80%) / over 超限(≥100%) */
+  /* 数据量级别判定：ok 正常(<10万) / over 超限(≥10万) */
   function getAILevel(c){
     if(c>=AI_MAX_COUNT)return 'over';
-    if(c>=AI_WARN_COUNT)return 'warn';
     return 'ok';
   }
   /* 超限时按时间维度生成分批方案，每批 ≤ AI_BATCH_SIZE */
@@ -1047,17 +1046,10 @@ function bindHazardList(){
       bp.style.display='none';
       goBtn.textContent='开始分析';
       goBtn.classList.remove('btn-batch-mode');
-    }else if(lv==='warn'){
-      const pct=Math.round(c/AI_MAX_COUNT*100);
-      status.textContent='接近上限';
-      hint.innerHTML='当前数据量已达 AI 单次分析上限的 <b>'+pct+'%</b>。提交后 AI 将优先分析前 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条，超出部分<b>不会纳入本次分析</b>。如需全量分析，建议缩小筛选范围或分批发起。';
-      bp.style.display='none';
-      goBtn.textContent='开始分析';
-      goBtn.classList.remove('btn-batch-mode');
     }else{
       status.textContent='已超限';
       const over=c-AI_MAX_COUNT;
-      hint.innerHTML='当前数据量 <b>'+c.toLocaleString()+'</b> 条，超出 AI 单次分析上限 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条。提交后<b>仅处理前 '+AI_MAX_COUNT.toLocaleString()+' 条</b>，超出 '+over.toLocaleString()+' 条<b>不纳入本次分析结果</b>（报告为整体性分析，无法分批合并）。如需分析全部数据，请缩小时间范围 / 单位 / 类型筛选条件后分多次发起。';
+      hint.innerHTML='当前数据量 <b>'+c.toLocaleString()+'</b> 条，超出 AI 单次分析上限 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条。提交后<b>仅处理前 '+AI_MAX_COUNT.toLocaleString()+' 条</b>，超出 '+over.toLocaleString()+' 条<b>不纳入本次分析结果</b>。如需分析全部数据，请缩小时间范围 / 单位 / 类型筛选条件后分多次发起。';
       bp.style.display='none';
       goBtn.textContent='开始分析';
       goBtn.classList.remove('btn-batch-mode');
@@ -1097,7 +1089,7 @@ function bindHazardList(){
     if(picked.length===0){showToast('请至少选择一个关注的隐患类型');return;}
     const c=getAICount();
     const lv=getAILevel(c);
-    /* 超限时仅处理前 10 万条，超出部分不纳入（报告为整体性分析，无法分批合并） */
+    /* 超限时仅处理前 10 万条，超出部分不纳入 */
     const isOver=(lv==='over');
     const analyzedCount=isOver?AI_MAX_COUNT:c;
     const listPage=document.getElementById('page-hazard-list');
@@ -1116,8 +1108,6 @@ function bindHazardList(){
     scheduleAIGen(rpt.id);
     if(isOver){
       showToast('已提交 AI 分析任务（原始 '+c.toLocaleString()+' 条，本次仅分析前 '+AI_MAX_COUNT.toLocaleString()+' 条，超出 '+(c-AI_MAX_COUNT).toLocaleString()+' 条不纳入），预计 5-10 分钟完成');
-    }else if(lv==='warn'){
-      showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），数据量接近上限，如需全量分析建议缩小筛选范围');
     }else{
       showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），预计 5-10 分钟完成，完成后将通知您');
     }
@@ -1302,7 +1292,6 @@ const DEFAULT_TYPE_NAMES=cfgTypeOptions.slice();
 const MAX_RPT_TYPES=15;
 /* AI 分析数据量限制常量 */
 const AI_MAX_COUNT=100000;   /* 智能体单次分析数据量上限 */
-const AI_WARN_COUNT=80000;   /* 预警阈值（80%） */
 const AI_BATCH_SIZE=80000;   /* 推荐分批大小（留 20% 安全余量） */
 let cfgTypeSel=[];
 let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'每周 + 每月',org:'中国中化',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效']}];
