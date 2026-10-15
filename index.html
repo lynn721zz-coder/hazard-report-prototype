@@ -1177,11 +1177,11 @@ function toggleSidebar(){
 /* ================= 报告原型 ================= */
 function pct(n){return Math.round(n*100)+'%';}
 const REPORTS=[
-  {id:'RPT-202512-M',type:'scheduled',title:'年度隐患分析报告 · 2026年度',time:'2025-12-01 09:00',range:'2025-2026 年度',count:1605,desc:'基于全部隐患描述识别安全屏障失效模式',org:'中国昊华',owner:'李敏'},
-  {id:'RPT-202512-W48',type:'scheduled',title:'周度隐患分析报告 · 第 48 周',time:'2025-11-30 18:00',range:'11-24~11-30',count:412,desc:'本周新增隐患语义归类与风险洞察',org:'蓝天氟材料',owner:'张伟'},
-  {id:'RPT-202512-W47',type:'scheduled',title:'周度隐患分析报告 · 第 47 周',time:'2025-11-23 18:00',range:'11-17~11-23',count:381,desc:'本周新增隐患语义归类与风险洞察',org:'中国昊华',owner:'张伟'},
-  {id:'RPT-202512-W46',type:'scheduled',title:'周度隐患分析报告 · 第 46 周',time:'2025-11-16 18:00',range:'11-10~11-16',count:365,desc:'本周新增隐患语义归类与风险洞察',org:'中化蓝天',owner:'王强'},
-  {id:'RPT-202511-M',type:'scheduled',title:'月度隐患分析报告 · 2025-11',time:'2025-12-01 08:00',range:'2025-11',count:1532,desc:'上月隐患语义归类与趋势分析',org:'中国昊华',owner:'张伟'}
+  {id:'RPT-202512-M',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',time:'2025-12-01 09:00',range:'2025-01-01 ~ 2025-12-31',count:1605,desc:'基于全部隐患描述识别安全屏障失效模式',org:'中国昊华',owner:'李敏'},
+  {id:'RPT-202512-W48',type:'scheduled',title:'【蓝天氟材料】隐患AI辅助分析报告（2025年11月24日至2025年11月30日）',time:'2025-11-30 18:00',range:'2025-11-24 ~ 2025-11-30',count:412,desc:'本周新增隐患语义归类与风险洞察',org:'蓝天氟材料',owner:'张伟'},
+  {id:'RPT-202512-W47',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年11月17日至2025年11月23日）',time:'2025-11-23 18:00',range:'2025-11-17 ~ 2025-11-23',count:381,desc:'本周新增隐患语义归类与风险洞察',org:'中国昊华',owner:'张伟'},
+  {id:'RPT-202512-W46',type:'scheduled',title:'【中化蓝天】隐患AI辅助分析报告（2025年11月10日至2025年11月16日）',time:'2025-11-16 18:00',range:'2025-11-10 ~ 2025-11-16',count:365,desc:'本周新增隐患语义归类与风险洞察',org:'中化蓝天',owner:'王强'},
+  {id:'RPT-202511-M',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',time:'2025-12-01 08:00',range:'2025-11-01 ~ 2025-11-30',count:1532,desc:'上月隐患语义归类与趋势分析',org:'中国昊华',owner:'张伟'}
 ];
 /* 用户角色：业务用户仅可查看自己名下的报告；管理用户（HSE 管理员）可查看全部报告内容 */
 const CUR_USER_NAME='张伟';
@@ -1721,17 +1721,17 @@ function syncRptFbCard(id){
 /* ===== 反馈统计看板 ===== */
 let fbLog=[
   {time:'2025-12-08 10:24',scope:'type',target:'设备本体及附件缺陷',kind:'dislike',tags:['分析不准确','分类错误'],comment:'R116 工段阀门内漏应归入介质泄漏而非设备缺陷，建议复核分类边界',src:'报告详情页'},
-  {time:'2025-12-08 11:05',scope:'report',target:'年度隐患分析报告 · 2026年度',kind:'like',tags:[],comment:'',src:'报告列表页'},
+  {time:'2025-12-08 11:05',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'like',tags:[],comment:'',src:'报告列表页'},
   {time:'2025-12-09 09:41',scope:'type',target:'介质泄漏/密封点失效',kind:'comment',tags:['分类粒度可更细'],comment:'建议对法兰渗漏类进一步细分密封点失效形式，便于定向治理',src:'报告详情页'},
-  {time:'2025-12-09 14:18',scope:'report',target:'周度隐患分析报告 · 第 48 周',kind:'dislike',tags:['部位定位不准'],comment:'多条隐患未定位到具体装置楼层，影响整改派单',src:'报告列表页'},
+  {time:'2025-12-09 14:18',scope:'report',target:'【蓝天氟材料】隐患AI辅助分析报告（2025年11月24日至2025年11月30日）',kind:'dislike',tags:['部位定位不准'],comment:'多条隐患未定位到具体装置楼层，影响整改派单',src:'报告列表页'},
   {time:'2025-12-10 08:55',scope:'type',target:'现场标识与信息识别',kind:'like',tags:[],comment:'',src:'报告详情页'},
   {time:'2025-12-11 16:30',scope:'type',target:'电气设备设施隐患',kind:'dislike',tags:['风险分析不对'],comment:'配电室空调漏水的风险等级建议上调，涉及高压区域',src:'报告详情页'},
-  {time:'2025-12-12 10:02',scope:'report',target:'月度隐患分析报告 · 2025-11',kind:'like',tags:[],comment:'',src:'报告列表页'},
+  {time:'2025-12-12 10:02',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',kind:'like',tags:[],comment:'',src:'报告列表页'},
   {time:'2025-12-15 15:47',scope:'type',target:'消防与应急设施不足',kind:'comment',tags:['建议增加趋势对比'],comment:'建议增加消防隐患月度趋势对比，便于观察整改成效',src:'报告详情页'},
-  {time:'2025-12-16 09:12',scope:'report',target:'年度隐患分析报告 · 2026年度',kind:'comment',tags:['建议补充关联分析'],comment:'整体结论可用，建议补充类型间关联分析',src:'报告列表页'},
+  {time:'2025-12-16 09:12',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'comment',tags:['建议补充关联分析'],comment:'整体结论可用，建议补充类型间关联分析',src:'报告列表页'},
   {time:'2025-12-18 13:26',scope:'type',target:'物理安全防护设施缺失',kind:'like',tags:[],comment:'',src:'报告详情页'},
   {time:'2025-12-19 17:03',scope:'type',target:'仪表及监测附件缺陷',kind:'dislike',tags:['部位定位不准','分析不准确'],comment:'仪表类隐患与设备缺陷存在混分',src:'报告详情页'},
-  {time:'2025-12-22 10:48',scope:'report',target:'周度隐患分析报告 · 第 47 周',kind:'like',tags:[],comment:'',src:'报告列表页'}
+  {time:'2025-12-22 10:48',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年11月17日至2025年11月23日）',kind:'like',tags:[],comment:'',src:'报告列表页'}
 ];
 function fbKindName(k){return k==='like'?'点赞':k==='dislike'?'点踩':'意见';}
 function fbLogAdd(entry){
