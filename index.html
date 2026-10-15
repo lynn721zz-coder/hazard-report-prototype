@@ -315,6 +315,38 @@
   .modal-title{font-size:16px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:8px}
   .modal-title .ai-dot{width:18px;height:18px;color:var(--sys-primary)}
   .modal-desc{font-size:12.5px;color:var(--text-tertiary);margin-top:5px;line-height:1.5}
+  /* AI 分析数据量限制信息条 */
+  .ai-data-bar{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--radius-md);margin-bottom:14px;font-size:12.5px;line-height:1.6;border:1px solid}
+  .ai-data-bar .dt-icon{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+  .ai-data-bar .dt-body{flex:1;min-width:0}
+  .ai-data-bar .dt-line1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ai-data-bar .dt-num{font-size:15px;font-weight:700;line-height:1}
+  .ai-data-bar .dt-status{font-size:11px;font-weight:600;padding:1px 7px;border-radius:var(--radius-full);white-space:nowrap}
+  .ai-data-bar .dt-hint{color:var(--text-secondary);margin-top:4px;font-size:12px}
+  .ai-data-bar .dt-hint b{color:var(--text-primary)}
+  .ai-data-bar.ok{background:var(--success-50);border-color:#C8DDB1}
+  .ai-data-bar.ok .dt-icon{color:var(--success-400)}
+  .ai-data-bar.ok .dt-num{color:var(--success-800)}
+  .ai-data-bar.ok .dt-status{background:var(--success-400);color:#fff}
+  .ai-data-bar.warn{background:var(--warning-50);border-color:#F3D9A8}
+  .ai-data-bar.warn .dt-icon{color:var(--warning-400)}
+  .ai-data-bar.warn .dt-num{color:var(--warning-600)}
+  .ai-data-bar.warn .dt-status{background:var(--warning-400);color:#fff}
+  .ai-data-bar.over{background:var(--danger-50);border-color:var(--border-danger)}
+  .ai-data-bar.over .dt-icon{color:var(--danger-400)}
+  .ai-data-bar.over .dt-num{color:var(--danger-600)}
+  .ai-data-bar.over .dt-status{background:var(--danger-400);color:#fff}
+  /* 分批方案展示区 */
+  .ai-batch-plan{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.7}
+  .ai-batch-plan .bp-title{font-weight:600;color:var(--text-primary);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .ai-batch-plan .bp-list{display:flex;flex-direction:column;gap:5px}
+  .ai-batch-plan .bp-item{display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border)}
+  .ai-batch-plan .bp-item .bp-tag{font-size:10.5px;font-weight:600;color:#fff;background:var(--sys-primary);padding:1px 6px;border-radius:var(--radius-sm);white-space:nowrap}
+  .ai-batch-plan .bp-item .bp-range{color:var(--text-secondary)}
+  .ai-batch-plan .bp-item .bp-cnt{margin-left:auto;font-weight:600;color:var(--text-primary)}
+  /* 演示用数据量切换器 */
+  .ai-demo-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 10px;background:var(--gray-50);border:1px dashed var(--border-strong);border-radius:var(--radius-sm);font-size:11.5px;color:var(--text-tertiary)}
+  .ai-demo-row select{height:26px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--bg-card);font-size:12px;color:var(--text-primary);padding:0 6px}
   .modal-close{width:28px;height:28px;border:none;background:transparent;cursor:pointer;color:var(--text-tertiary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;flex-shrink:0}
   .modal-close:hover{background:var(--gray-100);color:var(--text-primary)}
   .modal-body{padding:16px 20px}
@@ -693,6 +725,35 @@
       <button class="modal-close" id="ai-modal-close" aria-label="关闭" data-page-node-id="1xVlrmFpztluA4EGBjGKLt">×</button>
     </div>
     <div class="modal-body" data-page-node-id="PMaOJjghUjsDtB7UIrTcLo">
+      <!-- 数据量限制信息条 -->
+      <div class="ai-data-bar ok" id="ai-data-bar">
+        <svg class="dt-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM8 12.5l2.5 2.5L16 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="dt-body">
+          <div class="dt-line1">
+            <span class="dt-num" id="ai-dt-num">6,496</span>
+            <span style="font-size:12px;color:var(--text-tertiary)">条</span>
+            <span class="dt-status" id="ai-dt-status">正常</span>
+            <span style="font-size:11px;color:var(--text-tertiary)">AI 单次分析上限 100,000 条</span>
+          </div>
+          <div class="dt-hint" id="ai-dt-hint">当前清单数据量在 AI 分析能力范围内，可直接发起分析。</div>
+        </div>
+      </div>
+      <!-- 分批方案（超限时显示） -->
+      <div class="ai-batch-plan" id="ai-batch-plan" style="display:none">
+        <div class="bp-title"><svg class="icon" viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;color:var(--sys-primary)"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>建议分批分析方案</div>
+        <div class="bp-list" id="ai-batch-list"></div>
+      </div>
+      <!-- 演示用数据量切换器（仅原型演示，真实环境从清单查询结果获取） -->
+      <div class="ai-demo-row">
+        <svg viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;color:var(--text-tertiary);flex-shrink:0"><path d="M12 8v4l3 2M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span>演示数据量（真实环境由清单查询结果决定）：</span>
+        <select id="ai-demo-count">
+          <option value="6496">6,496 条 · 正常</option>
+          <option value="85000">85,000 条 · 预警</option>
+          <option value="120000">120,000 条 · 超限</option>
+          <option value="268000">268,000 条 · 超限</option>
+        </select>
+      </div>
       <div style="margin-bottom:16px" data-page-node-id="tQc27IEvr5ANeYnL9cG2dC">
         <div class="field-label" data-page-node-id="boY0Jf9KEfxBGuvAD6XGdg">关注的隐患类型 <span class="req" data-page-node-id="CsFN6zuRof3pnB6OCcnYH2">*</span> <span id="ai-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400" data-page-node-id="NFksgexLRPCGfy7uneRinq">（可多选，每份报告最多 15 种）</span></div>
         <div id="ai-tags" data-page-node-id="18BBYBwFUHqeAPAylznn3A">
@@ -943,11 +1004,75 @@ function bindHazardList(){
   });
   document.getElementById('hz-listmode').addEventListener('click',()=>showToast('列配置面板（原型演示）'));
   const aiModal=document.getElementById('ai-modal');
+  /* ===== AI 数据量限制与提示机制 ===== */
+  /* 获取当前清单数据量（演示：从切换器取值；真实环境由清单查询结果接口返回） */
+  function getAICount(){
+    const sel=document.getElementById('ai-demo-count');
+    return sel?parseInt(sel.value,10):6496;
+  }
+  /* 数据量级别判定：ok 正常 / warn 预警(≥80%) / over 超限(≥100%) */
+  function getAILevel(c){
+    if(c>=AI_MAX_COUNT)return 'over';
+    if(c>=AI_WARN_COUNT)return 'warn';
+    return 'ok';
+  }
+  /* 超限时按时间维度生成分批方案，每批 ≤ AI_BATCH_SIZE */
+  function buildBatchPlan(count){
+    const n=Math.ceil(count/AI_BATCH_SIZE);
+    const per=Math.floor(count/n);
+    const last=count-per*(n-1);
+    /* 演示用时间标签（真实环境按筛选时间范围均分） */
+    const labels=['2025-Q1(01~03月)','2025-Q2(04~06月)','2025-Q3(07~09月)','2025-Q4(10~12月)','2024-H2(07~12月)','2024-H1(01~06月)'];
+    const out=[];
+    for(let i=0;i<n;i++)out.push({tag:'第'+(i+1)+'批',range:labels[i]||('批次 '+(i+1)),cnt:i===n-1?last:per});
+    return out;
+  }
+  /* 渲染数据量信息条 + 分批方案 + 按钮文案 */
+  function renderAIDataBar(){
+    const c=getAICount();
+    const lv=getAILevel(c);
+    const bar=document.getElementById('ai-data-bar');
+    if(!bar)return;
+    const num=document.getElementById('ai-dt-num');
+    const status=document.getElementById('ai-dt-status');
+    const hint=document.getElementById('ai-dt-hint');
+    const bp=document.getElementById('ai-batch-plan');
+    const bpList=document.getElementById('ai-batch-list');
+    const goBtn=document.getElementById('ai-modal-go');
+    bar.className='ai-data-bar '+lv;
+    num.textContent=c.toLocaleString();
+    if(lv==='ok'){
+      status.textContent='正常';
+      hint.innerHTML='当前清单数据量在 AI 分析能力范围内，可直接发起分析。';
+      bp.style.display='none';
+      goBtn.textContent='开始分析';
+      goBtn.classList.remove('btn-batch-mode');
+    }else if(lv==='warn'){
+      const pct=Math.round(c/AI_MAX_COUNT*100);
+      status.textContent='接近上限';
+      hint.innerHTML='当前数据量已达 AI 单次分析上限的 <b>'+pct+'%</b>。提交后 AI 将优先分析前 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条，超出部分<b>不会纳入本次分析</b>。如需全量分析，建议缩小筛选范围或分批发起。';
+      bp.style.display='none';
+      goBtn.textContent='开始分析';
+      goBtn.classList.remove('btn-batch-mode');
+    }else{
+      status.textContent='已超限';
+      hint.innerHTML='当前数据量 <b>'+c.toLocaleString()+'</b> 条，超出 AI 单次分析上限 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条。<b>无法直接发起分析</b>，请使用下方分批方案，或返回缩小时间范围 / 单位 / 类型筛选条件后重试。';
+      const plan=buildBatchPlan(c);
+      bpList.innerHTML=plan.map(b=>'<div class="bp-item"><span class="bp-tag">'+b.tag+'</span><span class="bp-range">'+b.range+'</span><span class="bp-cnt">'+b.cnt.toLocaleString()+' 条</span></div>').join('');
+      bp.style.display='block';
+      goBtn.textContent='分批分析';
+      goBtn.classList.add('btn-batch-mode');
+    }
+  }
   function openAIModal(){
     /* 候选类型与生成配置共用同一候选池（含用户新增类型），每次打开动态渲染 */
     const wrap=document.getElementById('ai-tags');
     if(wrap)wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick">${t}</span>`).join('');
     bindAITagSelect();
+    /* 渲染数据量限制信息条 + 绑定演示切换器 */
+    renderAIDataBar();
+    const demoSel=document.getElementById('ai-demo-count');
+    if(demoSel&&!demoSel.dataset.bound){demoSel.dataset.bound='1';demoSel.addEventListener('change',renderAIDataBar);}
     aiModal.hidden=false;requestAnimationFrame(()=>aiModal.classList.add('show'));
   }
   function closeAIModal(){aiModal.classList.remove('show');setTimeout(()=>{aiModal.hidden=true;},220);}
@@ -971,6 +1096,9 @@ function bindHazardList(){
     eventShiftFired=!!(e&&e.shiftKey); /* Shift+点击：演示失败与自动重试场景 */
     const picked=[...aiModal.querySelectorAll('#ai-tags .tag-pick.on')].map(t=>t.textContent.trim());
     if(picked.length===0){showToast('请至少选择一个关注的隐患类型');return;}
+    const c=getAICount();
+    const lv=getAILevel(c);
+    const isBatch=(lv==='over');
     const listPage=document.getElementById('page-hazard-list');
     const inputs=listPage?[...listPage.querySelectorAll('.fi-input')].map(i=>i.value.trim()):[];
     const dates=inputs.filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v));
@@ -980,11 +1108,32 @@ function bindHazardList(){
     closeAIModal();
     const now=new Date(),pad=n=>String(n).padStart(2,'0');
     const time=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
-    const rpt={id:'AI-'+now.getTime(),type:'ai',status:'generating',genStart:Date.now(),retries:0,title:'隐患清单 AI 辅助分析报告',time,range:timeDim,count:6496,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,timeDim,orgDim,owner:CUR_USER_NAME};
+    if(isBatch){
+      /* 超限分批模式：按方案拆分为多个 AI 任务，每批 ≤ AI_BATCH_SIZE */
+      const plan=buildBatchPlan(c);
+      plan.forEach((b,i)=>{
+        const rpt={id:'AI-'+now.getTime()+'-B'+(i+1),type:'ai',status:'generating',genStart:Date.now()+(i*200),retries:0,title:'隐患清单 AI 辅助分析报告（第'+(i+1)+'批/共'+plan.length+'批）',time,range:b.range,count:b.cnt,desc:'基于当前清单第 '+(i+1)+' 批数据（'+b.range+'，'+b.cnt.toLocaleString()+' 条），围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,batchIdx:i,batchTotal:plan.length,orgDim,owner:CUR_USER_NAME};
+        aiReports.unshift(rpt);
+        scheduleAIGen(rpt.id);
+      });
+      showToast('已提交 '+plan.length+' 个分批 AI 分析任务（共 '+c.toLocaleString()+' 条，每批 ≤ '+AI_BATCH_SIZE.toLocaleString()+' 条），完成后将分别通知');
+      setTimeout(()=>{
+        openPage('hazard-report','隐患分析报告');
+        ['rq-from','rq-to','rq-org','rq-type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+        renderReportList('all');
+      },600);
+      return;
+    }
+    /* 正常/预警模式：count 用实际数据量 */
+    const rpt={id:'AI-'+now.getTime(),type:'ai',status:'generating',genStart:Date.now(),retries:0,title:'隐患清单 AI 辅助分析报告',time,range:timeDim,count:c,desc:'基于当前清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:picked,timeDim,orgDim,owner:CUR_USER_NAME};
     aiReports.unshift(rpt);
     /* 异步任务：分阶段进度展示；失败自动重试最多 3 次，仍失败提供「重新发起」（原型以秒级模拟真实 5-10 分钟耗时；按住 Shift 点击可演示失败场景） */
     scheduleAIGen(rpt.id);
-    showToast('已提交 AI 分析任务，预计 5-10 分钟完成，完成后将通知您');
+    if(lv==='warn'){
+      showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），AI 将优先分析前 '+AI_MAX_COUNT.toLocaleString()+' 条，超出部分建议另行分批发起');
+    }else{
+      showToast('已提交 AI 分析任务（'+c.toLocaleString()+' 条），预计 5-10 分钟完成，完成后将通知您');
+    }
     setTimeout(()=>{
       openPage('hazard-report','隐患分析报告');
       /* 跳转后重置查询条件，确保新提交的"生成中"任务对用户可见 */
@@ -1163,6 +1312,10 @@ let cfgTypeOptions=['设备本体及附件缺陷','物理安全防护设施缺�
 /* 默认通用隐患类型：系统内置候选，仅管理员可删除；每份报告最多可选择 15 种隐患类型 */
 const DEFAULT_TYPE_NAMES=cfgTypeOptions.slice();
 const MAX_RPT_TYPES=15;
+/* AI 分析数据量限制常量 */
+const AI_MAX_COUNT=100000;   /* 智能体单次分析数据量上限 */
+const AI_WARN_COUNT=80000;   /* 预警阈值（80%） */
+const AI_BATCH_SIZE=80000;   /* 推荐分批大小（留 20% 安全余量） */
 let cfgTypeSel=[];
 let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'每周 + 每月',org:'中国中化',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效']}];
 /* 历史已完成的 AI 辅助分析报告（供消息中心提醒与详情跳转演示） */
