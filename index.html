@@ -1566,7 +1566,7 @@ function renderReportList(filter){
         <div class="rpt-title">${r.title}${tag}${genTag}${failTag}</div>
         <div class="rpt-types"${(!isGen&&!isFail&&typeNames.length)?` data-tip="${typeNames.join('、')}"`:''}>${chips}</div>
         ${genBar}
-        <div class="rpt-meta">${isGen?'':`<span>${r.time}</span><span class="dot"></span>`}<span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>隐患总数 ${r.count.toLocaleString()} 条</span>${focusStr}${genElapsed}${ownerStr}</div>
+        <div class="rpt-meta">${(isGen||isFail)?'':`<span>${r.time}</span><span class="dot"></span>`}<span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>隐患总数 ${r.count.toLocaleString()} 条</span>${focusStr}${genElapsed}${ownerStr}</div>
       </div>
       <div class="rpt-side">
         ${isGen
