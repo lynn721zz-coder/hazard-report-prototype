@@ -331,10 +331,6 @@
   /* 字段名悬停提示（帮助气泡） */
   .help-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--border-strong);color:var(--text-tertiary);font-size:10px;font-style:normal;cursor:help;transition:all .15s;flex-shrink:0}
   .help-tip:hover{border-color:var(--sys-primary);color:var(--sys-primary)}
-  .help-tip .tip-bubble{position:absolute;top:calc(100% + 8px);left:-14px;width:330px;padding:10px 12px;background:#374151;color:#fff;font-size:12px;font-weight:400;line-height:1.75;border-radius:var(--radius-md);box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;visibility:hidden;transform:translateY(-4px);transition:all .18s;z-index:60;pointer-events:none;text-align:left}
-  .help-tip .tip-bubble::before{content:'';position:absolute;top:-5px;left:18px;width:9px;height:9px;background:#374151;transform:rotate(45deg);border-radius:1px}
-  .help-tip:hover .tip-bubble,.help-tip:focus .tip-bubble{opacity:1;visibility:visible;transform:translateY(0)}
-  .help-tip .tip-bubble b{color:#fff;font-weight:600}
   /* 标签容器：flex 布局统一间距 */
   #cfg-tags{display:flex;flex-wrap:wrap;gap:8px}
   #cfg-tags .tag-pick{margin:0}
@@ -343,6 +339,9 @@
   #tag-tip.show{opacity:1;transform:translateY(0)}
   #tag-tip .tt-name{font-weight:600;margin-bottom:2px}
   #tag-tip .tt-desc{color:#D1D5DB}
+  #tag-tip b{color:#fff;font-weight:600}
+  /* 报告生成配置弹窗加宽 */
+  #rpt-cfg-modal .modal-card{width:600px}
   /* 新增自定义类型分组卡片 */
   .cfg-add-box{margin-top:12px;padding:12px 14px 14px;background:var(--gray-50);border:1px dashed var(--border-strong);border-radius:var(--radius-md)}
   .cfg-add-box .ab-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:9px}
@@ -575,7 +574,7 @@
         </select>
       </div>
       <div style="margin-bottom:16px">
-        <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span> <i class="help-tip" tabindex="0" role="note" aria-label="固定周期生成时间说明">i<span class="tip-bubble"><b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日 08:00。</span></i></div>
+        <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span> <i class="help-tip" tabindex="0" role="note" aria-label="固定周期生成时间说明" data-tip="|<b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日 08:00。">i</i></div>
         <div id="cfg-period">
           <span class="tag-pick" data-pd="每周">每周</span>
           <span class="tag-pick" data-pd="每月">每月</span>
@@ -2424,11 +2423,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElemen
   };
   const hide=()=>{tip.classList.remove('show');curEl=null;};
   document.addEventListener('mouseover',e=>{
-    const el=e.target.closest('.tag-pick[data-tip]');
+    const el=e.target.closest('[data-tip]');
     if(el===curEl)return;
     curEl=el;el?show(el):hide();
   });
-  document.addEventListener('focusin',e=>{const el=e.target.closest('.tag-pick[data-tip]');if(el){curEl=el;show(el);}});
+  document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip]');if(el){curEl=el;show(el);}});
   document.addEventListener('focusout',()=>{if(curEl){hide();}});
   window.addEventListener('scroll',()=>{if(curEl)show(curEl);},true);
 })();
