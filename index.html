@@ -1442,6 +1442,7 @@ function applySubmit(code,msg){
   fbLogAdd({scope:'type',target:t.name,kind:st.type==='dislike'?'dislike':st.type==='like'?'like':'comment',tags:[...st.tags],comment:st.comment||'',src:'报告详情页'});
   showToast(msg);
   updateMetrics(currentFocusSet);renderBoard(currentFocusSet);
+  st.tags.clear();st.comment='';
 }
 function showToast(msg){
   const wrap=document.getElementById('toast-wrap');
@@ -1653,6 +1654,7 @@ function submitRptFb(){
   closeRptFbModal();
   showToast(`报告反馈已提交${likeStr}${tagStr}，将回流至模型训练样本库`);
   syncRptFbCard(rptFbTarget);
+  st.tags.clear();st.comment='';
 }
 function syncRptFbCard(id){
   const card=document.querySelector(`.rpt-card[data-rid="${id}"]`);
