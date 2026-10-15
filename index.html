@@ -323,6 +323,8 @@
   .tag-pick{display:inline-flex;align-items:center;padding:5px 12px;border:1px solid var(--border-strong);border-radius:var(--radius-full);font-size:12.5px;color:var(--text-secondary);cursor:pointer;background:var(--bg-card);transition:all .15s;user-select:none;margin:0 6px 8px 0}
   .tag-pick:hover{border-color:var(--sys-primary);color:var(--sys-primary)}
   .tag-pick.on{background:var(--sys-primary-bg);border-color:var(--sys-primary);color:var(--sys-primary-deep);font-weight:500}
+  .cfg-period-hint{font-size:11.5px;color:var(--text-tertiary);line-height:1.7;margin-top:2px;padding:8px 10px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-sm)}
+  .cfg-period-hint b{color:var(--text-secondary);font-weight:500}
   .modal-textarea{width:100%;min-height:66px;border:1px solid var(--border-strong);border-radius:var(--radius-md);padding:8px 10px;font-size:13px;color:var(--text-primary);background:var(--bg-card);outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
   .modal-textarea::placeholder{color:var(--text-tertiary)}
   .modal-textarea:focus{border-color:var(--sys-primary);box-shadow:0 0 0 3px var(--primary-50)}
@@ -558,6 +560,7 @@
           <span class="tag-pick" data-pd="每年">每年</span>
           <span class="tag-pick" data-pd="自定义">自定义</span>
         </div>
+        <div class="cfg-period-hint"><b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日 08:00。</div>
         <div id="cfg-custom" hidden>
           <div class="cfg-row">
             <span class="cfg-lb">重复频率</span>
@@ -649,8 +652,8 @@
         <div id="rpt-fb-tags" role="group"></div>
       </div>
       <div>
-        <div class="field-label">意见描述 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可选）</span></div>
-        <textarea class="modal-textarea" id="rpt-fb-textarea" placeholder="例：报告整体结论与现场实际相符，但整改建议部分缺少责任部门与完成时限，建议补充…"></textarea>
+        <div class="field-label">意见描述 <span class="req">*</span></div>
+        <textarea class="modal-textarea" id="rpt-fb-textarea" placeholder="请填写具体反馈意见，以便精准优化报告质量…" required></textarea>
       </div>
     </div>
     <div class="modal-foot">
@@ -744,11 +747,6 @@ const TYPES=[
 ];
 const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行','其他'];
 const ORGS=['中国昊华','蓝天氟材料','中化蓝天','中化新材料','中化环境','中化装备'];
-const PLACEHOLDERS={
-  EQUIP_DEFECT:'例：第 3 条「R116 工段阀门内漏」应归入「介质泄漏/密封点失效」而非「设备本体及附件缺陷」，请 AI 复核分类边界…',
-  MEDIA_LEAK:'例：第 1 条法兰渗漏风险等级应升为高，涉及 HCL 介质，建议补充应急隔离措施…',
-  SIGN_IDENT:'例：第 4 条气体报警描述错误属信息识别问题，但涉及安全联锁，建议复核是否合并至作业管控类…'
-};
 const state={}; TYPES.forEach(t=>state[t.code]={type:null,tags:new Set(),comment:'',submitted:false});
 
 /* ================= 菜单 ================= */
@@ -1311,7 +1309,6 @@ function renderCards(focusSet){
     const examples=t.examples.slice(0,5).map((e,i)=>`<li>${i+1}. ${e}<span class="ex-org">${ORGS[(codeHash+i)%ORGS.length]}</span></li>`).join('');
     const risks=(t.risks||[]).map(r=>`<li>${r}</li>`).join('');
     const advice=(t.advice||[]).map(a=>`<li>${a}</li>`).join('');
-    const ph=PLACEHOLDERS[t.code]||'请描述这一类分析的问题，便于 AI 后续优化…';
     const fbHot=`<span class="fb-stat">本维度累计反馈 <span class="hot">${t.fb} 条</span></span>`;
     return `
     <article class="type-card${(focusSet&&focusSet.has(t.name))?' focused':''}" id="card-${t.code}" data-open="false" data-submitted="false">
@@ -1348,7 +1345,8 @@ function renderCards(focusSet){
             <div class="fb-tags" role="group" aria-label="反馈快速标签" id="fbtags-${t.code}">
               ${TAGS.map(tg=>`<button class="tag" aria-pressed="false" onclick="toggleTag('${t.code}','${tg}',this)">${tg}</button>`).join('')}
             </div>
-            <textarea class="fb-textarea" id="textarea-${t.code}" placeholder="${ph}" aria-label="反馈意见输入框"></textarea>
+            <div class="field-label" style="margin-top:8px;margin-bottom:6px">意见描述 <span class="req">*</span></div>
+            <textarea class="fb-textarea" id="textarea-${t.code}" placeholder="请填写具体反馈意见…" aria-label="反馈意见输入框" required></textarea>
             <div class="fb-actions">
               <span class="fb-hint">反馈将回流至模型训练样本库，用于定向优化该维度</span>
               <div class="btns">
@@ -1430,6 +1428,7 @@ function submitFeedback(code){
   const st=state[code];
   if(st.type==='dislike'&&st.tags.size===0){showToast('请至少选择一个问题标签，以便精准定位问题');return;}
   st.comment=document.getElementById('textarea-'+code).value.trim();
+  if(!st.comment){showToast('请填写意见描述，以便精准优化该维度');return;}
   const tagStr=st.tags.size?`，标签：${[...st.tags].join('、')}`:'';
   applySubmit(code,`反馈已提交${tagStr}，将回流至模型训练样本库`);
 }
@@ -1648,6 +1647,7 @@ function submitRptFb(){
   const st=rptFbSt(rptFbTarget);
   if(rptFbFrom==='dislike'&&st.tags.size===0){showToast('请至少选择一个问题标签，以便精准定位问题');return;}
   st.comment=document.getElementById('rpt-fb-textarea').value.trim();
+  if(!st.comment){showToast('请填写意见描述，以便精准优化报告质量');return;}
   st.submitted=true;
   fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===rptFbTarget)||{}).title||rptFbTarget,kind:st.type==='dislike'?'dislike':'comment',tags:[...st.tags],comment:st.comment,src:'报告列表页'});
   const tagStr=st.tags.size?`，标签：${[...st.tags].join('、')}`:'';
