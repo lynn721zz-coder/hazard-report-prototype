@@ -327,8 +327,33 @@
   .tag-pick{display:inline-flex;align-items:center;padding:5px 12px;border:1px solid var(--border-strong);border-radius:var(--radius-full);font-size:12.5px;color:var(--text-secondary);cursor:pointer;background:var(--bg-card);transition:all .15s;user-select:none;margin:0 6px 8px 0}
   .tag-pick:hover{border-color:var(--sys-primary);color:var(--sys-primary)}
   .tag-pick.on{background:var(--sys-primary-bg);border-color:var(--sys-primary);color:var(--sys-primary-deep);font-weight:500}
-  .cfg-period-hint{font-size:11.5px;color:var(--text-tertiary);line-height:1.7;margin-top:2px;padding:8px 10px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-sm)}
-  .cfg-period-hint b{color:var(--text-secondary);font-weight:500}
+  .cfg-period-hint{display:none}
+  /* 字段名悬停提示（帮助气泡） */
+  .help-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--border-strong);color:var(--text-tertiary);font-size:10px;font-style:normal;cursor:help;transition:all .15s;flex-shrink:0}
+  .help-tip:hover{border-color:var(--sys-primary);color:var(--sys-primary)}
+  .help-tip .tip-bubble{position:absolute;top:calc(100% + 8px);left:-14px;width:330px;padding:10px 12px;background:#374151;color:#fff;font-size:12px;font-weight:400;line-height:1.75;border-radius:var(--radius-md);box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;visibility:hidden;transform:translateY(-4px);transition:all .18s;z-index:60;pointer-events:none;text-align:left}
+  .help-tip .tip-bubble::before{content:'';position:absolute;top:-5px;left:18px;width:9px;height:9px;background:#374151;transform:rotate(45deg);border-radius:1px}
+  .help-tip:hover .tip-bubble,.help-tip:focus .tip-bubble{opacity:1;visibility:visible;transform:translateY(0)}
+  .help-tip .tip-bubble b{color:#fff;font-weight:600}
+  /* 标签容器：flex 布局统一间距 */
+  #cfg-tags{display:flex;flex-wrap:wrap;gap:8px}
+  #cfg-tags .tag-pick{margin:0}
+  /* 全局标签说明气泡（fixed 定位，不受容器 overflow 裁剪） */
+  #tag-tip{position:fixed;max-width:300px;padding:9px 12px;background:#374151;color:#fff;font-size:12px;line-height:1.7;border-radius:var(--radius-md);box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:400;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .16s,transform .16s}
+  #tag-tip.show{opacity:1;transform:translateY(0)}
+  #tag-tip .tt-name{font-weight:600;margin-bottom:2px}
+  #tag-tip .tt-desc{color:#D1D5DB}
+  /* 新增自定义类型分组卡片 */
+  .cfg-add-box{margin-top:12px;padding:12px 14px 14px;background:var(--gray-50);border:1px dashed var(--border-strong);border-radius:var(--radius-md)}
+  .cfg-add-box .ab-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:9px}
+  .cfg-add-box .ab-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .cfg-add-box .ab-row:last-child{margin-bottom:0}
+  .cfg-add-box input[type="text"]{height:32px;padding:0 10px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-size:12.5px;background:var(--bg-card);color:var(--text-primary);outline:none;font-family:inherit}
+  .cfg-add-box input[type="text"]:focus{border-color:var(--sys-primary);box-shadow:0 0 0 3px var(--sys-primary-bg)}
+  .cfg-add-box .ab-name{flex:1;min-width:0}
+  .cfg-add-box .ab-desc{width:100%}
+  .cfg-add-btn{height:32px;padding:0 14px;border:1px solid var(--sys-primary);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--sys-primary);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+  .cfg-add-btn:hover{background:var(--sys-primary);color:#fff}
   .modal-textarea{width:100%;min-height:66px;border:1px solid var(--border-strong);border-radius:var(--radius-md);padding:8px 10px;font-size:13px;color:var(--text-primary);background:var(--bg-card);outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
   .modal-textarea::placeholder{color:var(--text-tertiary)}
   .modal-textarea:focus{border-color:var(--sys-primary);box-shadow:0 0 0 3px var(--primary-50)}
@@ -457,16 +482,10 @@
   .cfg-date-tag .rm:hover{opacity:1}
   .cfg-row input[type="date"]{height:30px;padding:0 8px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-size:12px;background:var(--bg-card);color:var(--text-primary);outline:none;font-family:inherit;width:132px}
   .cfg-row input[type="date"]:focus{border-color:var(--sys-primary)}
-  .cfg-add-btn{height:30px;padding:0 12px;border:1px solid var(--sys-primary);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--sys-primary);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
-  .cfg-add-btn:hover{background:var(--sys-primary);color:#fff}
-  .cfg-add-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .cfg-add-row input[type="text"]{height:30px;width:220px;padding:0 10px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-size:12.5px;background:var(--bg-card);color:var(--text-primary);outline:none;font-family:inherit}
-  .cfg-add-row input[type="text"]:focus{border-color:var(--sys-primary)}
   #cfg-tags .tag-pick{position:relative;padding-right:22px}
   #cfg-tags .tag-pick .tag-rm{position:absolute;top:-6px;right:-4px;width:15px;height:15px;border-radius:50%;background:var(--gray-200);color:var(--text-secondary);font-size:11px;line-height:15px;text-align:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
   #cfg-tags .tag-pick:hover .tag-rm{opacity:1}
   #cfg-tags .tag-pick .tag-rm:hover{background:var(--danger-500,#E24B4A);color:#fff}
-  #cfg-tags .tag-pick .tag-def{display:inline-block;margin-left:5px;padding:0 5px;font-size:10px;line-height:15px;border-radius:4px;background:var(--sys-primary-bg);color:var(--sys-primary);font-weight:500;vertical-align:1px}
   /* 修订记录 */
   .his-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .his-table th{text-align:left;font-weight:500;color:var(--text-secondary);background:var(--gray-50);padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -556,7 +575,7 @@
         </select>
       </div>
       <div style="margin-bottom:16px">
-        <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span></div>
+        <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span> <i class="help-tip" tabindex="0" role="note" aria-label="固定周期生成时间说明">i<span class="tip-bubble"><b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日 08:00。</span></i></div>
         <div id="cfg-period">
           <span class="tag-pick" data-pd="每周">每周</span>
           <span class="tag-pick" data-pd="每月">每月</span>
@@ -564,7 +583,6 @@
           <span class="tag-pick" data-pd="每年">每年</span>
           <span class="tag-pick" data-pd="自定义">自定义</span>
         </div>
-        <div class="cfg-period-hint"><b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日 08:00。</div>
         <div id="cfg-custom" hidden>
           <div class="cfg-row">
             <span class="cfg-lb">重复频率</span>
@@ -609,13 +627,17 @@
         </div>
       </div>
       <div>
-        <div class="field-label">下一阶段关注的隐患类型 <span class="req">*</span> <span id="cfg-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选，每份报告最多 15 种；标注"通用"的为系统默认类型，仅管理员可删除；新增类型仅管理员可操作）</span></div>
+        <div class="field-label">下一阶段关注的隐患类型 <span class="req">*</span> <span id="cfg-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选，每份报告最多 15 种；悬浮标签可查看类型说明）</span></div>
         <div id="cfg-tags"></div>
-        <div class="cfg-add-row" id="cfg-add-row">
-          <input type="text" id="cfg-new-type" placeholder="输入新的隐患类型名称…" maxlength="20">
-          <input type="text" id="cfg-new-type-desc" placeholder="输入该类型的说明（用于 AI 分析理解口径）…" maxlength="50" style="width:280px">
-          <button type="button" class="cfg-add-btn" id="cfg-type-add">＋ 新增类型</button>
-          <span class="cfg-hint">类型说明为必填，悬浮自定义类型标签可查看说明；默认通用类型仅管理员可删除</span>
+        <div class="cfg-add-box" id="cfg-add-row">
+          <div class="ab-head"><svg viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;color:var(--sys-primary)"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>新增自定义类型<span style="font-weight:400;color:var(--text-tertiary)">（仅管理员）</span></div>
+          <div class="ab-row">
+            <input type="text" id="cfg-new-type" class="ab-name" placeholder="类型名称" maxlength="20">
+            <button type="button" class="cfg-add-btn" id="cfg-type-add">＋ 新增类型</button>
+          </div>
+          <div class="ab-row">
+            <input type="text" id="cfg-new-type-desc" class="ab-desc" placeholder="类型说明（必填）：描述该类型的分析口径与典型情形，供 AI 分析时理解" maxlength="50">
+          </div>
         </div>
       </div>
     </div>
@@ -947,9 +969,9 @@ function bindHazardList(){
   document.getElementById('hz-listmode').addEventListener('click',()=>showToast('列配置面板（原型演示）'));
   const aiModal=document.getElementById('ai-modal');
   function openAIModal(){
-    /* 候选类型与生成配置共用同一候选池（含用户新增类型），每次打开动态渲染；自定义类型悬浮显示说明 */
+    /* 候选类型与生成配置共用同一候选池（含用户新增类型），每次打开动态渲染；悬浮标签显示类型说明 */
     const wrap=document.getElementById('ai-tags');
-    if(wrap)wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick"${cfgTypeDesc[t]?` title="${t}：${cfgTypeDesc[t]}"`:''}>${t}</span>`).join('');
+    if(wrap)wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick"${cfgTypeDesc[t]?` data-tip="${t}|${cfgTypeDesc[t]}"`:''}>${t}</span>`).join('');
     bindAITagSelect();
     aiModal.hidden=false;requestAnimationFrame(()=>aiModal.classList.add('show'));
   }
@@ -1177,6 +1199,17 @@ const DEFAULT_TYPE_NAMES=cfgTypeOptions.slice();
 const MAX_RPT_TYPES=15;
 /* 自定义隐患类型的说明（名称→说明），新增类型时必填，用于 AI 分析时辅助理解该类型的分析口径 */
 const cfgTypeDesc={};
+/* 系统默认类型的说明（悬浮标签可见） */
+Object.assign(cfgTypeDesc,{
+  '设备本体及附件缺陷':'泵、压缩机、阀门等设备本体及附件发生故障、损坏或功能失效',
+  '物理安全防护设施缺失':'护栏、罩壳、防坠落等物理防护设施缺失、损坏或不符合规范要求',
+  '电气设备设施隐患':'电气线路、配电设施、防爆电气等存在老化、破损、接地不良等问题',
+  '介质泄漏/密封点失效':'法兰、阀门、机泵等密封点发生工艺介质泄漏或渗漏',
+  '现场标识与信息识别':'安全警示标识缺失、污损、错误，或信息展示不清晰难以识别',
+  '个体防护不足':'未按规定配备或正确佩戴防护服、呼吸器等个体防护用品',
+  '人的不安全行为':'违章操作、无证作业、监护人缺失等人员行为类问题',
+  '现场环境与污染控制':'现场跑冒滴漏、卫生脏乱、危废存放不规范等环境管理问题'
+});
 let cfgTypeSel=[];
 let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'每周 + 每月',org:'中国中化',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效']}];
 /* 历史已完成的 AI 辅助分析报告（供消息中心提醒与详情跳转演示） */
@@ -2056,9 +2089,8 @@ function renderCfgTypeTags(){
   wrap.innerHTML=cfgTypeOptions.map(t=>{
     const isDef=DEFAULT_TYPE_NAMES.includes(t);
     const desc=cfgTypeDesc[t]||'';
-    const tip=(!isDef&&desc)?` title="${t}：${desc}"`:(isDef?' title="系统默认通用类型"':'');
-    const rm=(isDef&&curRole!=='admin')?'':`<span class="tag-rm" title="${isDef?'删除默认通用类型（仅管理员）':'移除'}" role="button" tabindex="0" aria-label="移除 ${t}">×</span>`;
-    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}${isDef?' def':''}" data-type="${t}"${tip}>${t}${isDef?'<span class="tag-def">通用</span>':''}${rm}</span>`;
+    const rm=(isDef&&curRole!=='admin')?'':`<span class="tag-rm" title="${isDef?'删除默认类型（仅管理员）':'移除'}" role="button" tabindex="0" aria-label="移除 ${t}">×</span>`;
+    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}" data-type="${t}"${desc?` data-tip="${t}|${desc}"`:''}>${t}${rm}</span>`;
   }).join('');
   const cnt=document.getElementById('cfg-type-cnt');
   if(cnt)cnt.textContent='已选 '+cfgTypeSel.length+'/'+MAX_RPT_TYPES;
@@ -2338,6 +2370,32 @@ document.getElementById('msg-list').addEventListener('click',e=>{
 });
 document.getElementById('msg-center-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMsgCenter();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('msg-center-modal').hidden)closeMsgCenter();});
+/* ===== 标签说明气泡：全局 fixed tooltip（避免弹窗 overflow 裁剪），hover/focus 显示 ===== */
+(function(){
+  const tip=document.createElement('div');tip.id='tag-tip';document.body.appendChild(tip);
+  let curEl=null;
+  const show=el=>{
+    const raw=el.dataset.tip;if(!raw)return;
+    const i=raw.indexOf('|');const name=i>=0?raw.slice(0,i):raw;const desc=i>=0?raw.slice(i+1):'';
+    tip.innerHTML=(name?'<div class="tt-name">'+name+'</div>':'')+(desc?'<div class="tt-desc">'+desc+'</div>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    let left=r.left+r.width/2-tip.offsetWidth/2;
+    left=Math.max(10,Math.min(left,window.innerWidth-tip.offsetWidth-10));
+    let top=r.top-tip.offsetHeight-8;
+    if(top<10)top=r.bottom+8; /* 上方放不下则翻转到下方 */
+    tip.style.left=left+'px';tip.style.top=top+'px';
+  };
+  const hide=()=>{tip.classList.remove('show');curEl=null;};
+  document.addEventListener('mouseover',e=>{
+    const el=e.target.closest('.tag-pick[data-tip]');
+    if(el===curEl)return;
+    curEl=el;el?show(el):hide();
+  });
+  document.addEventListener('focusin',e=>{const el=e.target.closest('.tag-pick[data-tip]');if(el){curEl=el;show(el);}});
+  document.addEventListener('focusout',()=>{if(curEl){hide();}});
+  window.addEventListener('scroll',()=>{if(curEl)show(curEl);},true);
+})();
 updateBellBubble();
 </script>
 
