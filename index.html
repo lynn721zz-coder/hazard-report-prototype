@@ -1020,8 +1020,9 @@ function bindHazardList(){
       const lp=document.getElementById('page-hazard-report');
       if(cur.genFail){
         if(cur.retries<GEN_RETRY_MAX){
+          /* 自动重试过程静默进行，不打扰用户；仅在卡片标签显示"已自动重试 N/3" */
           cur.retries++;
-          showToast('「'+cur.title+'」生成失败，正在自动重试（第 '+cur.retries+'/'+GEN_RETRY_MAX+' 次）…');
+          if(lp&&!lp.hidden)renderReportList(currentRFilter);
           scheduleAIGen(id,true);
         }else{
           cur.status='failed';
