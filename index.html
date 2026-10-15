@@ -1048,8 +1048,7 @@ function bindHazardList(){
       goBtn.classList.remove('btn-batch-mode');
     }else{
       status.textContent='已超限';
-      const over=c-AI_MAX_COUNT;
-      hint.innerHTML='当前数据量 <b>'+c.toLocaleString()+'</b> 条，超出 AI 单次分析上限 <b>'+AI_MAX_COUNT.toLocaleString()+'</b> 条。提交后<b>仅处理前 '+AI_MAX_COUNT.toLocaleString()+' 条</b>，超出 '+over.toLocaleString()+' 条<b>不纳入本次分析结果</b>。如需分析全部数据，请缩小时间范围 / 单位 / 类型筛选条件后分多次发起。';
+      hint.innerHTML='抱歉，当前数据量超出 AI 单次分析上限。提交后仅处理前 <b>'+AI_MAX_COUNT.toLocaleString()+' 条数据</b>，超出部分不纳入本次分析。';
       bp.style.display='none';
       goBtn.textContent='开始分析';
       goBtn.classList.remove('btn-batch-mode');
