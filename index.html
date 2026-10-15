@@ -64,6 +64,10 @@
   .msg-item .m-content{font-size:13px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
   .msg-item .m-go{font-size:12.5px;color:var(--text-tertiary);white-space:nowrap}
   .msg-item:hover .m-go{color:var(--sys-primary)}
+  .msg-item.fail .m-title{color:var(--danger-600)}
+  /* 消息点击定位失败报告卡片：高亮闪烁 */
+  .rpt-card.locate-flash{animation:locateFlash 2.4s ease}
+  @keyframes locateFlash{0%,55%{box-shadow:0 0 0 3px var(--sys-primary-bg),0 10px 24px rgba(0,0,0,.10);border-color:var(--sys-primary)}100%{box-shadow:none;border-color:var(--border)}}
   .msg-foot{display:flex;align-items:center;justify-content:center;gap:20px;padding:11px 20px;font-size:13px;color:var(--text-secondary)}
   .msg-pager{display:flex;align-items:center;gap:10px}
   .msg-pager button{border:1px solid var(--border-strong);background:var(--bg-card);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--text-secondary);line-height:1}
@@ -1029,6 +1033,9 @@ function bindHazardList(){
           cur.status='failed';
           if(lp&&!lp.hidden)renderReportList(currentRFilter);
           showToast('「'+cur.title+'」自动重试 '+GEN_RETRY_MAX+' 次仍失败，请点击「重新发起」');
+          /* 生成失败：消息中心通知（点击跳转报告列表并定位该失败报告） */
+          notifications.unshift({id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成失败提醒',content:'【AI 辅助分析报告】您发起的《'+cur.title+'》自动重试 '+GEN_RETRY_MAX+' 次仍失败，请前往报告列表点击「重新发起」。',time:nowStr(),read:false,rid:cur.id,fail:true});
+          updateBellBubble();
         }
       }else{
         cur.status='ready';
@@ -2295,7 +2302,7 @@ function renderMsgList(){
   const startI=(msgPage-1)*MSG_PAGE_SIZE;
   const items=notifications.slice(startI,startI+MSG_PAGE_SIZE);
   document.getElementById('msg-list').innerHTML=items.map(n=>
-    `<div class="msg-item${n.read?'':' unread'}" data-mid="${n.id}" role="button" tabindex="0">
+    `<div class="msg-item${n.read?'':' unread'}${n.fail?' fail':''}" data-mid="${n.id}" role="button" tabindex="0">
       <div class="row1"><span class="m-title">${n.title}</span><span class="m-time">${n.time}</span></div>
       <div class="row2"><span class="m-content">${n.content}</span><span class="m-go">查看详情 ▶</span></div>
     </div>`).join('');
@@ -2317,7 +2324,17 @@ document.getElementById('msg-list').addEventListener('click',e=>{
   const n=notifications.find(x=>x.id===item.dataset.mid);if(!n)return;
   n.read=true;updateBellBubble();closeMsgCenter();
   openPage('hazard-report','隐患分析报告');
-  showReportDetail(n.rid);
+  if(n.fail){
+    /* 失败通知：跳转报告列表页（重置筛选确保可见），定位并高亮该失败报告卡片 */
+    ['rq-from','rq-to','rq-org','rq-type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    renderReportList('all');
+    setTimeout(()=>{
+      const card=document.querySelector(`.rpt-card[data-rid="${n.rid}"]`);
+      if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('locate-flash');setTimeout(()=>card.classList.remove('locate-flash'),2600);}
+    },80);
+  }else{
+    showReportDetail(n.rid);
+  }
 });
 document.getElementById('msg-center-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMsgCenter();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('msg-center-modal').hidden)closeMsgCenter();});
