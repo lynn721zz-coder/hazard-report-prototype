@@ -2034,6 +2034,42 @@ function nextExecTime(dates,time){
   const pad=n=>String(n).padStart(2,'0');
   return best.getFullYear()+'-'+pad(best.getMonth()+1)+'-'+pad(best.getDate())+' '+pad(best.getHours())+':'+pad(best.getMinutes());
 }
+function fmtNextExec(dt){
+  const pad=n=>String(n).padStart(2,'0');
+  return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())+' '+pad(dt.getHours())+':'+pad(dt.getMinutes());
+}
+function nextExecCustom(freq,interval,extra,time){
+  const now=new Date();
+  const [hh,mm]=(time||'08:00').split(':').map(Number);
+  if(freq==='week'){
+    const wdMap={'周一':1,'周二':2,'周三':3,'周四':4,'周五':5,'周六':6,'周日':0};
+    const wds=extra.wds.map(w=>wdMap[w]);
+    const wsNow=new Date(now.getFullYear(),now.getMonth(),now.getDate()-((now.getDay()+6)%7));
+    for(let i=0;i<interval*7+7;i++){
+      const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,hh,mm,0);
+      if(d<=now||!wds.includes(d.getDay()))continue;
+      const ws=new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7));
+      if(Math.round((ws-wsNow)/(7*864e5))%interval===0)return fmtNextExec(d);
+    }
+  }else if(freq==='month'){
+    const base=now.getFullYear()*12+now.getMonth();
+    for(let k=0;k<=interval*13;k+=interval){
+      const t=base+k,y=Math.floor(t/12),mo=t%12;
+      const last=new Date(y,mo+1,0).getDate();
+      const d=new Date(y,mo,Math.min(extra.day,last),hh,mm,0);
+      if(d>now)return fmtNextExec(d);
+    }
+  }else if(freq==='quarter'){
+    const qs=now.getFullYear()*12+Math.floor(now.getMonth()/3)*3;
+    for(let k=0;k<=interval*8;k++){
+      const t=qs+k*interval*3,y=Math.floor(t/12),mo=t%12;
+      const last=new Date(y,mo+1,0).getDate();
+      const d=new Date(y,mo,Math.min(extra.day,last),hh,mm,0);
+      if(d>now)return fmtNextExec(d);
+    }
+  }
+  return null;
+}
 function buildCustomPeriod(){
   const freq=document.getElementById('cfg-freq').value;
   const interval=Math.max(1,parseInt(document.getElementById('cfg-interval').value,10)||1);
@@ -2056,7 +2092,7 @@ function buildCustomPeriod(){
     dayPart=sorted.join('、');extra.dates=sorted;
   }
   const text=(interval===1?freqName:'每 '+interval+' '+unitMap[freq])+' · '+dayPart+' '+time;
-  const next=freq==='year'?nextExecTime(extra.dates,time):null;
+  const next=freq==='year'?nextExecTime(extra.dates,time):nextExecCustom(freq,interval,extra,time);
   return{ok:true,text,next,time,freq,interval,...extra};
 }
 function refreshCfgPreview(){
@@ -2066,7 +2102,7 @@ function refreshCfgPreview(){
   let html='';
   if(r.ok){
     html='生成规则预览：'+r.text+' 生成';
-    if(r.next)html+='<div class="cfg-next">⏰ 下次执行：'+r.next+'（固定日期到点自动生成）</div>';
+    if(r.next)html+='<div class="cfg-next">⏰ 下次执行：'+r.next+'（到点自动生成）</div>';
   }else html='⚠ '+r.err;
   pv.innerHTML=html;
 }
