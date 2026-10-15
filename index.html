@@ -605,12 +605,13 @@
         </div>
       </div>
       <div>
-        <div class="field-label">下一阶段关注的隐患类型 <span class="req">*</span> <span id="cfg-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选，每份报告最多 15 种；标注"通用"的为系统默认类型，仅管理员可删除）</span></div>
+        <div class="field-label">下一阶段关注的隐患类型 <span class="req">*</span> <span id="cfg-type-cnt" style="font-size:12px;color:var(--sys-primary);font-weight:600;margin-left:2px">已选 0/15</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选，每份报告最多 15 种；标注"通用"的为系统默认类型，仅管理员可删除；新增类型仅管理员可操作）</span></div>
         <div id="cfg-tags"></div>
-        <div class="cfg-add-row">
+        <div class="cfg-add-row" id="cfg-add-row">
           <input type="text" id="cfg-new-type" placeholder="输入新的隐患类型名称…" maxlength="20">
+          <input type="text" id="cfg-new-type-desc" placeholder="输入该类型的说明（用于 AI 分析理解口径）…" maxlength="50" style="width:280px">
           <button type="button" class="cfg-add-btn" id="cfg-type-add">＋ 新增类型</button>
-          <span class="cfg-hint">自定义类型可点击标签右上角 × 移除；默认通用类型仅管理员可删除</span>
+          <span class="cfg-hint">类型说明为必填，悬浮自定义类型标签可查看说明；默认通用类型仅管理员可删除</span>
         </div>
       </div>
     </div>
@@ -942,9 +943,9 @@ function bindHazardList(){
   document.getElementById('hz-listmode').addEventListener('click',()=>showToast('列配置面板（原型演示）'));
   const aiModal=document.getElementById('ai-modal');
   function openAIModal(){
-    /* 候选类型与生成配置共用同一候选池（含用户新增类型），每次打开动态渲染 */
+    /* 候选类型与生成配置共用同一候选池（含用户新增类型），每次打开动态渲染；自定义类型悬浮显示说明 */
     const wrap=document.getElementById('ai-tags');
-    if(wrap)wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick">${t}</span>`).join('');
+    if(wrap)wrap.innerHTML=cfgTypeOptions.map(t=>`<span class="tag-pick"${cfgTypeDesc[t]?` title="${t}：${cfgTypeDesc[t]}"`:''}>${t}</span>`).join('');
     bindAITagSelect();
     aiModal.hidden=false;requestAnimationFrame(()=>aiModal.classList.add('show'));
   }
@@ -1167,6 +1168,8 @@ let cfgTypeOptions=['设备本体及附件缺陷','物理安全防护设施缺�
 /* 默认通用隐患类型：系统内置候选，仅管理员可删除；每份报告最多可选择 15 种隐患类型 */
 const DEFAULT_TYPE_NAMES=cfgTypeOptions.slice();
 const MAX_RPT_TYPES=15;
+/* 自定义隐患类型的说明（名称→说明），新增类型时必填，用于 AI 分析时辅助理解该类型的分析口径 */
+const cfgTypeDesc={};
 let cfgTypeSel=[];
 let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'每周 + 每月',org:'中国中化',types:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效']}];
 /* 历史已完成的 AI 辅助分析报告（供消息中心提醒与详情跳转演示） */
@@ -2045,8 +2048,10 @@ function renderCfgTypeTags(){
   if(!wrap)return;
   wrap.innerHTML=cfgTypeOptions.map(t=>{
     const isDef=DEFAULT_TYPE_NAMES.includes(t);
+    const desc=cfgTypeDesc[t]||'';
+    const tip=(!isDef&&desc)?` title="${t}：${desc}"`:(isDef?' title="系统默认通用类型"':'');
     const rm=(isDef&&curRole!=='admin')?'':`<span class="tag-rm" title="${isDef?'删除默认通用类型（仅管理员）':'移除'}" role="button" tabindex="0" aria-label="移除 ${t}">×</span>`;
-    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}${isDef?' def':''}" data-type="${t}">${t}${isDef?'<span class="tag-def">通用</span>':''}${rm}</span>`;
+    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}${isDef?' def':''}" data-type="${t}"${tip}>${t}${isDef?'<span class="tag-def">通用</span>':''}${rm}</span>`;
   }).join('');
   const cnt=document.getElementById('cfg-type-cnt');
   if(cnt)cnt.textContent='已选 '+cfgTypeSel.length+'/'+MAX_RPT_TYPES;
@@ -2071,6 +2076,7 @@ function renderCfgTypeTags(){
       if(DEFAULT_TYPE_NAMES.includes(name)&&curRole!=='admin'){showToast('「'+name+'」为默认通用隐患类型，仅管理员可删除');return;}
       cfgTypeOptions=cfgTypeOptions.filter(x=>x!==name);
       cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
+      delete cfgTypeDesc[name];
       renderCfgTypeTags();
       showToast('已移除隐患类型「'+name+'」，保存配置后生效');
     });
@@ -2078,6 +2084,9 @@ function renderCfgTypeTags(){
 }
 function openCfgModal(){
   const m=document.getElementById('rpt-cfg-modal');
+  /* 新增隐患类型权限仅限管理员：非管理员隐藏新增输入区 */
+  const addRow=document.getElementById('cfg-add-row');
+  if(addRow)addRow.style.display=curRole==='admin'?'':'none';
   const selPeriods=rptConfig.periods||(rptConfig.custom?['自定义']:[rptConfig.period]);
   /* 回显我的配置：所属单位 + 周期多选 */
   document.getElementById('cfg-org').value=rptConfig.org||'中国中化';
@@ -2145,14 +2154,19 @@ function bindCfgModal(){
     document.getElementById('cfg-date-pick').value='';
     refreshCfgPreview();
   });
-  /* 隐患类型：新增 */
+  /* 隐患类型：新增（权限仅限管理员；类型说明必填，用于 AI 分析理解口径） */
   const addType=()=>{
+    if(curRole!=='admin'){showToast('新增隐患类型仅管理员可操作');return;}
     const inp=document.getElementById('cfg-new-type');
+    const descInp=document.getElementById('cfg-new-type-desc');
     const v=(inp.value||'').trim();
+    const desc=(descInp.value||'').trim();
     if(!v){showToast('请输入类型名称');return;}
+    if(!desc){showToast('请输入类型说明，便于 AI 分析时理解该类型的分析口径');descInp.focus();return;}
     if(cfgTypeOptions.includes(v)){showToast('该类型已存在');return;}
     cfgTypeOptions.push(v);
-    inp.value='';
+    cfgTypeDesc[v]=desc;
+    inp.value='';descInp.value='';
     renderCfgTypeTags();
     showToast('已新增隐患类型「'+v+'」，勾选后保存生效');
   };
