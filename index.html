@@ -502,6 +502,12 @@
   .fbd-dist-head{grid-template-columns:1.5fr .6fr 2fr .5fr}
   .fbd-dist-head span,.fbd-row>span{text-align:center}
   .fbd-view{max-width:1160px;margin:0 auto;padding:20px 20px 60px}
+  /* 通用分页 */
+  .pager{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:14px 2px 2px}
+  .pg-btn{height:28px;padding:0 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-secondary);font-size:12.5px;cursor:pointer;transition:all .15s}
+  .pg-btn:hover:not(:disabled){border-color:var(--sys-primary);color:var(--sys-primary)}
+  .pg-btn:disabled{opacity:.4;cursor:not-allowed}
+  .pg-info{font-size:12px;color:var(--text-tertiary)}
   .fbd-row{cursor:default;grid-template-columns:1.5fr .6fr 2fr .5fr}
   .fbd-kind-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);font-size:11px;font-weight:500}
   .fbd-kind-badge.like{background:var(--success-50,#F0FDF4);color:var(--success-800,#166534)}
@@ -776,6 +782,19 @@ const TYPES=[
 /* 各类型反馈按 赞/踩/意见 拆分（l=赞 d=踩 c=意见），未配置的类型按比例推导 */
 const FB_SPLIT={EQUIP_DEFECT:[5,4,3],PHYS_GUARD:[2,1,0],ELEC_HAZARD:[2,1,1],SIGN_IDENT:[3,2,1],MEDIA_LEAK:[4,2,2],OPS_CONTROL:[1,1,0],INSTRUMENT:[2,1,0],FIRE_RESP:[0,1,0],STATIC_GROUND:[1,1,0],ENV_POLLUTE:[1,0,0]};
 TYPES.forEach(t=>{const s=FB_SPLIT[t.code];if(s){t.l=s[0];t.d=s[1];t.c=s[2];}else{t.l=Math.round(t.fb*0.4);t.d=Math.round(t.fb*0.3);t.c=Math.max(0,t.fb-t.l-t.d);}});
+/* 悬停明细的意见示例（真实反馈不足时补充展示，标注「示例」） */
+const FB_TIP_SAMPLES={
+  EQUIP_DEFECT:['设备腐蚀类隐患的整改建议可细化到具体防腐工艺与检测周期','同类阀门内漏反复出现，建议增加备件寿命预测分析'],
+  PHYS_GUARD:['护栏缺失位置建议标注到具体楼层与轴线','防护罩拆除后未复位的责任追溯建议补充'],
+  ELEC_HAZARD:['配电室空调漏水与电气安全关联分析建议加强','防爆封堵类隐患建议给出规范依据条款'],
+  SIGN_IDENT:['标识牌缺失建议关联点位编号便于核查','报警点位描述错误建议增加与 DCS 位号比对'],
+  MEDIA_LEAK:['法兰渗漏建议细分密封点失效形式，便于 LDAR 定向治理','软管老化更换周期建议给出量化建议'],
+  OPS_CONTROL:['作业票气体分析缺失的环节定位建议更精确','监护人未选择问题建议关联培训记录分析'],
+  INSTRUMENT:['仪表超期校验建议联动审批流程提醒','关键联锁仪表建议标注失效影响范围'],
+  FIRE_RESP:['消防设施遮挡问题建议结合巡检路线分析','灭火器压力异常的整改闭环建议跟踪'],
+  STATIC_GROUND:['静电跨接脱落建议结合装卸车频次分析风险','接地电阻检测数据建议纳入趋势对比'],
+  ENV_POLLUTE:['场地孔洞类隐患建议补充临边防护要求','杂乱问题建议与 6S 管理联动分析']
+};
 const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行','其他'];
 const ORGS=['中国昊华','蓝天氟材料','中化蓝天','中化新材料','中化环境','中化装备'];
 const state={}; TYPES.forEach(t=>state[t.code]={type:null,tags:new Set(),comment:'',submitted:false});
@@ -1021,7 +1040,7 @@ function bindHazardList(){
     setTimeout(()=>{
       openPage('hazard-report','隐患分析报告');
       /* 跳转后重置查询条件，确保新提交的"生成中"任务对用户可见 */
-      ['rq-from','rq-to','rq-org','rq-type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      ['rq-from','rq-to','rq-org','rq-type','rq-owner'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       renderReportList('all');
     },600);
   });
@@ -1192,7 +1211,7 @@ const REPORTS=[
 const CUR_USER_NAME='张伟';
 let curRole='user';
 function roleVisibleReports(){return curRole==='admin'?getAllReports():getAllReports().filter(r=>(r.owner||CUR_USER_NAME)===CUR_USER_NAME);}
-let aiReports=[],currentReport=null,pendingAIReport=null,currentRFilter='all',currentFocusSet=null;
+let aiReports=[],currentReport=null,pendingAIReport=null,currentRFilter='all',currentFocusSet=null,currentRPage=1;const RPT_PAGE_SIZE=5;
 let rptFbState={};
 let rptFbTarget=null,rptFbFrom=null;
 /* 报告生成配置：每位用户仅能配置自身所需的报告，配置数据按登录用户隔离存储（原型中默认当前用户） */
@@ -1304,6 +1323,7 @@ function reportHTML(){
       <div class="rq-field"><label for="rq-to">&nbsp;</label><input type="date" id="rq-to" value="2025-12-31"></div>
       <div class="rq-field"><label for="rq-org">所属单位</label><span class="rq-input-wrap"><input type="text" id="rq-org" list="rq-org-list" placeholder="输入单位名称，支持模糊" style="width:170px"><button type="button" class="rq-clear" data-target="rq-org" title="清除所选单位" aria-label="清除所属单位输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="rq-org-list"><option value="中国昊华"></option><option value="蓝天氟材料"></option><option value="中化蓝天"></option><option value="中化新材料"></option><option value="中化环境"></option><option value="中化装备"></option></datalist></div>
       <div class="rq-field"><label for="rq-type">隐患类型</label><span class="rq-input-wrap"><input type="text" id="rq-type" list="rq-type-list" placeholder="输入类型名称，支持模糊" style="width:190px"><button type="button" class="rq-clear" data-target="rq-type" title="清除所选类型" aria-label="清除隐患类型输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="rq-type-list"></datalist></div>
+      <div class="rq-field" id="rq-owner-field" style="display:none"><label for="rq-owner">归属人</label><span class="rq-input-wrap"><input type="text" id="rq-owner" list="rq-owner-list" placeholder="输入归属人姓名，支持模糊" style="width:150px"><button type="button" class="rq-clear" data-target="rq-owner" title="清除归属人" aria-label="清除归属人输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="rq-owner-list"><option value="张伟"></option><option value="李敏"></option><option value="王强"></option></datalist></div>
       <span class="rq-spacer"></span>
       <button class="rq-btn primary" id="rq-go">查询</button>
       <button class="rq-btn" id="rq-reset">重置</button>
@@ -1504,8 +1524,18 @@ function applySubmit(code,msg){
   updateMetrics(currentFocusSet);renderBoard(currentFocusSet);
   st.tags.clear();st.comment='';
 }
-function showToast(msg){
-  const wrap=document.getElementById('toast-wrap');
+/* ===== 通用分页 ===== */
+function pagerHTML(page,total,size){
+  const pages=Math.max(1,Math.ceil(total/size));
+  if(pages<=1)return '';
+  return `<div class="pager"><button class="pg-btn" data-pg="${page-1}" ${page<=1?'disabled':''}>‹ 上一页</button><span class="pg-info">第 ${page} / ${pages} 页 · 共 ${total} 条</span><button class="pg-btn" data-pg="${page+1}" ${page>=pages?'disabled':''}>下一页 ›</button></div>`;
+}
+function bindPager(container,onGo){
+  container.querySelectorAll('.pager .pg-btn').forEach(b=>b.addEventListener('click',()=>{
+    const p=parseInt(b.dataset.pg,10);if(!p||p<1)return;onGo(p);
+  }));
+}
+function showToast(msg){  const wrap=document.getElementById('toast-wrap');
   const el=document.createElement('div');
   el.className='toast';
   el.innerHTML=`<svg class="ti-icon" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${msg}</span>`;
@@ -1520,9 +1550,11 @@ function updateMetrics(focusSet){
   document.getElementById('board-tab-count').textContent=total+' 条';
 }
 function fbDetailTip(t){
-  const det=fbLog.filter(r=>r.scope==='type'&&r.target===t.name&&r.kind!=='like');
-  if(!det.length)return '暂无点踩与意见明细记录';
-  return det.map(r=>(r.kind==='dislike'?'<b>【点踩】</b>':'<b>【意见】</b>')+[r.tags&&r.tags.length?r.tags.join('、'):'',r.comment||''].filter(Boolean).join('：')).join('<br>');
+  const det=fbLog.filter(r=>r.scope==='type'&&r.target===t.name&&r.kind!=='like')
+    .map(r=>(r.kind==='dislike'?'<b>【点踩】</b>':'<b>【意见】</b>')+[r.tags&&r.tags.length?r.tags.join('、'):'',r.comment||''].filter(Boolean).join('：'));
+  const samples=(FB_TIP_SAMPLES[t.code]||[]).map(s=>'<b>【意见·示例】</b>'+s);
+  const lines=det.concat(samples).slice(0,4);
+  return lines.length?lines.join('<br>'):'暂无点踩与意见明细记录';
 }
 function renderBoard(focusSet){
   const list=(focusSet&&focusSet.size)?TYPES.filter(t=>focusSet.has(t.name)):TYPES;
@@ -1544,7 +1576,7 @@ function renderBoard(focusSet){
       </div>
     </div>
     <div class="board-table">
-      <div class="board-col-head"><span>隐患类型</span><span>数量 / 占比</span><span>赞 / 踩 / 意见</span></div>
+      <div class="board-col-head"><span>隐患类型</span><span>数量 / 占比</span><span style="text-align:center">赞 / 踩 / 意见</span></div>
       ${rows}
     </div>
     <div class="board-foot">反馈集中维度：<strong>${topFb&&topFb.fb?topFb.no+'、'+topFb.name:'暂无'}</strong>${(topFb&&topFb.fb)?` — 累计 ${topFb.fb} 条反馈，建议作为样本回流与模型优化重点`:' — 暂无反馈记录，可持续观察'}</div>`;
@@ -1569,7 +1601,9 @@ function switchRView(view){
 function getAllReports(){return [...aiReports,...REPORTS];}
 function renderReportList(filter){
   const wrap=document.getElementById('rpt-list');
+  const prevFilter=currentRFilter;
   currentRFilter=filter||'all';
+  if(currentRFilter!==prevFilter)currentRPage=1;/* 切换筛选回到第一页 */
   /* 角色可见性：业务用户仅看自己名下的报告，管理用户可查看全部报告内容 */
   let list=roleVisibleReports();
   const sub=document.getElementById('rpt-list-sub');
@@ -1578,9 +1612,10 @@ function renderReportList(filter){
     :'查看您名下的报告：按您的生成配置产生的周期报告 + 您发起的 AI 辅助分析报告；管理用户可查看全部报告';
   if(currentRFilter!=='all')list=list.filter(r=>r.type===currentRFilter);
   /* 查询区过滤：时间范围 / 企业 / 隐患类型 */
-  const qFrom=document.getElementById('rq-from'),qTo=document.getElementById('rq-to'),qOrg=document.getElementById('rq-org'),qType=document.getElementById('rq-type');
+  const qFrom=document.getElementById('rq-from'),qTo=document.getElementById('rq-to'),qOrg=document.getElementById('rq-org'),qType=document.getElementById('rq-type'),qOwner=document.getElementById('rq-owner');
   if(qFrom&&qFrom.value){const from=qFrom.value;list=list.filter(r=>r.time.slice(0,10)>=from);}
   if(qTo&&qTo.value){const to=qTo.value;list=list.filter(r=>r.time.slice(0,10)<=to);}
+  if(qOwner&&qOwner.value.trim()&&curRole==='admin'){const kw=qOwner.value.trim().toLowerCase();list=list.filter(r=>(r.owner||CUR_USER_NAME).toLowerCase().includes(kw));}
   if(qOrg&&qOrg.value.trim()){const kw=qOrg.value.trim().toLowerCase();list=list.filter(r=>(r.org||r.orgDim||'').toLowerCase().includes(kw));}
   if(qType&&qType.value.trim()){
     const kw=qType.value.trim().toLowerCase();
@@ -1588,8 +1623,10 @@ function renderReportList(filter){
       ?TYPES.some(t=>t.name.toLowerCase().includes(kw))
       :(r.focus||[]).some(f=>f.toLowerCase().includes(kw)||kw.includes(f.toLowerCase())));
   }
-  if(!list.length){wrap.innerHTML='<div class="rpt-empty">暂无符合条件的报告，请调整查询条件或检查报告生成配置</div>';return;}
-  wrap.innerHTML=list.map(r=>{
+  if(!list.length){currentRPage=1;wrap.innerHTML='<div class="rpt-empty">暂无符合条件的报告，请调整查询条件或检查报告生成配置</div>';return;}
+  const total=list.length,rptPages=Math.max(1,Math.ceil(total/RPT_PAGE_SIZE));
+  currentRPage=Math.min(Math.max(1,currentRPage),rptPages);
+  wrap.innerHTML=list.slice((currentRPage-1)*RPT_PAGE_SIZE,currentRPage*RPT_PAGE_SIZE).map(r=>{
     const isAI=r.type==='ai';
     const isGen=r.status==='generating';
     const isFail=r.status==='failed';
@@ -1642,7 +1679,8 @@ function renderReportList(filter){
         ${fb.submitted?'<span class="rpt-fb-done"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>已提交报告反馈</span>':''}`)}
       </div>
     </div>`;
-  }).join('');
+  }).join('')+pagerHTML(currentRPage,total,RPT_PAGE_SIZE);
+  bindPager(wrap,p=>{currentRPage=p;renderReportList(currentRFilter);});
   wrap.querySelectorAll('.rpt-card').forEach(c=>{
     const go=()=>showReportDetail(c.dataset.rid);
     c.onclick=c.dataset.gen?()=>showToast('报告生成中（预计 5-10 分钟），完成后将通知您'):(c.dataset.fail?()=>showToast('任务生成失败，请点击右侧「重新发起」重新提交'):go);
@@ -1737,6 +1775,7 @@ function syncRptFbCard(id){
   }
 }
 /* ===== 反馈统计看板 ===== */
+let fbdRecPage=1;const FBD_PAGE_SIZE=10;/* 反馈明细分页 */
 let fbLog=[
   {time:'2025-12-08 10:24',scope:'type',target:'设备本体及附件缺陷',kind:'dislike',tags:['分析不准确','分类错误'],comment:'R116 工段阀门内漏应归入介质泄漏而非设备缺陷，建议复核分类边界',src:'报告详情页'},
   {time:'2025-12-08 11:05',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'like',tags:[],comment:'',src:'报告列表页'},
@@ -1839,13 +1878,17 @@ function renderFbDashboard(){
     const total=o.like+o.dislike+o.comment;
     return `<div class="board-row fbd-row"><span class="br-name" title="${o.name}">${o.name}</span><span class="br-qty">${o.scope==='report'?'报告级':'类型级'}</span><span class="br-qty-val">${o.like}赞 / ${o.dislike}踩 / ${o.comment}意</span><span class="br-qty-val">${total}</span></div>`;
   }).join('')||'<div class="his-empty">当前查询条件下暂无反馈数据</div>';
-  /* 明细表 */
+  /* 明细表（分页） */
   const cnt=document.getElementById('fbd-count');
   if(cnt)cnt.textContent='共 '+list.length+' 条记录';
-  document.getElementById('fbd-records').innerHTML=list.length?`
+  const recTotal=list.length,recPages=Math.max(1,Math.ceil(recTotal/FBD_PAGE_SIZE));
+  fbdRecPage=Math.min(Math.max(1,fbdRecPage),recPages);
+  const pageList=list.slice((fbdRecPage-1)*FBD_PAGE_SIZE,fbdRecPage*FBD_PAGE_SIZE);
+  const recBox=document.getElementById('fbd-records');
+  recBox.innerHTML=(recTotal?`
     <table class="his-table fbd-table">
       <thead><tr><th style="width:120px">反馈时间</th><th>反馈对象</th><th style="width:72px">级别</th><th style="width:72px">反馈类型</th><th style="width:170px">反馈标签</th><th>意见内容</th></tr></thead>
-      <tbody>${list.map(r=>`
+      <tbody>${pageList.map(r=>`
         <tr>
           <td class="his-time">${r.time}</td>
           <td title="${r.target}">${r.target}</td>
@@ -1854,7 +1897,8 @@ function renderFbDashboard(){
           <td>${r.tags&&r.tags.length?r.tags.join('；'):'—'}</td>
           <td class="fbd-cmt">${r.comment||'—'}</td>
         </tr>`).join('')}</tbody>
-    </table>`:'<div class="his-empty">暂无符合条件的反馈记录</div>';
+    </table>`:'<div class="his-empty">暂无符合条件的反馈记录</div>')+pagerHTML(fbdRecPage,recTotal,FBD_PAGE_SIZE);
+  bindPager(recBox,p=>{fbdRecPage=p;renderFbDashboard();});
 }
 function exportFbLog(){
   const list=filteredFbLog();
@@ -1869,8 +1913,9 @@ function exportFbLog(){
   showToast('已导出 '+list.length+' 条反馈记录，请在下载中查看');
 }
 function bindFbDashboard(){
-  document.getElementById('fbd-query').addEventListener('click',renderFbDashboard);
+  document.getElementById('fbd-query').addEventListener('click',()=>{fbdRecPage=1;renderFbDashboard();});
   document.getElementById('fbd-reset').addEventListener('click',()=>{
+    fbdRecPage=1;
     document.getElementById('fbd-scope').value='report';document.getElementById('fbd-d1').value='';document.getElementById('fbd-d2').value='';
     document.getElementById('fbd-kind').value='';document.getElementById('fbd-q').value='';
     renderFbDashboard();
@@ -1941,7 +1986,7 @@ function exportReportWord(id,ev){  if(ev){ev.stopPropagation();ev.preventDefault
   <hr style="border:none;border-top:1.5pt solid #0A4DA2;margin:0 0 14pt">`;
   /* 一、报告概览 */
   body+=`<p style="${H};font-size:14pt;color:#0A4DA2;margin:12pt 0 6pt">一、报告概览</p>
-  <p style="${F};line-height:1.8;margin:0 0 6pt">本报告基于 HSE 管理系统隐患清单数据，经 AI 分析引擎（模型 v2.3）语义归类与风险洞察生成，${isAI?'并按用户配置聚焦展示指定隐患类型。':''}报告期内共归集隐患总数 <b>${r.count.toLocaleString()}</b> 条，覆盖 <b>${list.length}</b> 类隐患类型。</p>`;
+  <p style="${F};line-height:1.8;margin:0 0 6pt">本报告基于 HSE 管理系统隐患清单数据，经 FORUS 化工安全大模型语义归类与风险洞察生成，${isAI?'并按用户配置聚焦展示指定隐患类型。':''}报告期内共归集隐患总数 <b>${r.count.toLocaleString()}</b> 条，覆盖 <b>${list.length}</b> 类隐患类型。</p>`;
   if(isAI&&focusList){
     body+=`<p style="${F};line-height:1.8;margin:0 0 6pt"><b>聚焦隐患类型：</b>${focusList.map(esc).join('、')}</p>`;
     if(r.timeDim||r.orgDim)body+=`<p style="${F};line-height:1.8;margin:0 0 6pt"><b>分析维度：</b>时间维度 ${esc(r.timeDim||'—')}；所属单位 ${esc(r.orgDim||'—')}</p>`;
@@ -1990,7 +2035,7 @@ function showReportDetail(id){
     const focusSet=isAI&&r.focus?new Set(r.focus):null;
     currentFocusSet=focusSet;
     const nCls=(focusSet&&focusSet.size)?focusSet.size:12;
-    document.getElementById('rpt-d-meta').innerHTML=`<span>隐患总数 ${r.count.toLocaleString()} 条</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>AI 模型 v2.3</span>`;
+    document.getElementById('rpt-d-meta').innerHTML=`<span>隐患总数 ${r.count.toLocaleString()} 条</span><span class="dot"></span><span>${nCls} 类隐患类型</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>FORUS化工安全大模型</span>`;
     document.querySelector('[data-rview="detail"] .count').textContent=nCls+' 类';
     if(focusSet){
       const cands=TYPES.filter(t=>focusSet.has(t.name));
@@ -2306,17 +2351,25 @@ function bindCfgModal(){
 function bindRptQuery(){
   const fill=()=>{const dl=document.getElementById('rq-type-list');if(!dl)return;dl.innerHTML=TYPES.map(t=>`<option value="${t.name}"></option>`).join('');};
   fill();
+  /* 归属人查询仅管理视角可见 */
+  const of=document.getElementById('rq-owner-field');
+  if(of)of.style.display=curRole==='admin'?'':'none';
   /* 用户角色切换：业务用户仅看我的报告，管理用户可查看全部报告内容 */
   const roleSel=document.getElementById('rpt-role');
   if(roleSel)roleSel.addEventListener('change',e=>{
-    curRole=e.target.value;
-    renderReportList(currentRFilter);
+  curRole=e.target.value;
+  currentRPage=1;
+  const of=document.getElementById('rq-owner-field');
+  if(of)of.style.display=curRole==='admin'?'':'none';
+  if(curRole!=='admin'){const oi=document.getElementById('rq-owner');if(oi)oi.value='';}
+  renderReportList(currentRFilter);
     showToast(curRole==='admin'?'已切换至管理用户视角：正在展示全部报告内容':'已切换至业务用户视角：仅展示您名下的报告');
   });
-  const doQuery=()=>{renderReportList(currentRFilter);showToast('查询完成');};
+  const doQuery=()=>{currentRPage=1;renderReportList(currentRFilter);showToast('查询完成');};
   document.getElementById('rq-go').addEventListener('click',doQuery);
-  ['rq-org','rq-type'].forEach(id=>{
+  ['rq-org','rq-type','rq-owner'].forEach(id=>{
     const inp=document.getElementById(id);
+    if(!inp)return;
     const sync=()=>{const wrap=inp.closest('.rq-input-wrap');if(wrap)wrap.classList.toggle('has-val',!!inp.value.trim());};
     inp.addEventListener('input',sync);inp.addEventListener('change',sync);sync();
   });
@@ -2328,12 +2381,13 @@ function bindRptQuery(){
     if(wrap)wrap.classList.remove('has-val');
     inp.focus();
     renderReportList(currentRFilter);
-    showToast('已清除「'+(btn.dataset.target==='rq-org'?'所属单位':'隐患类型')+'」条件');
+    showToast('已清除「'+({ 'rq-org':'所属单位','rq-type':'隐患类型','rq-owner':'归属人' }[btn.dataset.target]||'筛选')+'」条件');
   }));
-  ['rq-org','rq-type'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')doQuery();}));
+  ['rq-org','rq-type','rq-owner'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('keydown',e=>{if(e.key==='Enter')doQuery();});});
   document.getElementById('rq-reset').addEventListener('click',()=>{
     document.getElementById('rq-from').value='';document.getElementById('rq-to').value='';
     document.getElementById('rq-org').value='';document.getElementById('rq-type').value='';
+    const oi=document.getElementById('rq-owner');if(oi)oi.value='';
     document.querySelectorAll('.rq-input-wrap').forEach(w=>w.classList.remove('has-val'));
     renderReportList(currentRFilter);showToast('查询条件已重置');
   });
@@ -2425,7 +2479,8 @@ document.getElementById('msg-list').addEventListener('click',e=>{
   openPage('hazard-report','隐患分析报告');
   if(n.fail){
     /* 失败通知：跳转报告列表页（重置筛选确保可见），定位并高亮该失败报告卡片 */
-    ['rq-from','rq-to','rq-org','rq-type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    ['rq-from','rq-to','rq-org','rq-type','rq-owner'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    currentRPage=1;
     renderReportList('all');
     setTimeout(()=>{
       const card=document.querySelector(`.rpt-card[data-rid="${n.rid}"]`);
