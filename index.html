@@ -1238,7 +1238,10 @@ let rptCfgHistory=[{time:'2025-12-01 08:00',action:'initial',changes:[],period:'
 /* 历史已完成的 AI 辅助分析报告（供消息中心提醒与详情跳转演示） */
 aiReports.push(
   {id:'AI-1013',type:'ai',status:'ready',title:'【中国中化】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',time:'2026-10-13 16:40',range:'2025-11-01 ~ 2025-11-30',count:2387,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:['设备本体及附件缺陷','电气设备设施隐患','介质泄漏/密封点失效'],timeDim:'2025-11',orgDim:'中国中化',owner:'张伟'},
-  {id:'AI-1012',type:'ai',status:'ready',title:'【中国中化】隐患AI辅助分析报告（2025年10月1日至2025年10月31日）',time:'2026-10-12 10:15',range:'2025-10-01 ~ 2025-10-31',count:1204,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:['现场标识与信息识别','个体防护不足','人的不安全行为'],timeDim:'2025-10',orgDim:'中国中化',owner:'张伟'}
+  {id:'AI-1012',type:'ai',status:'ready',title:'【中国中化】隐患AI辅助分析报告（2025年10月1日至2025年10月31日）',time:'2026-10-12 10:15',range:'2025-10-01 ~ 2025-10-31',count:1204,desc:'基于当前隐患清单，围绕所关注类型进行 AI 聚焦分析与风险洞察',focus:['现场标识与信息识别','个体防护不足','人的不安全行为'],timeDim:'2025-10',orgDim:'中国中化',owner:'张伟'},
+  /* 生成失败的报告（供失败提醒跳转定位与「重新发起」演示） */
+  {id:'AI-1011',type:'ai',status:'failed',title:'【中国中化】隐患AI辅助分析报告（2025年9月1日至2025年9月30日）',time:'2026-10-09 08:00',range:'2025-09-01 ~ 2025-09-30',count:1985,desc:'AI 分析任务失败：自动重试 3 次仍未成功',focus:['人的不安全行为','个体防护不足'],timeDim:'2025-09',orgDim:'中国中化',owner:'张伟'},
+  {id:'AI-1010',type:'ai',status:'failed',title:'【中国中化】隐患AI辅助分析报告（2025年8月1日至2025年8月31日）',time:'2026-09-01 08:00',range:'2025-08-01 ~ 2025-08-31',count:1763,desc:'AI 分析任务失败：自动重试 3 次仍未成功',focus:['设备本体及附件缺陷','介质泄漏/密封点失效'],timeDim:'2025-08',orgDim:'中国中化',owner:'张伟'}
 );
 /* 消息中心数据：消息标题与内容均按 AI 辅助分析报告生成提醒展示，点击消息跳转对应报告详情 */
 let notifications=[];let msgPage=1;const MSG_PAGE_SIZE=10;let msgSeq=0;
@@ -1246,6 +1249,9 @@ function makeAIMsg(rid,time,focusN,count,read,rtitle){
   return {id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成提醒',content:'【AI 辅助分析报告】您发起的《'+(rtitle||'隐患AI辅助分析报告')+'》（聚焦 '+focusN+' 类隐患，共 '+count.toLocaleString()+' 条）已生成完成，请查看报告详情。',time:time,read:!!read,rid:rid};
 }
 notifications=[
+  {id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成失败提醒',content:'【AI 辅助分析报告】您发起的《【中国中化】隐患AI辅助分析报告（2025年9月1日至2025年9月30日）》自动重试 3 次仍失败，请前往报告列表点击「重新发起」。',time:'2026-10-09 08:17',read:false,rid:'AI-1011',fail:true},
+  {id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成失败提醒',content:'【AI 辅助分析报告】您发起的《【中国中化】隐患AI辅助分析报告（2025年9月1日至2025年9月30日）》自动重试 3 次仍失败，请前往报告列表点击「重新发起」。',time:'2026-09-08 15:42',read:true,rid:'AI-1011',fail:true},
+  {id:'MSG-'+(++msgSeq),title:'AI 辅助分析报告生成失败提醒',content:'【AI 辅助分析报告】您发起的《【中国中化】隐患AI辅助分析报告（2025年8月1日至2025年8月31日）》自动重试 3 次仍失败，请前往报告列表点击「重新发起」。',time:'2026-09-01 08:16',read:false,rid:'AI-1010',fail:true},
   makeAIMsg('AI-1013','2026-10-13 16:40',3,2387,false,'【中国中化】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）'),
   makeAIMsg('AI-1012','2026-10-12 10:15',3,1204,false,'【中国中化】隐患AI辅助分析报告（2025年10月1日至2025年10月31日）'),
   makeAIMsg('AI-1012','2026-10-11 18:02',3,1204,true,'【中国中化】隐患AI辅助分析报告（2025年10月1日至2025年10月31日）'),
