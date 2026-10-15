@@ -500,7 +500,9 @@
   .his-empty{padding:32px;text-align:center;color:var(--text-tertiary);font-size:13px}
   .fb-board-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
   .fbd-dist-head{grid-template-columns:1.5fr .6fr 2fr .5fr}
-  .fbd-row{cursor:default}
+  .fbd-dist-head span,.fbd-row>span{text-align:center}
+  .fbd-view{max-width:1160px;margin:0 auto;padding:20px 20px 60px}
+  .fbd-row{cursor:default;grid-template-columns:1.5fr .6fr 2fr .5fr}
   .fbd-kind-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);font-size:11px;font-weight:500}
   .fbd-kind-badge.like{background:var(--success-50,#F0FDF4);color:var(--success-800,#166534)}
   .fbd-kind-badge.dislike{background:var(--danger-50);color:var(--danger-800)}
@@ -574,7 +576,7 @@
         </select>
       </div>
       <div style="margin-bottom:16px">
-        <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span> <i class="help-tip" tabindex="0" role="note" aria-label="固定周期生成时间说明" data-tip="|<b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日 08:00。">i</i></div>
+        <div class="field-label">报告生成周期 <span class="req">*</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选组合，如 每周 + 每季度）</span> <i class="help-tip" tabindex="0" role="note" aria-label="固定周期生成时间说明" data-tip="|<b>每周</b>：每周一生成；<b>每月</b>：每月 1 号生成；<b>每季度</b>：每季度第一个月的 1 号生成（1/4/7/10 月 1 号）；<b>每年</b>：每年 1 月 1 日生成。报告生成时间均为当日零点。">i</i></div>
         <div id="cfg-period">
           <span class="tag-pick" data-pd="每周">每周</span>
           <span class="tag-pick" data-pd="每月">每月</span>
@@ -620,7 +622,7 @@
           </div>
           <div class="cfg-row">
             <span class="cfg-lb">生成时间</span>
-            <input type="time" id="cfg-time" value="08:00">
+            <input type="time" id="cfg-time" value="00:00">
           </div>
           <div class="cfg-preview" id="cfg-preview"></div>
         </div>
@@ -678,7 +680,7 @@
         <div id="rpt-fb-tags" role="group"></div>
       </div>
       <div>
-        <div class="field-label">意见描述 <span class="req">*</span></div>
+        <div class="field-label" id="rpt-fb-cmt-label">意见描述 <span class="req">*</span></div>
         <textarea class="modal-textarea" id="rpt-fb-textarea" placeholder="请填写具体反馈意见，以便精准优化报告质量…" required></textarea>
       </div>
     </div>
@@ -771,6 +773,9 @@ const TYPES=[
   {code:'PPE_LACK',no:'十二',name:'个体防护不足',count:2,ratio:'0.1%',risk:'防护用品',
    examples:['作业人员未佩戴护目镜','防爆区域未穿防静电工服','酸区操作人员防护面屏缺失','粉尘作业未佩戴防尘口罩','噪音区域员工未佩戴耳塞'],risks:['防护用品缺失使人员在有毒、腐蚀、粉尘环境中直接暴露，造成急性伤害与职业病隐患','防爆区域防静电装备缺失，人体静电成为潜在点火源'],advice:['按岗位风险评估结果配齐配足防护用品，建立发放与更换台账','强化现场佩戴监督，同时改进装备舒适性与可用性，提升主动佩戴率'],fb:0,rate:0}
 ];
+/* 各类型反馈按 赞/踩/意见 拆分（l=赞 d=踩 c=意见），未配置的类型按比例推导 */
+const FB_SPLIT={EQUIP_DEFECT:[5,4,3],PHYS_GUARD:[2,1,0],ELEC_HAZARD:[2,1,1],SIGN_IDENT:[3,2,1],MEDIA_LEAK:[4,2,2],OPS_CONTROL:[1,1,0],INSTRUMENT:[2,1,0],FIRE_RESP:[0,1,0],STATIC_GROUND:[1,1,0],ENV_POLLUTE:[1,0,0]};
+TYPES.forEach(t=>{const s=FB_SPLIT[t.code];if(s){t.l=s[0];t.d=s[1];t.c=s[2];}else{t.l=Math.round(t.fb*0.4);t.d=Math.round(t.fb*0.3);t.c=Math.max(0,t.fb-t.l-t.d);}});
 const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行','其他'];
 const ORGS=['中国昊华','蓝天氟材料','中化蓝天','中化新材料','中化环境','中化装备'];
 const state={}; TYPES.forEach(t=>state[t.code]={type:null,tags:new Set(),comment:'',submitted:false});
@@ -1177,11 +1182,11 @@ function toggleSidebar(){
 /* ================= 报告原型 ================= */
 function pct(n){return Math.round(n*100)+'%';}
 const REPORTS=[
-  {id:'RPT-202512-M',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',time:'2025-12-01 09:00',range:'2025-01-01 ~ 2025-12-31',count:1605,desc:'基于全部隐患描述识别安全屏障失效模式',org:'中国昊华',owner:'李敏'},
-  {id:'RPT-202512-W48',type:'scheduled',title:'【蓝天氟材料】隐患AI辅助分析报告（2025年11月24日至2025年11月30日）',time:'2025-11-30 18:00',range:'2025-11-24 ~ 2025-11-30',count:412,desc:'本周新增隐患语义归类与风险洞察',org:'蓝天氟材料',owner:'张伟'},
-  {id:'RPT-202512-W47',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年11月17日至2025年11月23日）',time:'2025-11-23 18:00',range:'2025-11-17 ~ 2025-11-23',count:381,desc:'本周新增隐患语义归类与风险洞察',org:'中国昊华',owner:'张伟'},
-  {id:'RPT-202512-W46',type:'scheduled',title:'【中化蓝天】隐患AI辅助分析报告（2025年11月10日至2025年11月16日）',time:'2025-11-16 18:00',range:'2025-11-10 ~ 2025-11-16',count:365,desc:'本周新增隐患语义归类与风险洞察',org:'中化蓝天',owner:'王强'},
-  {id:'RPT-202511-M',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',time:'2025-12-01 08:00',range:'2025-11-01 ~ 2025-11-30',count:1532,desc:'上月隐患语义归类与趋势分析',org:'中国昊华',owner:'张伟'}
+  {id:'RPT-202512-M',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',time:'2025-12-01 00:00',range:'2025-01-01 ~ 2025-12-31',count:1605,desc:'基于全部隐患描述识别安全屏障失效模式',org:'中国昊华',owner:'李敏'},
+  {id:'RPT-202512-W48',type:'scheduled',title:'【蓝天氟材料】隐患AI辅助分析报告（2025年11月24日至2025年11月30日）',time:'2025-11-30 00:00',range:'2025-11-24 ~ 2025-11-30',count:412,desc:'本周新增隐患语义归类与风险洞察',org:'蓝天氟材料',owner:'张伟'},
+  {id:'RPT-202512-W47',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年11月17日至2025年11月23日）',time:'2025-11-23 00:00',range:'2025-11-17 ~ 2025-11-23',count:381,desc:'本周新增隐患语义归类与风险洞察',org:'中国昊华',owner:'张伟'},
+  {id:'RPT-202512-W46',type:'scheduled',title:'【中化蓝天】隐患AI辅助分析报告（2025年11月10日至2025年11月16日）',time:'2025-11-16 00:00',range:'2025-11-10 ~ 2025-11-16',count:365,desc:'本周新增隐患语义归类与风险洞察',org:'中化蓝天',owner:'王强'},
+  {id:'RPT-202511-M',type:'scheduled',title:'【中国昊华】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',time:'2025-12-01 00:00',range:'2025-11-01 ~ 2025-11-30',count:1532,desc:'上月隐患语义归类与趋势分析',org:'中国昊华',owner:'张伟'}
 ];
 /* 用户角色：业务用户仅可查看自己名下的报告；管理用户（HSE 管理员）可查看全部报告内容 */
 const CUR_USER_NAME='张伟';
@@ -1392,7 +1397,7 @@ function renderCards(focusSet){
             <div class="fb-tags" role="group" aria-label="反馈快速标签" id="fbtags-${t.code}">
               ${TAGS.map(tg=>`<button class="tag" aria-pressed="false" onclick="toggleTag('${t.code}','${tg}',this)">${tg}</button>`).join('')}
             </div>
-            <div class="field-label" style="margin-top:8px;margin-bottom:6px">意见描述 <span class="req">*</span></div>
+            <div class="field-label fb-cmt-label" style="margin-top:8px;margin-bottom:6px">意见描述 <span class="req">*</span></div>
             <textarea class="fb-textarea" id="textarea-${t.code}" placeholder="请填写具体反馈意见…" aria-label="反馈意见输入框" required></textarea>
             <div class="fb-actions">
               <span class="fb-hint">反馈将回流至模型训练样本库，用于定向优化该维度</span>
@@ -1438,7 +1443,7 @@ function openFeedback(code,from,e){
   const st=state[code];
   const twrap=document.getElementById('fbtags-'+code);
   if(from==='comment'){
-    st.type=null;st.tags.clear();
+    st.type='comment';st.tags.clear();
     const c0=document.getElementById('card-'+code);
     c0.querySelector('.fb-btn.like').setAttribute('aria-pressed','false');
     c0.querySelector('.fb-btn.dislike').setAttribute('aria-pressed','false');
@@ -1450,6 +1455,13 @@ function openFeedback(code,from,e){
     }
   }
   const c=document.getElementById('card-'+code);
+  /* 意见描述：仅「意见反馈」必填，点踩选填 */
+  const lb=c.querySelector('.fb-cmt-label'),ta=document.getElementById('textarea-'+code);
+  if(lb&&ta){
+    const isCmt=from==='comment';
+    lb.innerHTML=isCmt?'意见描述 <span class="req">*</span>':'意见描述 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（点踩选填）</span>';
+    ta.required=isCmt;
+  }
   c.dataset.open='true';
   c.querySelector('.card-head').setAttribute('aria-expanded','true');
   document.getElementById('expand-'+code).dataset.show='true';
@@ -1475,7 +1487,7 @@ function submitFeedback(code){
   const st=state[code];
   if(st.type==='dislike'&&st.tags.size===0){showToast('请至少选择一个问题标签，以便精准定位问题');return;}
   st.comment=document.getElementById('textarea-'+code).value.trim();
-  if(!st.comment){showToast('请填写意见描述，以便精准优化该维度');return;}
+  if(st.type==='comment'&&!st.comment){showToast('请填写意见描述，以便精准优化该维度');return;}
   const tagStr=st.tags.size?`，标签：${[...st.tags].join('、')}`:'';
   applySubmit(code,`反馈已提交${tagStr}，将回流至模型训练样本库`);
 }
@@ -1485,6 +1497,7 @@ function applySubmit(code,msg){
   document.getElementById('expand-'+code).dataset.show='false';
   const t=TYPES.find(x=>x.code===code);
   t.fb+=1;
+  if(st.type==='like')t.l=(t.l||0)+1;else if(st.type==='dislike')t.d=(t.d||0)+1;else t.c=(t.c||0)+1;
   const st=state[code];
   fbLogAdd({scope:'type',target:t.name,kind:st.type==='dislike'?'dislike':st.type==='like'?'like':'comment',tags:[...st.tags],comment:st.comment||'',src:'报告详情页'});
   showToast(msg);
@@ -1506,17 +1519,20 @@ function updateMetrics(focusSet){
   document.getElementById('total-hint').textContent='覆盖 '+list.length+' 个隐患类型';
   document.getElementById('board-tab-count').textContent=total+' 条';
 }
+function fbDetailTip(t){
+  const det=fbLog.filter(r=>r.scope==='type'&&r.target===t.name&&r.kind!=='like');
+  if(!det.length)return '暂无点踩与意见明细记录';
+  return det.map(r=>(r.kind==='dislike'?'<b>【点踩】</b>':'<b>【意见】</b>')+[r.tags&&r.tags.length?r.tags.join('、'):'',r.comment||''].filter(Boolean).join('：')).join('<br>');
+}
 function renderBoard(focusSet){
   const list=(focusSet&&focusSet.size)?TYPES.filter(t=>focusSet.has(t.name)):TYPES;
-  const maxFb=Math.max(...list.map(t=>t.fb),1);
   const board=document.getElementById('board');
   const rows=list.map(t=>{
-    const fbW=(t.fb/maxFb*100).toFixed(1);
     return `
-    <div class="board-row" onclick="jumpToCard('${t.code}')" role="button" tabindex="0" aria-label="${t.name}，反馈${t.fb}条">
+    <div class="board-row" data-tip="|<b>点踩 ${t.d} 条 · 意见 ${t.c} 条（明细）</b><br>${fbDetailTip(t)}" onclick="jumpToCard('${t.code}')" role="button" tabindex="0" aria-label="${t.name}，赞${t.l}条、踩${t.d}条、意见${t.c}条">
       <span class="br-name">${t.no}、${t.name}</span>
       <span class="br-qty">${t.count} · ${t.ratio}</span>
-      <span style="display:flex;align-items:center"><span class="bar-track"><span class="bar-fill blue" style="width:${fbW}%"></span></span><span class="br-qty-val">${t.fb}</span></span>
+      <span style="display:flex;align-items:center;justify-content:center;gap:10px"><span style="color:var(--success-600,#16A34A);font-weight:600">${t.l} 赞</span><span style="color:var(--danger-600);font-weight:600">${t.d} 踩</span><span style="color:var(--text-secondary);font-weight:600">${t.c} 意见</span></span>
     </div>`;
   }).join('');
   const topFb=list.slice().sort((a,b)=>b.fb-a.fb)[0];
@@ -1524,12 +1540,11 @@ function renderBoard(focusSet){
     <div class="board-head">
       <h2>按隐患类型维度聚合的反馈看板${(focusSet&&focusSet.size)?'（聚焦范围）':''}</h2>
       <div class="legend">
-        <span><span class="sw" style="background:var(--primary-400)"></span>反馈量</span>
-        <span>点击行可跳转至对应类型卡片</span>
+        <span>点击行可跳转至对应类型卡片；悬停可查看点踩与意见明细</span>
       </div>
     </div>
     <div class="board-table">
-      <div class="board-col-head"><span>隐患类型</span><span>数量 / 占比</span><span>反馈量</span></div>
+      <div class="board-col-head"><span>隐患类型</span><span>数量 / 占比</span><span>赞 / 踩 / 意见</span></div>
       ${rows}
     </div>
     <div class="board-foot">反馈集中维度：<strong>${topFb&&topFb.fb?topFb.no+'、'+topFb.name:'暂无'}</strong>${(topFb&&topFb.fb)?` — 累计 ${topFb.fb} 条反馈，建议作为样本回流与模型优化重点`:' — 暂无反馈记录，可持续观察'}</div>`;
@@ -1663,6 +1678,9 @@ function openRptFbModal(id,from){
   const st=rptFbSt(id);
   const isDislike=from==='dislike';
   document.getElementById('rpt-fb-tag-block').hidden=!isDislike;
+  /* 意见描述：仅「意见反馈」必填，点踩选填 */
+  document.getElementById('rpt-fb-cmt-label').innerHTML=isDislike?'意见描述 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（点踩选填）</span>':'意见描述 <span class="req">*</span>';
+  document.getElementById('rpt-fb-textarea').required=!isDislike;
   if(isDislike){
     document.getElementById('rpt-fb-label').innerHTML='问题快速标签 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（可多选）</span>';
     document.getElementById('rpt-fb-tags').innerHTML=TAGS.map(tg=>`<button class="tag" aria-pressed="${st.tags.has(tg)}" onclick="toggleRptFbTag('${tg}',this)">${tg}</button>`).join('');
@@ -1694,7 +1712,7 @@ function submitRptFb(){
   const st=rptFbSt(rptFbTarget);
   if(rptFbFrom==='dislike'&&st.tags.size===0){showToast('请至少选择一个问题标签，以便精准定位问题');return;}
   st.comment=document.getElementById('rpt-fb-textarea').value.trim();
-  if(!st.comment){showToast('请填写意见描述，以便精准优化报告质量');return;}
+  if(rptFbFrom==='comment'&&!st.comment){showToast('请填写意见描述，以便精准优化报告质量');return;}
   st.submitted=true;
   fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===rptFbTarget)||{}).title||rptFbTarget,kind:st.type==='dislike'?'dislike':'comment',tags:[...st.tags],comment:st.comment,src:'报告列表页'});
   const tagStr=st.tags.size?`，标签：${[...st.tags].join('、')}`:'';
@@ -1753,7 +1771,7 @@ function fbDashboardHTML(){
     </div>
     <div class="fb-board-card" style="margin-top:16px;padding:12px 20px 14px">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-        <div style="width:150px"><div class="field-label" style="margin-bottom:4px">反馈对象级别</div><select class="fi-select" id="fbd-scope" style="appearance:auto;padding-right:10px"><option value="">全部</option><option value="report">报告级</option><option value="type">类型级</option></select></div>
+        <div style="width:150px"><div class="field-label" style="margin-bottom:4px">反馈对象级别</div><select class="fi-select" id="fbd-scope" style="appearance:auto;padding-right:10px"><option value="">全部</option><option value="report" selected>报告级</option><option value="type">类型级</option></select></div>
         <div style="width:155px"><div class="field-label" style="margin-bottom:4px">反馈时间（开始）</div><input type="date" class="fi-input" id="fbd-d1" style="padding-right:10px"></div>
         <div style="width:155px"><div class="field-label" style="margin-bottom:4px">反馈时间（结束）</div><input type="date" class="fi-input" id="fbd-d2" style="padding-right:10px"></div>
         <button class="btn-rpt-cfg" id="fbd-query" style="height:30px">查询</button>
@@ -1762,14 +1780,13 @@ function fbDashboardHTML(){
       </div>
     </div>
     <div class="metrics" style="margin-top:14px" id="fbd-metrics"></div>
-    <div class="rpt-cfg-summary" style="margin:16px 0 14px" id="fbd-dist"></div>
-    <div class="fb-board-card">
+    <div class="fb-board-card" style="margin-top:14px">
       <div class="board-head" style="padding:14px 20px 0">
         <h2>反馈对象分布（Top 5）</h2>
         <div class="legend"><span><span class="sw" style="background:var(--success-400,#22C55E)"></span>点赞</span><span><span class="sw" style="background:var(--danger-400)"></span>点踩</span><span><span class="sw" style="background:var(--gray-400)"></span>意见</span></div>
       </div>
       <div class="board-table">
-        <div class="board-col-head fbd-dist-head"><span>反馈对象</span><span>级别</span><span>分布（点赞 / 点踩 / 意见）</span><span>合计</span></div>
+        <div class="board-col-head fbd-dist-head"><span>反馈对象</span><span>级别</span><span>分布（点赞 / 点踩 / 意见）</span><span>反馈总数</span></div>
         <div id="fbd-dist-rows"></div>
       </div>
     </div>
@@ -1806,12 +1823,10 @@ function renderFbDashboard(){
   const comment=list.filter(r=>r.kind==='comment').length;
   const mk=document.getElementById('fbd-metrics');
   if(mk)mk.innerHTML=`
-    <div class="metric accent"><div class="label">反馈总量</div><div class="value">${list.length}<span class="unit">条</span></div><div class="hint">报告级 + 类型级汇总</div></div>
+    <div class="metric accent"><div class="label">反馈总量</div><div class="value">${list.length}<span class="unit">条</span></div></div>
     <div class="metric"><div class="label">点赞</div><div class="value" style="color:var(--success-600,#16A34A)">${like}<span class="unit">条</span></div><div class="hint">正向评价，用于正向样本校准</div></div>
     <div class="metric danger"><div class="label">点踩</div><div class="value">${dislike}<span class="unit">条</span></div><div class="hint">负向评价，优先回流分析</div></div>
     <div class="metric warn"><div class="label">意见反馈</div><div class="value" style="font-size:22px">${comment}<span class="unit">条</span></div><div class="hint">含反馈标签与文字意见</div></div>`;
-  const sum=document.getElementById('fbd-dist');
-  if(sum)sum.innerHTML=`<svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>统计口径：全量反馈记录 ${fbLog.length} 条（点赞 ${fbLog.filter(r=>r.kind==='like').length} / 点踩 ${fbLog.filter(r=>r.kind==='dislike').length} / 意见 ${fbLog.filter(r=>r.kind==='comment').length}），反馈每日汇总回流至模型训练样本库`;
   /* 对象分布（Top 5，随顶部查询区联动；级别列区分报告级/类型级） */
   const agg={};
   list.forEach(r=>{
@@ -1820,11 +1835,9 @@ function renderFbDashboard(){
     agg[key][r.kind]++;
   });
   const top=Object.values(agg).sort((a,b)=>(b.like+b.dislike+b.comment)-(a.like+a.dislike+a.comment)).slice(0,5);
-  const max=Math.max(...top.map(o=>o.like+o.dislike+o.comment),1);
   document.getElementById('fbd-dist-rows').innerHTML=top.map(o=>{
     const total=o.like+o.dislike+o.comment;
-    const seg=w=>`<span style="display:flex;height:12px;flex:${w};background:var(--gray-50);border-radius:6px;overflow:hidden;min-width:0"><span style="width:${(o.like/max*100).toFixed(1)}%;background:var(--success-400,#22C55E)"></span><span style="width:${(o.dislike/max*100).toFixed(1)}%;background:var(--danger-400)"></span><span style="width:${(o.comment/max*100).toFixed(1)}%;background:var(--gray-400)"></span></span>`;
-    return `<div class="board-row fbd-row"><span class="br-name" title="${o.name}">${o.name}</span><span class="br-qty">${o.scope==='report'?'报告级':'类型级'}</span><span style="display:flex;align-items:center;gap:8px">${seg(1)}<span class="br-qty-val" style="min-width:88px">${o.like}赞 / ${o.dislike}踩 / ${o.comment}意</span></span><span class="br-qty-val">${total}</span></div>`;
+    return `<div class="board-row fbd-row"><span class="br-name" title="${o.name}">${o.name}</span><span class="br-qty">${o.scope==='report'?'报告级':'类型级'}</span><span class="br-qty-val">${o.like}赞 / ${o.dislike}踩 / ${o.comment}意</span><span class="br-qty-val">${total}</span></div>`;
   }).join('')||'<div class="his-empty">当前查询条件下暂无反馈数据</div>';
   /* 明细表 */
   const cnt=document.getElementById('fbd-count');
@@ -1858,7 +1871,7 @@ function exportFbLog(){
 function bindFbDashboard(){
   document.getElementById('fbd-query').addEventListener('click',renderFbDashboard);
   document.getElementById('fbd-reset').addEventListener('click',()=>{
-    document.getElementById('fbd-scope').value='';document.getElementById('fbd-d1').value='';document.getElementById('fbd-d2').value='';
+    document.getElementById('fbd-scope').value='report';document.getElementById('fbd-d1').value='';document.getElementById('fbd-d2').value='';
     document.getElementById('fbd-kind').value='';document.getElementById('fbd-q').value='';
     renderFbDashboard();
   });
@@ -2036,7 +2049,7 @@ function renderCfgDates(dates){
 function nextExecTime(dates,time,step){
   const now=new Date();
   const n=Math.max(1,parseInt(step,10)||1);/* 间隔年数：年份须按 n 对齐循环 */
-  const [hh,mm]=(time||'08:00').split(':').map(Number);
+  const [hh,mm]=(time||'00:00').split(':').map(Number);
   let best=null;
   dates.forEach(md=>{
     const [m,d]=md.split('-').map(Number);
@@ -2057,7 +2070,7 @@ function fmtNextExec(dt){
 }
 function nextExecCustom(freq,interval,extra,time){
   const now=new Date();
-  const [hh,mm]=(time||'08:00').split(':').map(Number);
+  const [hh,mm]=(time||'00:00').split(':').map(Number);
   if(freq==='week'){
     const wdMap={'周一':1,'周二':2,'周三':3,'周四':4,'周五':5,'周六':6,'周日':0};
     const wds=extra.wds.map(w=>wdMap[w]);
@@ -2090,7 +2103,7 @@ function nextExecCustom(freq,interval,extra,time){
 function buildCustomPeriod(){
   const freq=document.getElementById('cfg-freq').value;
   const interval=Math.max(1,parseInt(document.getElementById('cfg-interval').value,10)||1);
-  const time=document.getElementById('cfg-time').value||'08:00';
+  const time=document.getElementById('cfg-time').value||'00:00';
   const unitMap={day:'天',week:'周',month:'个月',quarter:'个季度',year:'年'};
   const freqName={day:'每天',week:'每周',month:'每月',quarter:'每季度',year:'每年'}[freq];
   let dayPart='',extra={};
@@ -2193,7 +2206,7 @@ function openCfgModal(){
     document.getElementById('cfg-freq').value=c.freq;
     document.getElementById('cfg-interval').value=c.interval||1;
     document.getElementById('cfg-day').value=c.day||1;
-    document.getElementById('cfg-time').value=c.time||'08:00';
+    document.getElementById('cfg-time').value=c.time||'00:00';
     m.querySelectorAll('#cfg-weeks .tag-pick').forEach(t=>t.classList.toggle('on',(c.wds||[]).includes(t.dataset.wd)));
     renderCfgDates(c.dates||[]);
     syncCustomRows();
