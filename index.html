@@ -616,7 +616,7 @@
             <span id="cfg-dates"><span class="cfg-hint">尚未添加日期</span></span>
             <input type="date" id="cfg-date-pick" aria-label="选择固定日期">
             <button type="button" class="cfg-add-btn" id="cfg-date-add">＋ 添加</button>
-            <div class="cfg-hint" style="flex-basis:100%">可添加多个固定日期，每年将在这些日期的设定时间点生成报告</div>
+            <div class="cfg-hint" style="flex-basis:100%">可添加多个固定日期，将按设置的间隔年份在这些日期的设定时间点生成报告（如每 3 年 = 2026、2029、2032…）</div>
           </div>
           <div class="cfg-row">
             <span class="cfg-lb">生成时间</span>
@@ -2024,25 +2024,31 @@ function getCfgDates(){return [...document.querySelectorAll('#cfg-dates .cfg-dat
 function renderCfgDates(dates){
   const wrap=document.getElementById('cfg-dates');
   if(!dates||!dates.length){wrap.innerHTML='<span class="cfg-hint">尚未添加日期</span>';return;}
-  wrap.innerHTML=dates.map(d=>`<span class="cfg-date-tag" data-md="${d}">每年 ${d}<span class="rm" title="移除" role="button" tabindex="0" aria-label="移除 ${d}">×</span></span>`).join('');
+  const interval=Math.max(1,parseInt(document.getElementById('cfg-interval').value,10)||1);
+  const lb=interval===1?'每年':'每 '+interval+' 年';
+  wrap.innerHTML=dates.map(d=>`<span class="cfg-date-tag" data-md="${d}">${lb} ${d}<span class="rm" title="移除" role="button" tabindex="0" aria-label="移除 ${d}">×</span></span>`).join('');
   wrap.querySelectorAll('.rm').forEach(r=>r.addEventListener('click',()=>{
     r.closest('.cfg-date-tag').remove();
     if(!getCfgDates().length)renderCfgDates([]);
     refreshCfgPreview();
   }));
 }
-function nextExecTime(dates,time){
+function nextExecTime(dates,time,step){
   const now=new Date();
+  const n=Math.max(1,parseInt(step,10)||1);/* 间隔年数：年份须按 n 对齐循环 */
   const [hh,mm]=(time||'08:00').split(':').map(Number);
   let best=null;
   dates.forEach(md=>{
     const [m,d]=md.split('-').map(Number);
-    let cand=new Date(now.getFullYear(),m-1,d,hh,mm,0);
-    if(cand<=now)cand=new Date(now.getFullYear()+1,m-1,d,hh,mm,0);
-    if(!best||cand<best)best=cand;
+    for(let k=0;k<=12;k++){/* 以当前年为锚点，每 n 年一个候选 */
+      const cand=new Date(now.getFullYear()+k*n,m-1,d,hh,mm,0);
+      if(cand<=now)continue;
+      if(!best||cand<best)best=cand;
+      break;
+    }
   });
   if(!best)return null;
-  const pad=n=>String(n).padStart(2,'0');
+  const pad=n2=>String(n2).padStart(2,'0');
   return best.getFullYear()+'-'+pad(best.getMonth()+1)+'-'+pad(best.getDate())+' '+pad(best.getHours())+':'+pad(best.getMinutes());
 }
 function fmtNextExec(dt){
@@ -2103,8 +2109,9 @@ function buildCustomPeriod(){
     dayPart=sorted.join('、');extra.dates=sorted;
   }
   const text=(interval===1?freqName:'每 '+interval+' '+unitMap[freq])+' · '+dayPart+' '+time;
-  const next=freq==='year'?nextExecTime(extra.dates,time):nextExecCustom(freq,interval,extra,time);
-  return{ok:true,text,next,time,freq,interval,...extra};
+  const note=freq==='year'&&interval>1?'（自 '+new Date().getFullYear()+' 年起每 '+interval+' 年循环）':'';
+  const next=freq==='year'?nextExecTime(extra.dates,time,interval):nextExecCustom(freq,interval,extra,time);
+  return{ok:true,text,note,next,time,freq,interval,...extra};
 }
 function refreshCfgPreview(){
   const pv=document.getElementById('cfg-preview');
@@ -2112,7 +2119,7 @@ function refreshCfgPreview(){
   const r=buildCustomPeriod();
   let html='';
   if(r.ok){
-    html='生成规则预览：'+r.text+' 生成';
+    html='生成规则预览：'+r.text+' 生成'+(r.note||'');
     if(r.next)html+='<div class="cfg-next">⏰ 下次执行：'+r.next+'（到点自动生成）</div>';
   }else html='⚠ '+r.err;
   pv.innerHTML=html;
@@ -2225,7 +2232,8 @@ function bindCfgModal(){
   }));
   /* 自定义周期内部交互 */
   document.getElementById('cfg-freq').addEventListener('change',syncCustomRows);
-  ['cfg-interval','cfg-day','cfg-time'].forEach(id=>document.getElementById(id).addEventListener('input',refreshCfgPreview));
+  ['cfg-day','cfg-time'].forEach(id=>document.getElementById(id).addEventListener('input',refreshCfgPreview));
+  document.getElementById('cfg-interval').addEventListener('input',()=>{if(getCfgDates().length)renderCfgDates(getCfgDates());syncCustomRows();});
   m.querySelectorAll('#cfg-weeks .tag-pick').forEach(t=>t.addEventListener('click',()=>{t.classList.toggle('on');refreshCfgPreview();}));
   /* 每年固定日期：添加 / 移除 */
   document.getElementById('cfg-date-add').addEventListener('click',()=>{
