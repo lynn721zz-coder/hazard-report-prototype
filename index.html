@@ -340,6 +340,11 @@
   #tag-tip .tt-name{font-weight:600;margin-bottom:2px}
   #tag-tip .tt-desc{color:#D1D5DB}
   #tag-tip b{color:#fff;font-weight:600}
+  /* 反馈对象分布级别切换 Tab */
+  .fbd-tabs{display:inline-flex;gap:2px;margin-left:10px;align-self:flex-end}
+  .fbd-tab{padding:5px 13px 9px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none}
+  .fbd-tab:hover{color:var(--sys-primary)}
+  .fbd-tab.on{color:var(--sys-primary);font-weight:600;border-bottom-color:var(--sys-primary)}
   /* 报告生成配置弹窗加宽 */
   #rpt-cfg-modal .modal-card{width:600px}
   /* 新增自定义类型分组卡片 */
@@ -1719,6 +1724,7 @@ function syncRptFbCard(id){
   }
 }
 /* ===== 反馈统计看板 ===== */
+let fbdDistScope='report';/* 对象分布当前级别 Tab：report=报告级 type=类型级 */
 let fbLog=[
   {time:'2025-12-08 10:24',scope:'type',target:'设备本体及附件缺陷',kind:'dislike',tags:['分析不准确','分类错误'],comment:'R116 工段阀门内漏应归入介质泄漏而非设备缺陷，建议复核分类边界',src:'报告详情页'},
   {time:'2025-12-08 11:05',scope:'report',target:'年度隐患分析报告 · 2026年度',kind:'like',tags:[],comment:'',src:'报告列表页'},
@@ -1755,7 +1761,10 @@ function fbDashboardHTML(){
     <div class="rpt-cfg-summary" style="margin:16px 0 14px" id="fbd-dist"></div>
     <div class="fb-board-card">
       <div class="board-head" style="padding:14px 20px 0">
-        <h2>反馈对象分布（Top 6）</h2>
+        <div style="display:flex;align-items:center;gap:4px">
+          <h2>反馈对象分布（Top 5）</h2>
+          <span class="fbd-tabs" id="fbd-tabs" role="tablist" aria-label="反馈级别切换"><span class="fbd-tab on" data-scope="report" role="tab" tabindex="0" aria-selected="true">报告级</span><span class="fbd-tab" data-scope="type" role="tab" tabindex="0" aria-selected="false">类型级</span></span>
+        </div>
         <div class="legend"><span><span class="sw" style="background:var(--success-400,#22C55E)"></span>点赞</span><span><span class="sw" style="background:var(--danger-400)"></span>点踩</span><span><span class="sw" style="background:var(--gray-400)"></span>意见</span></div>
       </div>
       <div class="board-table">
@@ -1801,20 +1810,24 @@ function renderFbDashboard(){
     <div class="metric warn"><div class="label">意见反馈</div><div class="value" style="font-size:22px">${comment}<span class="unit">条</span></div><div class="hint">含反馈标签与文字意见</div></div>`;
   const sum=document.getElementById('fbd-dist');
   if(sum)sum.innerHTML=`<svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>统计口径：全量反馈记录 ${fbLog.length} 条（点赞 ${fbLog.filter(r=>r.kind==='like').length} / 点踩 ${fbLog.filter(r=>r.kind==='dislike').length} / 意见 ${fbLog.filter(r=>r.kind==='comment').length}），反馈每日汇总回流至模型训练样本库`;
-  /* 对象分布 */
+  /* 对象分布（按反馈级别 Tab 分开统计；反馈类型/关键词筛选联动，级别以 Tab 为准） */
+  const kindSel=document.getElementById('fbd-kind'),qSel=document.getElementById('fbd-q');
+  let distList=fbLog.filter(r=>r.scope===fbdDistScope);
+  if(kindSel&&kindSel.value)distList=distList.filter(r=>r.kind===kindSel.value);
+  if(qSel&&qSel.value.trim()){const kw=qSel.value.trim().toLowerCase();distList=distList.filter(r=>r.target.toLowerCase().includes(kw));}
   const agg={};
-  list.forEach(r=>{
+  distList.forEach(r=>{
     const key=r.target;
     if(!agg[key])agg[key]={name:key,scope:r.scope,like:0,dislike:0,comment:0};
     agg[key][r.kind]++;
   });
-  const top=Object.values(agg).sort((a,b)=>(b.like+b.dislike+b.comment)-(a.like+a.dislike+a.comment)).slice(0,6);
+  const top=Object.values(agg).sort((a,b)=>(b.like+b.dislike+b.comment)-(a.like+a.dislike+a.comment)).slice(0,5);
   const max=Math.max(...top.map(o=>o.like+o.dislike+o.comment),1);
   document.getElementById('fbd-dist-rows').innerHTML=top.map(o=>{
     const total=o.like+o.dislike+o.comment;
     const seg=w=>`<span style="display:flex;height:12px;flex:${w};background:var(--gray-50);border-radius:6px;overflow:hidden;min-width:0"><span style="width:${(o.like/max*100).toFixed(1)}%;background:var(--success-400,#22C55E)"></span><span style="width:${(o.dislike/max*100).toFixed(1)}%;background:var(--danger-400)"></span><span style="width:${(o.comment/max*100).toFixed(1)}%;background:var(--gray-400)"></span></span>`;
     return `<div class="board-row fbd-row"><span class="br-name" title="${o.name}">${o.name}</span><span class="br-qty">${o.scope==='report'?'报告级':'类型级'}</span><span style="display:flex;align-items:center;gap:8px">${seg(1)}<span class="br-qty-val" style="min-width:88px">${o.like}赞 / ${o.dislike}踩 / ${o.comment}意</span></span><span class="br-qty-val">${total}</span></div>`;
-  }).join('')||'<div class="his-empty">暂无反馈数据</div>';
+  }).join('')||'<div class="his-empty">'+(fbdDistScope==='report'?'报告级暂无反馈数据':'类型级暂无反馈数据')+'</div>';
   /* 明细表 */
   const cnt=document.getElementById('fbd-count');
   if(cnt)cnt.textContent='共 '+list.length+' 条记录';
@@ -1851,6 +1864,12 @@ function bindFbDashboard(){
     renderFbDashboard();
   });
   document.getElementById('fbd-export').addEventListener('click',exportFbLog);
+  document.querySelectorAll('#fbd-tabs .fbd-tab').forEach(t=>t.addEventListener('click',()=>{
+    if(fbdDistScope===t.dataset.scope)return;
+    fbdDistScope=t.dataset.scope;
+    document.querySelectorAll('#fbd-tabs .fbd-tab').forEach(x=>{const on=x===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on);});
+    renderFbDashboard();
+  }));
   renderFbDashboard();
 }
 /* 报告详情页：下载原始隐患数据清单（Excel，兼容 MS Excel HTML 格式） */
