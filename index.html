@@ -412,8 +412,6 @@
   .rpt-types{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
   .rpt-type-chip{font-size:11px;line-height:1.5;color:var(--sys-primary);background:rgba(10,77,162,.06);border:1px solid rgba(10,77,162,.16);border-radius:4px;padding:1px 7px;white-space:nowrap}
   .rpt-type-chip.more{color:var(--text-secondary);background:var(--gray-50);border-color:var(--border);cursor:help}
-  .rpt-type-tip{position:fixed;z-index:9999;max-width:420px;background:#1F2937;color:#fff;font-size:12px;line-height:1.7;padding:8px 12px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);pointer-events:none}
-  .rpt-type-tip b{color:#9CC3F5;font-weight:500}
   .rpt-go:hover{text-decoration:underline}
   .rpt-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;align-self:center}
   .rpt-fb{display:flex;gap:6px}
@@ -1692,7 +1690,7 @@ function renderReportList(filter){
       <div class="rpt-ico"><svg viewBox="0 0 24 24">${ico}</svg></div>
       <div class="rpt-body">
         <div class="rpt-title">${r.title}${tag}${genTag}${failTag}</div>
-        <div class="rpt-types"${(!isGen&&!isFail&&typeNames.length)?` data-tip="${typeNames.join('、')}"`:''}>${chips}</div>
+        <div class="rpt-types"${(!isGen&&!isFail&&typeNames.length)?` data-tip="${isAI?'聚焦隐患类型':'涵盖隐患类型'}（${typeNames.length} 类）|${typeNames.map(n=>'· '+n).join('<br>')}"`:''}>${chips}</div>
         ${genBar}
         <div class="rpt-meta">${(isGen||isFail)?'':`<span>${r.time}</span><span class="dot"></span>`}<span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>隐患总数 ${r.count.toLocaleString()} 条</span>${focusStr}${genElapsed}${ownerStr}</div>
       </div>
@@ -2430,29 +2428,6 @@ function bindRptQuery(){
   });
 }
 function bindReport(){
-  /* 报告卡片隐患类型清单悬浮提示（事件委托，仅初始化一次） */
-  if(!window.__rptTypeTip){
-    const tip=document.createElement('div');
-    tip.className='rpt-type-tip';tip.hidden=true;
-    document.body.appendChild(tip);
-    window.__rptTypeTip=tip;
-    document.addEventListener('mouseover',e=>{
-      const row=e.target.closest('.rpt-types');
-      if(!row||!row.dataset.tip)return;
-      tip.innerHTML='<b>涵盖隐患类型（'+row.dataset.tip.split('、').length+' 类）</b><br>'+row.dataset.tip.split('、').map(n=>'· '+n).join('<br>');
-      tip.hidden=false;
-      const r=row.getBoundingClientRect();
-      tip.style.left='0px';tip.style.top='0px';
-      const tw=tip.offsetWidth,th=tip.offsetHeight;
-      let x=r.left,y=r.bottom+6;
-      if(x+tw>window.innerWidth-8)x=Math.max(8,window.innerWidth-tw-8);
-      if(y+th>window.innerHeight-8)y=Math.max(8,r.top-th-6);
-      tip.style.left=x+'px';tip.style.top=y+'px';
-    });
-    document.addEventListener('mouseout',e=>{
-      if(e.target.closest&&e.target.closest('.rpt-types'))window.__rptTypeTip.hidden=true;
-    });
-  }
   console.log('[bindReport] start, pendingAIReport=',pendingAIReport);
   renderReportList('all');
   renderCfgSummary();
