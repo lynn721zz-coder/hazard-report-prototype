@@ -1541,6 +1541,33 @@ function bindPager(container,onGo){
     const p=parseInt(b.dataset.pg,10);if(!p||p<1)return;onGo(p);
   }));
 }
+/* ===== 通用二次确认弹窗 ===== */
+function hideConfirm(){
+  const m=document.getElementById('cfg-confirm-mask');
+  if(m){m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+}
+function showConfirm(msg,onOk){
+  let m=document.getElementById('cfg-confirm-mask');
+  if(!m){
+    m=document.createElement('div');
+    m.id='cfg-confirm-mask';m.className='modal-mask';m.hidden=true;
+    m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-labelledby','cfg-confirm-title');
+    m.innerHTML=`<div class="modal-card" style="width:380px">
+      <div class="modal-head"><h2 id="cfg-confirm-title">删除确认</h2><button class="modal-close" id="cfg-confirm-close" aria-label="关闭">×</button></div>
+      <div class="modal-body" style="font-size:13.5px;line-height:1.7;color:var(--text-primary)"><span id="cfg-confirm-msg"></span></div>
+      <div class="modal-foot"><button class="btn-cancel" id="cfg-confirm-cancel">取消</button><button class="btn-modal-go" id="cfg-confirm-ok">确认删除</button></div>
+    </div>`;
+    document.body.appendChild(m);
+    m.addEventListener('click',e=>{if(e.target===m)hideConfirm();});
+    document.getElementById('cfg-confirm-close').addEventListener('click',hideConfirm);
+    document.getElementById('cfg-confirm-cancel').addEventListener('click',hideConfirm);
+  }
+  document.getElementById('cfg-confirm-msg').textContent=msg;
+  const ok=document.getElementById('cfg-confirm-ok');
+  const newOk=ok.cloneNode(true);ok.parentNode.replaceChild(newOk,ok);
+  newOk.addEventListener('click',()=>{hideConfirm();if(onOk)onOk();});
+  m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+}
 function showToast(msg){  const wrap=document.getElementById('toast-wrap');
   const el=document.createElement('div');
   el.className='toast';
@@ -2231,11 +2258,15 @@ function renderCfgTypeTags(){
       e.stopPropagation();
       const name=t.dataset.type;
       if(DEFAULT_TYPE_NAMES.includes(name)&&curRole!=='admin'){showToast('「'+name+'」为默认通用隐患类型，仅管理员可删除');return;}
-      cfgTypeOptions=cfgTypeOptions.filter(x=>x!==name);
-      cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
-      delete cfgTypeDesc[name];
-      renderCfgTypeTags();
-      showToast('已移除隐患类型「'+name+'」，保存配置后生效');
+      /* 二次确认：已被用户勾选配置的类型给出更强提示 */
+      const configured=cfgTypeSel.includes(name);
+      showConfirm(configured?'已有用户配置此标签，是否确认删除此类型？':'是否确认删除此类型',()=>{
+        cfgTypeOptions=cfgTypeOptions.filter(x=>x!==name);
+        cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
+        delete cfgTypeDesc[name];
+        renderCfgTypeTags();
+        showToast('已移除隐患类型「'+name+'」，保存配置后生效');
+      });
     });
   });
 }
