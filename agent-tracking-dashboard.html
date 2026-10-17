@@ -181,17 +181,16 @@
 
 <!-- ============ TAB 2: 反馈 ============ -->
 <div class="tab-panel" id="tab-feedback" data-page-node-id="MKbEyJpxf59PLqVPoR4PlD">
-  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)" data-page-node-id="JsTBZ4IQ2TqJWVJemqFHJb">
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)" data-page-node-id="JsTBZ4IQ2TqJWVJemqFHJb">
     <div class="kpi" data-page-node-id="liEF9Px7l3CpQeMXVk2gzx"><div class="label" data-page-node-id="d2iVXjuzWAY7N0QrbTYnEc">点赞数</div><div class="value" style="color:var(--green)" data-page-node-id="tU9K60qPdSnVwggL1pnrYu">1,284</div><div class="delta up" data-page-node-id="lH75wOK71ALF1GAbQx9BNe">▲ 5.2%</div></div>
     <div class="kpi" data-page-node-id="Q3EOqVvrOmWnyFq1AkXkjJ"><div class="label" data-page-node-id="R7DoX1lhlroDHOR2dJ5ifY">点踩数</div><div class="value" style="color:var(--red)" data-page-node-id="UEyK7EIIgO5UbsiOnvefMO">312</div><div class="delta down" data-page-node-id="SGglKXuzDI3QXxw5cU769Q">▼ 2.1%</div></div>
     <div class="kpi" data-page-node-id="25VVSVIwmvcNUZxnzk91AV"><div class="label" data-page-node-id="rONK5asWFtKlNmRAyCldkB">反馈提交数</div><div class="value" style="color:var(--orange)" data-page-node-id="6wFFyNbaGVt327GMr8LFuG">198</div><div class="delta up" data-page-node-id="AGT9aYkjhyByeETDiUI6lO">▲ 1.4%</div></div>
-    <div class="kpi" data-page-node-id="LDgT8y3kEQFmers3VFyLeX"><div class="label" data-page-node-id="paqkXRTEcAdsCfoD1LF3BS">净认可值 NLS</div><div class="value" style="color:var(--blue)" data-page-node-id="2WMKHJDyIZJk7osRaBANWO">+0.61</div><div class="delta up" data-page-node-id="Lr7AbDZKOTZxg8LBdXXAWK">▲ 0.04</div></div>
   </div>
 
   <div class="card" style="margin-bottom:14px" data-page-node-id="Mp23UM1vUkvoXtlTheeao4">
       <h3 data-page-node-id="tk51Yr0qqjRWUCRZ5M09CN">赞踩分布 <span class="tag" data-page-node-id="cx0JOepMJtR3Z4rhyZVb8F">整体反馈</span></h3>
       <div class="chart-wrap sm" data-page-node-id="34tw7XB47clOAXCmJDk9K7"><canvas id="thumbChart" data-page-node-id="fRr68Y2o5xYPq0YQaVzIva"></canvas></div>
-      <div class="footer-note" data-page-node-id="wXOHXvfy2AVylRMfBEHlTs">NLS = (点赞 − 点踩) / 反馈总数；反馈率 = (赞+踩) / 抽屉曝光数</div>
+      <div class="footer-note" data-page-node-id="wXOHXvfy2AVylRMfBEHlTs">反馈率 = (赞+踩) / 抽屉曝光数</div>
     </div>
 
   <div class="card" style="margin-bottom:14px" data-page-node-id="iHazcNUSB6yjKGs4IqVjpB">
@@ -589,7 +588,7 @@ function exportWord(){
   html += `</table>`;
   // Tab2 反馈
   html += `<h2>二、点赞 · 点踩 · 反馈</h2>`;
-  html += `<p class="kpi">点赞：<b>1,284</b>　点踩：<b>312</b>　反馈提交：<b>198</b>　净认可值 NLS：<b>+0.61</b></p>`;
+  html += `<p class="kpi">点赞：<b>1,284</b>　点踩：<b>312</b>　反馈提交：<b>198</b></p>`;
   html += `<h3>1. 问题标签分布</h3>`;
   html += `<table><tr><th>问题标签</th><th>命中次数</th></tr>`;
   tagDist.labels.forEach((l,i)=>{ html += `<tr><td>${l}</td><td>${tagDist.data[i]}</td></tr>`; });
