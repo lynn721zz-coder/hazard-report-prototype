@@ -166,7 +166,7 @@
   <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
     <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw"><span style="display:inline-flex;align-items:center">埋点事件统计明细</span></h3>
     <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
-      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
+      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
       <tbody data-page-node-id="5fk9VMW7vx5fy137OEmSte"></tbody>
     </table>
   </div>
@@ -393,7 +393,6 @@ events.forEach(e=>{
   tr.innerHTML=`<td title="${e[1]}">${e[0]}</td>
     <td>${e[3]}</td><td class="op-path">${e[4]}</td>
     <td class="num ctr">${e[6].toLocaleString()}</td>
-    <td class="num ctr">${typeof e[7]==='number' ? `<a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[7].toLocaleString()} 👥</a>` : '—'}</td>
     <td>${e[8]}</td>`;
   tbody.appendChild(tr);
 });
@@ -562,8 +561,8 @@ function downloadCSV(rows, filename){
 function exportExcel(){
   const data = {
     '埋点事件统计': [
-      ['埋点名称','记录维度','用户操作（触发时机/用户路径）','触发次数','唯一用户','最近触发'],
-      ...events.map(e=>[e[0],e[3],e[4],e[6],e[7],e[8]])
+      ['埋点名称','记录维度','用户操作（触发时机/用户路径）','触发次数','最近触发'],
+      ...events.map(e=>[e[0],e[3],e[4],e[6],e[8]])
     ],
     '字段勾选统计': [
       ['字段','勾选率(%)','不认可率(%)'],
@@ -613,8 +612,8 @@ function exportWord(){
   html += `<h2>一、埋点情况</h2>`;
   html += `<p class="kpi">使用AI识隐患：<b>3,842</b>　辅助分析（会话去重）：<b>2,917</b>　确认填入（会话去重）：<b>2,090</b>　使用后未填入：<b>1,752</b>　未发起分析会话率：<b>24.1%</b>　提交率（按次）：<b>74.0%</b></p>`;
   html += `<h3>1. 埋点事件统计明细</h3>`;
-  html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th></tr>`;
-  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[7].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
+  html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>触发次数</th><th>最近触发</th></tr>`;
+  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
   html += `</table>`;
   html += `<h3>2. 字段勾选率 & 不认可率</h3>`;
   html += `<table><tr><th>字段</th><th>勾选率(%)</th><th>不认可率(%)</th></tr>`;
