@@ -123,7 +123,6 @@
     </select>
     <button class="btn" onclick="onQuery()" data-page-node-id="q1">🔍 查询</button>
     <span class="spacer" data-page-node-id="spc"></span>
-    <button class="btn" onclick="exportWord()" data-page-node-id="rV1tlMkJPxJtf0Eye4CJ2G">📄 导出 Word</button>
     <button class="btn btn-primary" onclick="exportExcel()" data-page-node-id="1UlnseEyceqzL6PHMn03wJ">📊 导出 Excel</button>
   </div>
 </div>
@@ -611,41 +610,6 @@ function exportExcel(){
   triggerDownload(new Blob(['\ufeff'+csv.join('\r\n')], {type:'text/csv;charset=utf-8'}), '隐患速报智能体-埋点统计分析.csv');
 }
 
-// ============ 导出 Word ============
-function exportWord(){
-  const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
-  const unit=document.getElementById('filterUnit').value||'全部单位';
-  const sys=document.getElementById('filterSystem').value||'全部系统';
-  const range = s&&e ? (s+' ~ '+e) : '全部';
-  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>隐患速报智能体埋点统计分析</title><style>body{font-family:'微软雅黑';font-size:11pt;color:#333}h1{font-size:16pt;text-align:center}h2{font-size:13pt;border-bottom:1px solid #999;padding-bottom:4px;margin-top:18px}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border:1px solid #999;padding:5px 7px;font-size:10pt}th{background:#eef1f7}.kpi{margin:6px 0}.note{font-size:9pt;color:#888}</style></head><body>`;
-  html += `<h1>隐患速报智能体 · 埋点事件统计分析</h1>`;
-  html += `<p style="text-align:center">日期范围：${range}　|　所属单位：${unit}　|　所属系统：${sys}</p>`;
-  // Tab1 埋点情况
-  html += `<h2>一、埋点情况</h2>`;
-  html += `<p class="kpi">使用AI识隐患：<b>3,842</b>　辅助分析（会话去重）：<b>2,917</b>　确认填入（会话去重）：<b>2,090</b>　使用后未填入：<b>1,752</b>　未发起分析会话率：<b>24.1%</b>　提交率（按次）：<b>74.0%</b></p>`;
-  html += `<h3>1. 埋点事件统计明细</h3>`;
-  html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>触发次数</th><th>最近触发</th></tr>`;
-  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
-  html += `</table>`;
-  html += `<h3>2. 字段勾选率 & 不认可率</h3>`;
-  html += `<table><tr><th>字段</th><th>勾选率(%)</th><th>不认可率(%)</th></tr>`;
-  fieldData.labels.forEach((l,i)=>{ html += `<tr><td>${l}</td><td>${fieldData.check[i]}</td><td>${fieldData.uncheck[i]}</td></tr>`; });
-  html += `</table>`;
-  // Tab2 反馈
-  html += `<h2>二、点赞 · 点踩 · 反馈</h2>`;
-  html += `<p class="kpi">点赞：<b>1,284</b>　点踩：<b>312</b>　反馈提交：<b>198</b></p>`;
-  html += `<h3>1. 问题标签分布</h3>`;
-  html += `<table><tr><th>问题标签</th><th>命中次数</th></tr>`;
-  tagDist.labels.forEach((l,i)=>{ html += `<tr><td>${l}</td><td>${tagDist.data[i]}</td></tr>`; });
-  html += `</table>`;
-  html += `<h3>2. 反馈明细</h3>`;
-  html += `<table><tr><th>时间</th><th>用户</th><th>来源</th><th>反馈节点</th><th>所属单位</th><th>问题标签</th><th>隐患描述首词耗时</th><th>隐患描述总耗时</th><th>分级分类总耗时</th><th>反馈内容</th><th>智能体输出完整内容</th></tr>`;
-  feedbackList.forEach((f,i)=>{ html += `<tr><td>${f[0]}</td><td>${revealed[i]?f[7]:f[1]}</td><td>${f[2]}</td><td>${f[13]}</td><td>${f[6]}</td><td>${f[3].join('/')||'—'}</td><td>${f[8]} ms</td><td>${f[9]} ms</td><td>${f[11]} ms</td><td>${f[5]||'—'}</td><td>${f[12]||'—'}</td></tr>`; });
-  html += `</table>`;
-  html += `<p class="note">注：数据为示例展示，正式使用时由埋点数据源接口返回。</p>`;
-  html += `</body></html>`;
-  triggerDownload(new Blob(['\ufeff'+html], {type:'application/msword'}), '隐患速报智能体-埋点统计分析.doc');
-}
 </script>
 <!-- 用户清单弹窗 -->
 <div class="modal-mask" id="userModal" onclick="if(event.target===this)closeUserModal()">
