@@ -121,12 +121,14 @@
     </select>
     <span class="lbl" data-page-node-id="lb2">所属租户</span>
     <select id="filterUnit" class="date-range" data-page-node-id="fu1"></select>
+    <span id="nodeFilterWrap" style="display:none;contents">
     <span class="lbl" data-page-node-id="lb4">反馈节点</span>
     <select id="filterNode" class="date-range" data-page-node-id="fn1" onchange="onNodeFilter(this.value)">
       <option>全部</option>
       <option>描述识别</option>
       <option>辅助分析</option>
     </select>
+    </span>
     <button class="btn" onclick="onQuery()" data-page-node-id="q1">🔍 查询</button>
     <span class="spacer" data-page-node-id="spc"></span>
     <button class="btn btn-primary" onclick="exportExcel()" data-page-node-id="1UlnseEyceqzL6PHMn03wJ">📊 导出 Excel</button>
@@ -531,6 +533,13 @@ function switchTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',i===(t==='tracking'?0:1)));
   document.getElementById('tab-tracking').classList.toggle('active',t==='tracking');
   document.getElementById('tab-feedback').classList.toggle('active',t==='feedback');
+  // 反馈节点条件仅在「点赞 · 点踩 · 反馈」看板展示；切走时重置为全部，避免残留过滤
+  const nodeWrap = document.getElementById('nodeFilterWrap');
+  nodeWrap.style.display = (t==='feedback') ? 'contents' : 'none';
+  if(t!=='feedback'){
+    const sel = document.getElementById('filterNode');
+    if(sel.value !== '全部'){ sel.value = '全部'; onNodeFilter('全部'); }
+  }
 }
 
 // ============ 通用下载 ============
