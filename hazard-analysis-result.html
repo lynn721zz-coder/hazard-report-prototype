@@ -356,9 +356,12 @@
     document.getElementById('dislikeBtn').classList.toggle('active-dislike', dislikeOn);
     if (dislikeOn) { openFeedback(true, '问题反馈'); } else { toast('已取消点踩'); }
   }
+  var fbRequireText = false;   // 意见反馈模式下输入框必填
   function openFeedback(showTags, title) {
+    fbRequireText = !showTags;  // 无标签的「意见反馈」→ 文字必填
     document.getElementById('fbTags').style.display = showTags ? 'flex' : 'none';
     document.getElementById('fbSheetTitle').textContent = title || (showTags ? '问题反馈' : '意见反馈');
+    document.getElementById('fbText').placeholder = showTags ? '请详细描述您遇到的问题或建议（选填）' : '请填写您的反馈内容（必填）';
     document.getElementById('fbSheet').classList.add('show');
   }
   function closeFeedback() {
@@ -381,6 +384,7 @@
   function submitFeedback() {
     var tags = document.querySelectorAll('.fb-tag.on').length;
     var text = document.getElementById('fbText').value.trim();
+    if (fbRequireText && !text) { toast('请填写反馈内容'); return; }
     if (!tags && !text) { toast('请选择问题类型或填写描述'); return; }
     closeFeedback();
     document.getElementById('fbText').value = '';

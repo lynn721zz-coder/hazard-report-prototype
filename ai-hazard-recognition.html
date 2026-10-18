@@ -566,9 +566,13 @@ function fabDislike(){
   }
 }
 
+let fbRequireText = false;   // 意见反馈模式下输入框必填
+
 function openFeedback(showTags, title){
+  fbRequireText = !showTags;  // 无标签的「意见反馈」→ 文字必填
   document.getElementById('fbTags').style.display = showTags ? 'flex' : 'none';
   document.getElementById('fbSheetTitle').textContent = title;
+  document.getElementById('fbText').placeholder = showTags ? '请补充说明您遇到的问题或建议（选填）' : '请填写您的反馈内容（必填）';
   document.getElementById('fbMask').classList.add('show');
   // 埋点：hse_agent_feedback_open（source=dislike / feedback_entry）
 }
@@ -582,6 +586,7 @@ function toggleTag(el){ el.classList.toggle('on'); }
 function submitFeedback(){
   const tags = [...document.querySelectorAll('.fb-tag.on')].map(t=>t.textContent);
   const text = document.getElementById('fbText').value.trim();
+  if(fbRequireText && !text){ toast('请填写反馈内容'); return; }
   if(!tags.length && !text){ toast('请选择问题类型或填写描述'); return; }
   // 埋点：hse_agent_feedback_submit（page=ai_recognition, tags, text_len）
   closeFeedback();
