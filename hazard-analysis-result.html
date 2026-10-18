@@ -159,24 +159,18 @@
   .fb-btn.active-like { color: #2b7cff; border-color: #2b7cff; background: #eaf2ff; }
   .fb-btn.active-dislike { color: #e6543a; border-color: #f0a294; background: #fdefec; }
 
-  /* 反馈内联展开面板（方案A：不弹独立抽屉，在反馈栏下方原地展开） */
-  .fb-inline {
-    display: none;
-    margin-top: 10px;
-    padding: 12px;
-    background: #f7f9fc;
-    border: 1px solid #e3e9f2;
-    border-radius: 12px;
+  /* 反馈弹层 */
+  .fb-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: #fff; border-radius: 18px 18px 0 0;
+    padding: 18px 16px calc(14px + env(safe-area-inset-bottom));
+    transform: translateY(105%);
+    transition: transform .25s ease-out;
+    z-index: 30;
   }
-  .fb-inline.show { display: block; animation: fbIn .2s ease-out; }
-  @keyframes fbIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-  .fb-inline-title { font-size: 13px; font-weight: 600; color: #3d4a63; margin-bottom: 10px; }
-  .fb-inline-actions { display: flex; gap: 10px; }
-  .fb-inline-actions .fb-submit { flex: 1; margin-top: 0; }
-  .fb-cancel {
-    flex: none; width: 76px; border: 1px solid #d6dfea; cursor: pointer;
-    background: #fff; color: #55617a; font-size: 14px; border-radius: 22px;
-  }
+  .fb-sheet.show { transform: translateY(0); }
+  .fb-sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .fb-sheet-title { font-size: 16px; font-weight: 700; }
   .fb-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .fb-tag {
     padding: 6px 12px; font-size: 12.5px; color: #55617a;
@@ -321,28 +315,28 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(180deg)" data-page-node-id="P6aVwEUWHfDwKY7eRXEjMh"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm0 0l4.2-7.1a1.8 1.8 0 0 1 3.3 1.3L13.6 9H19a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 17.5 20H7" data-page-node-id="oTEkL8tSkltLqtXUSmZFgU"/></svg>
         <span id="dislikeCount" data-page-node-id="0PmIQrvhiOACJBD7G030uk">踩</span>
       </button>
-      <button class="fb-btn" onclick="expandInline('text')" data-page-node-id="IA25f2kVT3hKCrqTejlX5D">💬 意见反馈</button>
-    </div>
-
-    <!-- 反馈内联展开面板（方案A：不弹独立抽屉） -->
-    <div class="fb-inline" id="fbInline" data-page-node-id="fbInline001">
-      <div class="fb-inline-title" id="fbInlineTitle">请选择遇到的问题（可多选）</div>
-      <div class="fb-tags" id="fbTags" style="display:none;" data-page-node-id="w4rNIop4ycfJbYKr2XYAOn">
-        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="cYeGOrpqf31XARbZcD9LPG">分析结果不准确</span>
-        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="8j9W33qZ0FKDszrQjAEj5a">隐患描述不准</span>
-        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="8j9W33qZ0FKDszrQjAEj5b">整改措施不适用</span>
-        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="72R6iA1VQM3J8u3lTlUMx2">标准依据有误</span>
-        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="3eZ9c9CMvZjJER8u7Dchtp">分类判定错误</span>
-        <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="CdVQV43mL8Dooqp3kEWDbK">其他问题</span>
-      </div>
-      <textarea class="fb-textarea" id="fbText" placeholder="请填写您的反馈内容（必填）"></textarea>
-      <div class="fb-inline-actions">
-        <button class="fb-cancel" onclick="collapseInline()">收起</button>
-        <button class="fb-submit" onclick="submitInline()">提交反馈</button>
-      </div>
+      <button class="fb-btn" onclick="openFeedback(false, '意见反馈')" data-page-node-id="IA25f2kVT3hKCrqTejlX5D">💬 意见反馈</button>
     </div>
 
     <button class="confirm-btn" onclick="toast('已确认填入隐患信息')" data-page-node-id="qP7EThXSHtEnpN7ab4yHpE">确认填入</button>
+  </div>
+
+  <!-- 意见反馈弹层 -->
+  <div class="fb-sheet" id="fbSheet" data-page-node-id="qZqiBOHKIKkEnMIBTzZFxS">
+    <div class="fb-sheet-head" data-page-node-id="CTKQwprKUqwTAQVP1WR0yT">
+      <div class="fb-sheet-title" id="fbSheetTitle" data-page-node-id="GUxQIdFZxhPZSZPST4yRxo">意见反馈</div>
+      <button class="close-btn" onclick="closeFeedback()" data-page-node-id="8Z9jyDPeBdnv8bplaKab2o">✕</button>
+    </div>
+    <div class="fb-tags" id="fbTags" data-page-node-id="w4rNIop4ycfJbYKr2XYAOn" style="display:none;">
+      <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="cYeGOrpqf31XARbZcD9LPG">分析结果不准确</span>
+      <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="8j9W33qZ0FKDszrQjAEj5a">隐患描述不准</span>
+      <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="8j9W33qZ0FKDszrQjAEj5b">整改措施不适用</span>
+      <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="72R6iA1VQM3J8u3lTlUMx2">标准依据有误</span>
+      <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="3eZ9c9CMvZjJER8u7Dchtp">分类判定错误</span>
+      <span class="fb-tag" onclick="toggleTag(this)" data-page-node-id="CdVQV43mL8Dooqp3kEWDbK">其他问题</span>
+    </div>
+    <textarea class="fb-textarea" id="fbText" placeholder="请填写您的反馈内容（必填）"></textarea>
+    <button class="fb-submit" onclick="submitFeedback()" data-page-node-id="WTCsWbZrAwJGfHLe6iWoSS">提交反馈</button>
   </div>
 
   <div class="toast" id="toast" data-page-node-id="Xb0fZUsciGmp1Keuu3WKjj"></div>
@@ -360,35 +354,18 @@
     dislikeOn = !dislikeOn;
     if (dislikeOn && likeOn) { likeOn = false; document.getElementById('likeBtn').classList.remove('active-like'); }
     document.getElementById('dislikeBtn').classList.toggle('active-dislike', dislikeOn);
-    if (dislikeOn) { expandInline('tags'); } else { collapseInline(); toast('已取消点踩'); }
+    if (dislikeOn) { openFeedback(true, '问题反馈'); } else { toast('已取消点踩'); }
   }
-  var fbMode = null;   // null=收起 | 'tags'=问题反馈（点踩） | 'text'=意见反馈（文字必填）
-  function expandInline(mode) {
-    var panel = document.getElementById('fbInline');
-    if (fbMode === mode) { collapseInline(); return; }   // 同入口再点一次=收起
-    fbMode = mode;
-    var isTags = mode === 'tags';
-    document.getElementById('fbTags').style.display = isTags ? 'flex' : 'none';
-    document.getElementById('fbInlineTitle').textContent = isTags ? '请选择遇到的问题（可多选）' : '意见反馈';
-    document.getElementById('fbText').placeholder = isTags ? '请详细描述您遇到的问题或建议（选填）' : '请填写您的反馈内容（必填）';
-    panel.classList.add('show');
-    setTimeout(function () { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 60);
-    // 埋点：hse_agent_feedback_open（source=dislike / feedback_entry，inline=true）
+  var fbRequireText = false;   // 意见反馈模式下输入框必填
+  function openFeedback(showTags, title) {
+    fbRequireText = !showTags;  // 无标签的「意见反馈」→ 文字必填
+    document.getElementById('fbTags').style.display = showTags ? 'flex' : 'none';
+    document.getElementById('fbSheetTitle').textContent = title || (showTags ? '问题反馈' : '意见反馈');
+    document.getElementById('fbText').placeholder = showTags ? '请详细描述您遇到的问题或建议（选填）' : '请填写您的反馈内容（必填）';
+    document.getElementById('fbSheet').classList.add('show');
   }
-  function collapseInline() {
-    document.getElementById('fbInline').classList.remove('show');
-    document.getElementById('fbText').value = '';
-    document.querySelectorAll('.fb-tag.on').forEach(function (t) { t.classList.remove('on'); });
-    fbMode = null;
-  }
-  function submitInline() {
-    var tags = document.querySelectorAll('.fb-tag.on').length;
-    var text = document.getElementById('fbText').value.trim();
-    if (fbMode === 'text' && !text) { toast('请填写反馈内容'); return; }
-    if (fbMode === 'tags' && !tags && !text) { toast('请选择问题类型或填写描述'); return; }
-    collapseInline();
-    toast('反馈已提交，感谢您的建议');
-    // 埋点：hse_agent_feedback_submit（inline=true）
+  function closeFeedback() {
+    document.getElementById('fbSheet').classList.remove('show');
   }
   // 关闭分析结果抽屉 → 返回 AI识隐患页
   function closeToRecognition() {
@@ -404,6 +381,16 @@
     }, 260);
   }
   function toggleTag(el) { el.classList.toggle('on'); }
+  function submitFeedback() {
+    var tags = document.querySelectorAll('.fb-tag.on').length;
+    var text = document.getElementById('fbText').value.trim();
+    if (fbRequireText && !text) { toast('请填写反馈内容'); return; }
+    if (!tags && !text) { toast('请选择问题类型或填写描述'); return; }
+    closeFeedback();
+    document.getElementById('fbText').value = '';
+    document.querySelectorAll('.fb-tag.on').forEach(function(t){ t.classList.remove('on'); });
+    toast('反馈已提交，感谢您的建议');
+  }
   var toastTimer;
   function toast(msg) {
     var t = document.getElementById('toast');
