@@ -70,7 +70,12 @@
   .funnel-row{display:flex;align-items:center;gap:10px}
   .funnel-label{width:120px;font-size:12px;color:var(--sub);text-align:right}
   .funnel-bar{flex:1;height:28px;border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:12px;font-weight:600}
-  .funnel-pct{width:60px;font-size:12px;color:var(--sub);text-align:left}
+  /* 指标口径悬停气泡 */
+.tip{position:relative;display:inline-flex;width:16px;height:16px;border-radius:50%;background:#e4eaf4;color:#5a6b8c;font-size:11px;align-items:center;justify-content:center;margin-left:7px;cursor:help;vertical-align:2px;flex-shrink:0}
+.tip:hover{background:#2f6df6;color:#fff}
+.tip .tip-box{display:none;position:absolute;top:24px;left:50%;transform:translateX(-50%);width:300px;background:#1f2a44;color:#fff;font-size:12px;font-weight:400;line-height:1.65;padding:10px 13px;border-radius:8px;z-index:150;text-align:left;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.tip:hover .tip-box{display:block}
+.funnel-pct{width:60px;font-size:12px;color:var(--sub);text-align:left}
   .feedback-list{max-height:520px;overflow-y:auto}
   .pager{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}
   .pager .pg-info{font-size:12px;color:#909399;margin-right:auto}
@@ -145,36 +150,36 @@
 <!-- ============ TAB 1: 埋点情况 ============ -->
 <div class="tab-panel active" id="tab-tracking" data-page-node-id="E2BhIAqU2FcG2EqiTbtCKb">
   <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)" data-page-node-id="5jcZk4yNwb9HQ9Nl9nGb9x">
-    <div class="kpi" data-page-node-id="mNYgnie7xQns6YcdV9cJwR"><div class="label" data-page-node-id="aaLltdFmYecILUET4IA4A3">AI识隐患页面曝光</div><div class="value" style="color:var(--blue)" data-page-node-id="TfopEUN6tLqcODtYQfqd5L">4,542</div><div class="delta up" data-page-node-id="QtnqMUUQXWbhiSzoZSDymU">▲ 8.2%</div></div>
-    <div class="kpi" data-page-node-id="1ttXBVNZ8KTkgl5JAOEodA"><div class="label" data-page-node-id="nAKUiH9N7DM0wDECB7QakK">辅助分析点击</div><div class="value" style="color:var(--blue)" data-page-node-id="POilocxGoIGbOs2MBfeZQp">4,320</div><div class="delta up" data-page-node-id="uJCETIF8lr4HNXZcJ4A2OB">▲ 6.1%</div></div>
-    <div class="kpi" data-page-node-id="9GYyWkFYpRSJj9Pv08AGzz"><div class="label" data-page-node-id="kwqU5Sw2dbA9HSBloE3NxL">确认填入（提交）</div><div class="value" style="color:var(--green)" data-page-node-id="9hEEWISPlWvGexT32VLrKS">2,158</div><div class="delta up" data-page-node-id="AllqbxPhtMh6FqppP25DT2">▲ 4.7%</div></div>
-    <div class="kpi" data-page-node-id="F3Knv90wJCQbwJd8UtGnBk"><div class="label" data-page-node-id="BgLnCl3qovVEReRuIGD6MB">未提交关闭</div><div class="value" style="color:var(--red)" data-page-node-id="68VW2LjhZrZag3cJMGi6Me">759</div><div class="delta down" data-page-node-id="tBfZ3JW1fU2QRLynMuifgK">▼ 1.3%</div></div>
-    <div class="kpi" data-page-node-id="zeroClickKpi001"><div class="label" data-page-node-id="zeroClickLbl001">零点击会话率</div><div class="value" style="color:var(--red)" data-page-node-id="zeroClickVal001">6.8%</div><div class="delta up" data-page-node-id="zeroClickDelta001">▲ 0.5pt</div></div>
+    <div class="kpi" data-page-node-id="mNYgnie7xQns6YcdV9cJwR"><div class="label" data-page-node-id="aaLltdFmYecILUET4IA4A3">使用AI识隐患</div><div class="value" style="color:var(--blue)" data-page-node-id="TfopEUN6tLqcODtYQfqd5L">3,842</div></div>
+    <div class="kpi" data-page-node-id="1ttXBVNZ8KTkgl5JAOEodA"><div class="label" data-page-node-id="nAKUiH9N7DM0wDECB7QakK">辅助分析点击</div><div class="value" style="color:var(--blue)" data-page-node-id="POilocxGoIGbOs2MBfeZQp">4,320</div></div>
+    <div class="kpi" data-page-node-id="9GYyWkFYpRSJj9Pv08AGzz"><div class="label" data-page-node-id="kwqU5Sw2dbA9HSBloE3NxL">确认填入（提交）</div><div class="value" style="color:var(--green)" data-page-node-id="9hEEWISPlWvGexT32VLrKS">2,158</div></div>
+    <div class="kpi" data-page-node-id="F3Knv90wJCQbwJd8UtGnBk"><div class="label" data-page-node-id="BgLnCl3qovVEReRuIGD6MB">使用后未填入</div><div class="value" style="color:var(--red)" data-page-node-id="68VW2LjhZrZag3cJMGi6Me">1,752</div></div>
+    <div class="kpi" data-page-node-id="zeroClickKpi001"><div class="label" data-page-node-id="zeroClickLbl001">未发起分析会话率</div><div class="value" style="color:var(--red)" data-page-node-id="zeroClickVal001">24.1%</div></div>
   </div>
 
   <div class="grid-2" data-page-node-id="Qh0rjlGRTIL9DTRzm3dNsb">
     <div class="card" data-page-node-id="BAmkAj1Icn0VYsidahjiOz">
-      <h3 data-page-node-id="uTtsaGO8p9trZBGMlkDAMd">用户转化漏斗 <span class="tag" data-page-node-id="gXUVODNDzWOHVNMMdh1IOi">提交率 74.0%</span></h3>
+      <h3 data-page-node-id="uTtsaGO8p9trZBGMlkDAMd">用户转化漏斗<span class="tip">?<span class="tip-box">看用户从进入到填入的完整转化过程：第一层是真正使用过 AI 识隐患的会话数，第二层是其中发起过辅助分析的会话数（同一会话点多次只算一次），第三层是最终把分析结果填入速报单的数量。每层右侧的百分比表示该层占第一层的比例，层间的「↓ 转化」表示从上一层走到这一层的比例。</span></span> <span class="tag" data-page-node-id="gXUVODNDzWOHVNMMdh1IOi">提交率 74.0%</span></h3>
       <div class="funnel" id="funnel" data-page-node-id="UnCd4wWULPVDYwxfQHqH96"></div>
-      <div class="footer-note" data-page-node-id="qHF8e8zj4aEZbD9elEfnW3">提交率 = 确认填入 /（确认填入 + 未提交关闭），分母为两终态之和，不受曝光丢失影响；零点击会话率 = E8 会话结束中辅助分析点击次数为 0 的会话 / 使用AI识隐患（E1），即 AI 识别结果被完全忽略的比例</div>
+      <div class="footer-note" data-page-node-id="qHF8e8zj4aEZbD9elEfnW3">提交率 = 确认填入 /（确认填入 + 未提交关闭抽屉）= 74.0%，分母为抽屉两终态之和，不受曝光丢失影响；未发起分析会话率 = 从未点击「辅助分析」的会话 / 使用AI识隐患（E1）= 24.1%，与描述采纳率 76.0% 互补（会话中可能点选过描述，但未发起分析）；使用后未填入 = 会话结束时未确认填入的会话 / 使用AI识隐患（E1）= 1,752，含未发起分析 925 个与分析后放弃 827 个</div>
     </div>
     <div class="card" data-page-node-id="9ClsD1Xrmw39Hr4wO9zDIw">
-      <h3 data-page-node-id="W68tTVoAbD5d5gIh1WqNiN">字段勾选率 & 不认可率 <span class="tag" data-page-node-id="7HaMsZXrABxzzbqqOnt06H">5 个字段</span></h3>
+      <h3 data-page-node-id="W68tTVoAbD5d5gIh1WqNiN">字段勾选率 &<span class="tip">?<span class="tip-box">统计 AI 分析结果中 5 类字段被保留和被删除的情况：勾选率 = 确认填入时该字段仍保持勾选的比例，代表用户对该字段的认可程度；不认可率 = 默认勾选却被用户主动取消的比例，数值越高说明该字段内容越不符合预期，是需要重点优化的信号。</span></span> 不认可率 <span class="tag" data-page-node-id="7HaMsZXrABxzzbqqOnt06H">5 个字段</span></h3>
       <div class="chart-wrap" data-page-node-id="ptBOYX0D4b6yWhHBXgrmH4"><canvas id="fieldChart" data-page-node-id="idzTsS3ytc4Bk03cN9ATsF"></canvas></div>
       <div class="footer-note" data-page-node-id="6468fJ8TBuHETUWhzGAsU7">蓝色=勾选率，红色=不认可率（默认勾选后被取消）</div>
     </div>
   </div>
 
   <div class="card" style="margin-bottom:14px" data-page-node-id="NI2wmiz0BUQ3v38DkDcWAy">
-      <h3 data-page-node-id="FQ7cqNwhzGyrjFXvD6M1YX">描述采纳情况 <span class="tag" data-page-node-id="MiDHCbKPtTu6g2gzMsMq4e">前置链路</span></h3>
+      <h3 data-page-node-id="FQ7cqNwhzGyrjFXvD6M1YX">描述采纳情况<span class="tip">?<span class="tip-box">看 AI 识别出的隐患描述有多少被用户真正采用：描述采纳率 = 发起过辅助分析的会话数 ÷ 使用AI识隐患的会话数（同一会话点多次只算一次），当前为 76.0%；人均点击次数衡量使用深度。注意点击次数按条累计，可能大于会话数。</span></span> <span class="tag" data-page-node-id="MiDHCbKPtTu6g2gzMsMq4e">前置链路</span></h3>
       <div class="chart-wrap sm" data-page-node-id="6ucJz45EOhXHQdzestHmiw"><canvas id="descChart" data-page-node-id="hYHzYAhdWuMEmUitMwXTMt"></canvas></div>
       <div class="footer-note" data-page-node-id="RyL0HW8cZQOdf107GjuwVM">描述采纳率 = 发生辅助分析点击的会话数（按会话去重）/ 使用AI识隐患数 = 76.0%；辅助分析点击次数 4,320 为按条记录的总次数（次数可＞使用数），人均点击 1.12 次衡量使用深度；页面曝光含关闭抽屉返回后的再次展示：曝光 − 使用 = 700 次 ≈ E7 未提交关闭 759 次中的返回部分（其余 59 次为关闭后直接离开，可派生关闭后流失率）</div>
     </div>
 
   <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
-    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw">埋点事件统计明细 <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">8 条事件</span></h3>
+    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw">埋点事件统计明细<span class="tip">?<span class="tip-box">本功能全部 8 个埋点事件的完整台账：每个事件在什么时机触发、按什么维度记录、当前累计触发多少次、覆盖多少用户，点击「唯一用户」可查看触发用户清单。</span></span> <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">8 条事件</span></h3>
     <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
-      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="pCtROaW4zDtsMzA2lucpxv">埋点属性</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
+      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
       <tbody data-page-node-id="5fk9VMW7vx5fy137OEmSte"></tbody>
     </table>
   </div>
@@ -183,25 +188,25 @@
 <!-- ============ TAB 2: 反馈 ============ -->
 <div class="tab-panel" id="tab-feedback" data-page-node-id="MKbEyJpxf59PLqVPoR4PlD">
   <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)" data-page-node-id="JsTBZ4IQ2TqJWVJemqFHJb">
-    <div class="kpi" data-page-node-id="liEF9Px7l3CpQeMXVk2gzx"><div class="label" data-page-node-id="d2iVXjuzWAY7N0QrbTYnEc">点赞数</div><div class="value" style="color:var(--green)" data-page-node-id="tU9K60qPdSnVwggL1pnrYu">1,284</div><div class="delta up" data-page-node-id="lH75wOK71ALF1GAbQx9BNe">▲ 5.2%</div></div>
-    <div class="kpi" data-page-node-id="Q3EOqVvrOmWnyFq1AkXkjJ"><div class="label" data-page-node-id="R7DoX1lhlroDHOR2dJ5ifY">点踩数</div><div class="value" style="color:var(--red)" data-page-node-id="UEyK7EIIgO5UbsiOnvefMO">312</div><div class="delta down" data-page-node-id="SGglKXuzDI3QXxw5cU769Q">▼ 2.1%</div></div>
-    <div class="kpi" data-page-node-id="25VVSVIwmvcNUZxnzk91AV"><div class="label" data-page-node-id="rONK5asWFtKlNmRAyCldkB">反馈提交数</div><div class="value" style="color:var(--orange)" data-page-node-id="6wFFyNbaGVt327GMr8LFuG">198</div><div class="delta up" data-page-node-id="AGT9aYkjhyByeETDiUI6lO">▲ 1.4%</div></div>
+    <div class="kpi" data-page-node-id="liEF9Px7l3CpQeMXVk2gzx"><div class="label" data-page-node-id="d2iVXjuzWAY7N0QrbTYnEc">点赞数</div><div class="value" style="color:var(--green)" data-page-node-id="tU9K60qPdSnVwggL1pnrYu">1,284</div></div>
+    <div class="kpi" data-page-node-id="Q3EOqVvrOmWnyFq1AkXkjJ"><div class="label" data-page-node-id="R7DoX1lhlroDHOR2dJ5ifY">点踩数</div><div class="value" style="color:var(--red)" data-page-node-id="UEyK7EIIgO5UbsiOnvefMO">312</div></div>
+    <div class="kpi" data-page-node-id="25VVSVIwmvcNUZxnzk91AV"><div class="label" data-page-node-id="rONK5asWFtKlNmRAyCldkB">反馈提交数</div><div class="value" style="color:var(--orange)" data-page-node-id="6wFFyNbaGVt327GMr8LFuG">198</div></div>
   </div>
 
   <div class="card" style="margin-bottom:14px" data-page-node-id="Mp23UM1vUkvoXtlTheeao4">
-      <h3 data-page-node-id="tk51Yr0qqjRWUCRZ5M09CN">赞踩分布 <span class="tag" data-page-node-id="cx0JOepMJtR3Z4rhyZVb8F">整体反馈</span></h3>
+      <h3 data-page-node-id="tk51Yr0qqjRWUCRZ5M09CN">赞踩分布<span class="tip">?<span class="tip-box">用户对 AI 分析结果的直接评价：点赞代表认可，点踩代表不满意。反馈率 =（点赞数 + 点踩数）÷ 分析结果抽屉曝光数，衡量有多少用户愿意主动表达评价。</span></span> <span class="tag" data-page-node-id="cx0JOepMJtR3Z4rhyZVb8F">整体反馈</span></h3>
       <div class="chart-wrap sm" data-page-node-id="34tw7XB47clOAXCmJDk9K7"><canvas id="thumbChart" data-page-node-id="fRr68Y2o5xYPq0YQaVzIva"></canvas></div>
       <div class="footer-note" data-page-node-id="wXOHXvfy2AVylRMfBEHlTs">反馈率 = (赞+踩) / 抽屉曝光数</div>
     </div>
 
   <div class="card" style="margin-bottom:14px" data-page-node-id="iHazcNUSB6yjKGs4IqVjpB">
-    <h3 data-page-node-id="U7BV9y7o8DwBK1mouOmVBI">问题标签分布 <span class="tag" data-page-node-id="VVPYdbWsMk1ERnWJDNoVFY">6 个标签 · 可多选</span></h3>
+    <h3 data-page-node-id="U7BV9y7o8DwBK1mouOmVBI">问题标签分布<span class="tip">?<span class="tip-box">把用户点踩和意见反馈中提出的问题按类型归集（如分析结果不准确、整改措施不适用等），一条反馈可打多个标签。命中次数越多的问题类型，越应优先改进。</span></span> <span class="tag" data-page-node-id="VVPYdbWsMk1ERnWJDNoVFY">6 个标签 · 可多选</span></h3>
     <div class="chart-wrap" data-page-node-id="CJm6prMARRBku147LXjaCo"><canvas id="tagChart" data-page-node-id="9defw0AxGk0Cb7RfF8hCGB"></canvas></div>
     <div class="footer-note" data-page-node-id="UyG35gAFoGS64sntWbmB2j">标签命中次数 / 反馈提交数；用于定位改进方向（算法Prompt/知识库/RAG/业务规则/运营）</div>
   </div>
 
   <div class="card" data-page-node-id="GSlmfzLqfHfMRyhwKXJYIh">
-    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细<button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
+    <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8">反馈明细<span class="tip">?<span class="tip-box">用户提交的每一条反馈原文与智能体响应耗时明细。用户名默认脱敏保护隐私，可单条放开或批量放开查看真实姓名；耗时为智能体流式输出的毫秒级耗时。</span></span><button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
     <div class="feedback-list" data-page-node-id="egdSZ8jPAZDBYPyk25qb2C">
       <table id="feedbackTable" data-page-node-id="pFFSRn4J7FjGeWhyBMqa0R">
         <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th style="text-align:center" data-page-node-id="u2">隐患描述首词耗时</th><th style="text-align:center" data-page-node-id="u3">隐患描述总耗时</th><th style="text-align:center" data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th><th data-page-node-id="u6">智能体输出完整内容</th></tr></thead>
@@ -239,7 +244,7 @@ const fieldData = {
   check:[92,88,79,71,76],          // 勾选率%
   uncheck:[18,22,28,34,24]         // 不认可率%（默认勾选后被取消）
 };
-// 埋点事件明细（与业务埋点 Excel 对齐，共 7 项；E1 拆分为「使用AI识隐患」与「AI识隐患页面曝光」）
+// 埋点事件明细（与业务埋点 Excel 对齐，共 8 项；E1 拆分为「使用AI识隐患」与「AI识隐患页面曝光」）
 // 结构：[埋点名称(简称), Excel全称, 埋点属性, 记录维度, 用户操作(触发时机/用户路径), 埋点类型, 触发次数, 唯一用户, 最近触发, 状态]
 const events = [
   ['使用AI识隐患','使用AI识隐患功能','通用','每次会话记录','进入隐患上报页，AI 识别成功后首次展示描述列表时记录（同会话仅记 1 次）','前端埋点',3842,1210,'2026-10-12 17:58','已上线'],
@@ -296,8 +301,8 @@ const dismissDist = {labels:['关闭按钮','离开页面','超时收起','系�
 
 // ============ 漏斗（SVG 梯形） ============
 const funnelData = [
-  {label:'AI识隐患页面曝光',val:4542,color:'#2f6df6'},
-  {label:'辅助分析点击（会话去重）',val:2917,color:'#3b82f6'},
+  {label:'使用AI识隐患（E1）',val:3842,color:'#2f6df6'},
+  {label:'发起辅助分析（会话去重）',val:2917,color:'#3b82f6'},
   {label:'确认填入',val:2158,color:'#18b58b'},
 ];
 (function(){
@@ -364,13 +369,12 @@ new Chart(document.getElementById('tagChart'),{
 });
 
 // ============ 表格 ============
-const propMap = {'通用':'blue','业务类':'green'};
 const typeMap = {'前端埋点':'blue','后端埋点':'orange'};
 const statusMap = {'已上线':'green'};
 const tbody = document.querySelector('#eventTable tbody');
 events.forEach(e=>{
   const tr=document.createElement('tr');
-  tr.innerHTML=`<td title="${e[1]}">${e[0]}</td><td><span class="pill ${propMap[e[2]]}">${e[2]}</span></td>
+  tr.innerHTML=`<td title="${e[1]}">${e[0]}</td>
     <td>${e[3]}</td><td class="op-path">${e[4]}</td><td><span class="pill ${typeMap[e[5]]}">${e[5]}</span></td>
     <td class="num ctr">${e[6].toLocaleString()}</td>
     <td class="num ctr"><a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[7].toLocaleString()} 👥</a></td>
@@ -533,8 +537,8 @@ function downloadCSV(rows, filename){
 function exportExcel(){
   const data = {
     '埋点事件统计': [
-      ['埋点名称','埋点属性','记录维度','用户操作（触发时机/用户路径）','埋点类型','触发次数','唯一用户','最近触发'],
-      ...events.map(e=>[e[0],e[2],e[3],e[4],e[5],e[6],e[7],e[8]])
+      ['埋点名称','记录维度','用户操作（触发时机/用户路径）','埋点类型','触发次数','唯一用户','最近触发'],
+      ...events.map(e=>[e[0],e[3],e[4],e[5],e[6],e[7],e[8]])
     ],
     '字段勾选统计': [
       ['字段','勾选率(%)','不认可率(%)'],
@@ -582,10 +586,10 @@ function exportWord(){
   html += `<p style="text-align:center">日期范围：${range}　|　所属单位：${unit}　|　所属系统：${sys}</p>`;
   // Tab1 埋点情况
   html += `<h2>一、埋点情况</h2>`;
-  html += `<p class="kpi">AI识隐患页面曝光：<b>4,542</b>　使用AI识隐患：<b>3,842</b>　辅助分析点击：<b>4,320</b>　确认填入：<b>2,158</b>　未提交关闭：<b>759</b>　提交率：<b>74.0%</b></p>`;
+  html += `<p class="kpi">使用AI识隐患：<b>3,842</b>　辅助分析点击：<b>4,320</b>　确认填入：<b>2,158</b>　使用后未填入：<b>1,752</b>　未发起分析会话率：<b>24.1%</b>　提交率：<b>74.0%</b></p>`;
   html += `<h3>1. 埋点事件统计明细</h3>`;
-  html += `<table><tr><th>埋点名称</th><th>属性</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>类型</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th></tr>`;
-  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[2]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[5]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[7].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
+  html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>类型</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th></tr>`;
+  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[5]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[7].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
   html += `</table>`;
   html += `<h3>2. 字段勾选率 & 不认可率</h3>`;
   html += `<table><tr><th>字段</th><th>勾选率(%)</th><th>不认可率(%)</th></tr>`;
