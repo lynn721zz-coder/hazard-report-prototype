@@ -113,14 +113,14 @@
     <input type="date" id="dateStart" class="date-range" data-page-node-id="ds1">
     <span class="sep" data-page-node-id="sp1">~</span>
     <input type="date" id="dateEnd" class="date-range" data-page-node-id="ds2">
-    <span class="lbl" data-page-node-id="lb2">所属租户</span>
-    <select id="filterUnit" class="date-range" data-page-node-id="fu1"></select>
     <span class="lbl" data-page-node-id="lb3">所属系统</span>
     <select id="filterSystem" class="date-range" data-page-node-id="fs1" onchange="onSystemChange()">
       <option value="">全部</option>
       <option>现场管理APP</option>
       <option>督查检查</option>
     </select>
+    <span class="lbl" data-page-node-id="lb2">所属租户</span>
+    <select id="filterUnit" class="date-range" data-page-node-id="fu1"></select>
     <button class="btn" onclick="onQuery()" data-page-node-id="q1">🔍 查询</button>
     <span class="spacer" data-page-node-id="spc"></span>
     <button class="btn btn-primary" onclick="exportExcel()" data-page-node-id="1UlnseEyceqzL6PHMn03wJ">📊 导出 Excel</button>
@@ -217,7 +217,7 @@ document.getElementById('dateStart').value = '2026-09-12';
 document.getElementById('dateEnd').value = '2026-10-12';
 // 所属租户随所属系统级联：督查检查→仅中国中化；现场管理APP→企业名称；全部→全量
 const TENANT_HQ = ['中国中化'];
-const TENANT_ENT = ['蓝星安迪苏','北化机','浙化院','总部HSE部'];
+const TENANT_ENT = ['蓝天氟材料','南通星辰芮城','浙江新能源','中化东大','中蓝晨光'];
 function tenantOptions(sys){
   if(sys==='督查检查') return TENANT_HQ;
   if(sys==='现场管理APP') return TENANT_ENT;
