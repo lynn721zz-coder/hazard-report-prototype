@@ -151,17 +151,17 @@
 <div class="tab-panel active" id="tab-tracking" data-page-node-id="E2BhIAqU2FcG2EqiTbtCKb">
   <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)" data-page-node-id="5jcZk4yNwb9HQ9Nl9nGb9x">
     <div class="kpi" data-page-node-id="mNYgnie7xQns6YcdV9cJwR"><div class="label" data-page-node-id="aaLltdFmYecILUET4IA4A3">使用AI识隐患</div><div class="value" style="color:var(--blue)" data-page-node-id="TfopEUN6tLqcODtYQfqd5L">3,842</div></div>
-    <div class="kpi" data-page-node-id="1ttXBVNZ8KTkgl5JAOEodA"><div class="label" data-page-node-id="nAKUiH9N7DM0wDECB7QakK">辅助分析点击</div><div class="value" style="color:var(--blue)" data-page-node-id="POilocxGoIGbOs2MBfeZQp">4,320</div></div>
-    <div class="kpi" data-page-node-id="9GYyWkFYpRSJj9Pv08AGzz"><div class="label" data-page-node-id="kwqU5Sw2dbA9HSBloE3NxL">确认填入（提交）</div><div class="value" style="color:var(--green)" data-page-node-id="9hEEWISPlWvGexT32VLrKS">2,158</div></div>
+    <div class="kpi" data-page-node-id="1ttXBVNZ8KTkgl5JAOEodA"><div class="label" data-page-node-id="nAKUiH9N7DM0wDECB7QakK">辅助分析（会话去重）</div><div class="value" style="color:var(--blue)" data-page-node-id="POilocxGoIGbOs2MBfeZQp">2,917</div></div>
+    <div class="kpi" data-page-node-id="9GYyWkFYpRSJj9Pv08AGzz"><div class="label" data-page-node-id="kwqU5Sw2dbA9HSBloE3NxL">确认填入（会话去重）</div><div class="value" style="color:var(--green)" data-page-node-id="9hEEWISPlWvGexT32VLrKS">2,090</div></div>
     <div class="kpi" data-page-node-id="F3Knv90wJCQbwJd8UtGnBk"><div class="label" data-page-node-id="BgLnCl3qovVEReRuIGD6MB">使用后未填入</div><div class="value" style="color:var(--red)" data-page-node-id="68VW2LjhZrZag3cJMGi6Me">1,752</div></div>
     <div class="kpi" data-page-node-id="zeroClickKpi001"><div class="label" data-page-node-id="zeroClickLbl001">未发起分析会话率</div><div class="value" style="color:var(--red)" data-page-node-id="zeroClickVal001">24.1%</div></div>
   </div>
 
   <div class="grid-2" data-page-node-id="Qh0rjlGRTIL9DTRzm3dNsb">
     <div class="card" data-page-node-id="BAmkAj1Icn0VYsidahjiOz">
-      <h3 data-page-node-id="uTtsaGO8p9trZBGMlkDAMd"><span style="display:inline-flex;align-items:center">用户转化漏斗<span class="tip">?<span class="tip-box">看用户从进入到填入的完整转化过程：第一层是真正使用过 AI 识隐患的会话数，第二层是其中发起过辅助分析的会话数（同一会话点多次只算一次），第三层是最终把分析结果填入速报单的数量。每层右侧的百分比表示该层占第一层的比例，层间的「↓ 转化」表示从上一层走到这一层的比例。</span></span></span> <span class="tag" data-page-node-id="gXUVODNDzWOHVNMMdh1IOi">提交率 74.0%</span></h3>
+      <h3 data-page-node-id="uTtsaGO8p9trZBGMlkDAMd"><span style="display:inline-flex;align-items:center">用户转化漏斗<span class="tip">?<span class="tip-box">看用户从进入到填入的完整转化过程：第一层是真正使用过 AI 识隐患的会话数，第二层是其中发起过辅助分析的会话数（同一会话点多次只算一次），第三层是确认填入的发生次数（同一会话多次填入会多次计入，会话去重口径见 KPI 卡的 2,090）。每层右侧的百分比表示该层占第一层的比例，层间的「↓ 转化」表示从上一层走到这一层的比例。</span></span></span> <span class="tag" data-page-node-id="gXUVODNDzWOHVNMMdh1IOi">提交率 74.0%</span></h3>
       <div class="funnel" id="funnel" data-page-node-id="UnCd4wWULPVDYwxfQHqH96"></div>
-      <div class="footer-note" data-page-node-id="qHF8e8zj4aEZbD9elEfnW3">提交率 = 确认填入 /（确认填入 + 未提交关闭抽屉）= 74.0%，分母为抽屉两终态之和，不受曝光丢失影响；未发起分析会话率 = 从未点击「辅助分析」的会话 / 使用AI识隐患（E1）= 24.1%，与描述采纳率 76.0% 互补（会话中可能点选过描述，但未发起分析）；使用后未填入 = 会话结束时未确认填入的会话 / 使用AI识隐患（E1）= 1,752，含未发起分析 925 个与分析后放弃 827 个</div>
+      <div class="footer-note" data-page-node-id="qHF8e8zj4aEZbD9elEfnW3">KPI 闭环（会话口径）：使用AI识隐患 3,842 = 确认填入（会话去重）2,090 + 使用后未填入 1,752；未发起分析会话率 = 从未点击「辅助分析」的会话 / 使用AI识隐患（E1）= 24.1%，与描述采纳率 76.0% 互补（会话中可能点选过描述但未发起分析）。提交率 74.0% 为抽屉终态口径（按次）= 确认填入 2,158 /（2,158 + 未提交关闭 759），按次填入比会话去重数多 68 次（同会话多次填入）</div>
     </div>
     <div class="card" data-page-node-id="9ClsD1Xrmw39Hr4wO9zDIw">
       <h3 data-page-node-id="W68tTVoAbD5d5gIh1WqNiN"><span style="display:inline-flex;align-items:center">字段勾选率 &<span class="tip">?<span class="tip-box">统计 AI 分析结果中 5 类字段被保留和被删除的情况：勾选率 = 确认填入时该字段仍保持勾选的比例，代表用户对该字段的认可程度；不认可率 = 默认勾选却被用户主动取消的比例，数值越高说明该字段内容越不符合预期，是需要重点优化的信号。</span></span></span> 不认可率 <span class="tag" data-page-node-id="7HaMsZXrABxzzbqqOnt06H">5 个字段</span></h3>
@@ -320,7 +320,7 @@ const dismissDist = {labels:['关闭按钮','离开页面','超时收起','系�
 const funnelData = [
   {label:'使用AI识隐患（E1）',val:3842,color:'#2f6df6'},
   {label:'发起辅助分析（会话去重）',val:2917,color:'#3b82f6'},
-  {label:'确认填入',val:2158,color:'#18b58b'},
+  {label:'确认填入（按次）',val:2158,color:'#18b58b'},
 ];
 (function(){
   const W=560,H=236,cx=W/2,maxW=330,layerH=62,gap=5,top0=10;
@@ -640,7 +640,7 @@ function exportWord(){
   html += `<p style="text-align:center">日期范围：${range}　|　所属单位：${unit}　|　所属系统：${sys}</p>`;
   // Tab1 埋点情况
   html += `<h2>一、埋点情况</h2>`;
-  html += `<p class="kpi">使用AI识隐患：<b>3,842</b>　辅助分析点击：<b>4,320</b>　确认填入：<b>2,158</b>　使用后未填入：<b>1,752</b>　未发起分析会话率：<b>24.1%</b>　提交率：<b>74.0%</b></p>`;
+  html += `<p class="kpi">使用AI识隐患：<b>3,842</b>　辅助分析（会话去重）：<b>2,917</b>　确认填入（会话去重）：<b>2,090</b>　使用后未填入：<b>1,752</b>　未发起分析会话率：<b>24.1%</b>　提交率（按次）：<b>74.0%</b></p>`;
   html += `<h3>1. 埋点事件统计明细</h3>`;
   html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>类型</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th></tr>`;
   events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[5]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[7].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
