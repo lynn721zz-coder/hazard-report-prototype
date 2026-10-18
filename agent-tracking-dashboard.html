@@ -163,11 +163,6 @@
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:14px" data-page-node-id="NI2wmiz0BUQ3v38DkDcWAy">
-      <h3 data-page-node-id="FQ7cqNwhzGyrjFXvD6M1YX"><span style="display:inline-flex;align-items:center">描述采纳情况</span></h3>
-      <div class="chart-wrap sm" data-page-node-id="6ucJz45EOhXHQdzestHmiw"><canvas id="descChart" data-page-node-id="hYHzYAhdWuMEmUitMwXTMt"></canvas></div>
-    </div>
-
   <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
     <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw"><span style="display:inline-flex;align-items:center">埋点事件统计明细</span></h3>
     <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
@@ -377,11 +372,6 @@ const withPct = (names, data)=>{
   const total = data.reduce((a,b)=>a+b,0);
   return names.map((n,i)=>`${n} ${fmtNum(data[i])}（${(data[i]/total*100).toFixed(1)}%）`);
 };
-new Chart(document.getElementById('descChart'),{
-  type:'doughnut',
-  data:{labels:withPct(['已采纳·点击辅助分析','未采纳·未点击'],[2917,925]),datasets:[{data:[2917,925],backgroundColor:['#18b58b','#eef1f7'],borderWidth:0}]},
-  options:{...donutOpt,cutout:'62%'}
-});
 new Chart(document.getElementById('thumbChart'),{
   type:'doughnut',
   plugins:[donutCenter],
