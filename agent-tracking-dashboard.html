@@ -177,7 +177,7 @@
     </div>
 
   <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
-    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw"><span style="display:inline-flex;align-items:center">埋点事件统计明细<span class="tip">?<span class="tip-box">本功能全部 8 个埋点事件的完整台账：每个事件在什么时机触发、按什么维度记录、当前累计触发多少次、覆盖多少用户，点击「唯一用户」可查看触发用户清单。</span></span></span> <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">8 条事件</span></h3>
+    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw"><span style="display:inline-flex;align-items:center">埋点事件统计明细<span class="tip">?<span class="tip-box">本功能全部 8 个埋点事件的完整台账：每个事件在什么时机触发、按什么维度记录、当前累计触发多少次、覆盖多少用户；其中「未提交关闭」按关闭去向拆为两行展示，「未发起分析会话率」为基于埋点数据计算的派生指标（非独立埋点）。点击「唯一用户」可查看触发用户清单。</span></span></span> <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">8 事件 · 10 行</span></h3>
     <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
       <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
       <tbody data-page-node-id="5fk9VMW7vx5fy137OEmSte"></tbody>
@@ -267,8 +267,10 @@ const events = [
   ['字段勾选','确认填入后-AI分析结果字段勾选','业务类','按字段分别记录','点击「确认填入」时，按保持勾选的字段逐条记录','前端埋点',8932,920,'2026-10-12 17:58','已上线'],
   ['字段取消勾选（重点）','确认填入后-AI分析结果字段勾选-取消勾选（重点）','业务类','按字段分别记录','取消默认勾选的字段后点击「确认填入」时按字段记录（不认可信号）','前端埋点',1862,680,'2026-10-12 17:59','已上线'],
   ['确认填入（提交）','AI分析结果确认填入（提交）','业务类','按次记录','在分析结果抽屉点击「确认填入」按钮时记录','后端埋点',2158,890,'2026-10-12 17:59','已上线'],
-  ['未提交关闭','AI分析结果未提交关闭','业务类','按次记录','未点击「确认填入」即关闭抽屉时记录，并携带关闭去向（返回列表 / 直接离开）','前端埋点',759,410,'2026-10-12 17:56','已上线'],
+  ['未提交关闭（返回列表）','AI分析结果未提交关闭-返回列表','业务类','按次记录','未点击「确认填入」关闭抽屉后返回描述列表时记录','前端埋点',700,385,'2026-10-12 17:56','已上线'],
+  ['未提交关闭（直接离开）','AI分析结果未提交关闭-直接离开','业务类','按次记录','未点击「确认填入」关闭抽屉后直接离开页面时记录','前端埋点',59,92,'2026-10-12 17:56','已上线'],
   ['会话结束','AI识隐患会话结束','通用','按会话记录','离开 AI 识隐患页时上报一次，汇总本会话曝光次数、点击次数、是否确认填入与时长','前端埋点',3798,1210,'2026-10-12 18:05','已上线'],
+  ['未发起分析会话率','未发起分析会话率（派生指标）','派生','按会话计算','进入 AI 识隐患页面后整个会话从未点击「辅助分析」即结束的会话占比 = 925 / 使用AI识隐患 3,842；会话中可能点选过描述但未发起分析','派生指标','24.1%','—','2026-10-12 18:05','派生指标'],
 ];
 // 各埋点事件的触发用户清单（mock）：用户 / 所属单位 / 触发次数
 const userLists = {
@@ -278,7 +280,8 @@ const userLists = {
   '字段勾选':[['张明','蓝星安迪苏',86],['李伟','北化机',72],['王芳','浙化院',65],['赵强','总部HSE部',58],['陈杰','蓝星安迪苏',49],['刘洋','浙化院',42],['周强','总部HSE部',35]],
   '字段取消勾选（重点）':[['张明','蓝星安迪苏',22],['李伟','北化机',19],['王芳','浙化院',17],['赵强','总部HSE部',14],['陈杰','蓝星安迪苏',11],['刘洋','浙化院',9]],
   '确认填入（提交）':[['张明','蓝星安迪苏',24],['李伟','北化机',21],['王芳','浙化院',18],['赵强','总部HSE部',15],['陈杰','蓝星安迪苏',12],['刘洋','浙化院',10]],
-  '未提交关闭':[['张明','蓝星安迪苏',9],['李伟','北化机',8],['王芳','浙化院',7],['赵强','总部HSE部',6],['陈杰','蓝星安迪苏',5]],
+  '未提交关闭（返回列表）':[['张明','蓝星安迪苏',7],['李伟','北化机',6],['王芳','浙化院',5],['赵强','总部HSE部',4],['陈杰','蓝星安迪苏',3]],
+  '未提交关闭（直接离开）':[['张明','蓝星安迪苏',2],['李伟','北化机',2],['王芳','浙化院',1],['赵强','总部HSE部',1],['陈杰','蓝星安迪苏',1]],
   '会话结束':[['张明','蓝星安迪苏',37],['李伟','北化机',28],['王芳','浙化院',25],['赵强','总部HSE部',18],['陈杰','蓝星安迪苏',12]],
 };
 const feedbackList = [
@@ -411,15 +414,15 @@ new Chart(document.getElementById('tagChart'),{
 });
 
 // ============ 表格 ============
-const typeMap = {'前端埋点':'blue','后端埋点':'orange'};
-const statusMap = {'已上线':'green'};
+const typeMap = {'前端埋点':'blue','后端埋点':'orange','派生指标':'gray'};
+const statusMap = {'已上线':'green','派生指标':'orange'};
 const tbody = document.querySelector('#eventTable tbody');
 events.forEach(e=>{
   const tr=document.createElement('tr');
   tr.innerHTML=`<td title="${e[1]}">${e[0]}</td>
     <td>${e[3]}</td><td class="op-path">${e[4]}</td><td><span class="pill ${typeMap[e[5]]}">${e[5]}</span></td>
     <td class="num ctr">${e[6].toLocaleString()}</td>
-    <td class="num ctr"><a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[7].toLocaleString()} 👥</a></td>
+    <td class="num ctr">${typeof e[7]==='number' ? `<a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[7].toLocaleString()} 👥</a>` : '—'}</td>
     <td>${e[8]}</td>`;
   tbody.appendChild(tr);
 });
