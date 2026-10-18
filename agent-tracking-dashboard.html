@@ -298,7 +298,13 @@ const feedbackList = [
     if(hour < 8){ hour = 22; day -= 1; }
   }
 })();
-const tagDist = {labels:['分析结果不准确','隐患描述不准','整改措施不适用','标准依据有误','分类判定错误','其他问题'],data:[58,46,42,21,19,12]};
+// 问题标签按反馈节点分套（其他问题两节点相同，查全部时合并展示）
+const tagDistByNode = {
+  '描述识别': {labels:['识别结果不准确','描述与图片不符','漏检隐患','识别内容重复','其他问题'],data:[34,22,17,9,8]},
+  '辅助分析': {labels:['分析结果不准确','隐患描述不准','整改措施不适用','标准依据有误','分类判定错误','其他问题'],data:[58,46,42,21,19,12]},
+  '全部': {labels:['分析结果不准确','隐患描述不准','整改措施不适用','标准依据有误','分类判定错误','识别结果不准确','描述与图片不符','漏检隐患','识别内容重复','其他问题'],data:[58,46,42,21,19,34,22,17,9,20]},
+};
+const tagDist = tagDistByNode['全部'];
 const dismissDist = {labels:['关闭按钮','离开页面','超时收起','系统返回'],data:[342,218,142,57]};
 
 // ============ 漏斗（SVG 梯形） ============
@@ -387,11 +393,18 @@ new Chart(document.getElementById('thumbChart'),{
   data:{labels:withPct(['点赞','点踩','意见反馈'],[1284,312,198]),datasets:[{data:[1284,312,198],backgroundColor:['#18b58b','#f0436c','#f59f27'],borderWidth:0}]},
   options:{cutout:'62%',maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11.5},padding:16,boxWidth:12,generateLabels:donutLegendNoStrike}}}}
 });
-new Chart(document.getElementById('tagChart'),{
+const tagChartIns = new Chart(document.getElementById('tagChart'),{
   type:'bar',
   data:{labels:tagDist.labels,datasets:[{label:'命中次数',data:tagDist.data,backgroundColor:'#f0436c'}]},
   options:{...baseOpt,indexAxis:'y',scales:{x:{beginAtZero:true}}}
 });
+// 反馈节点切换时刷新问题标签分布（全部=两节点合并，其他问题合并为一条）
+function updateTagDist(node){
+  const d = tagDistByNode[node] || tagDistByNode['全部'];
+  tagChartIns.data.labels = d.labels;
+  tagChartIns.data.datasets[0].data = d.data;
+  tagChartIns.update();
+}
 
 // ============ 表格 ============
 const typeMap = {'前端埋点':'blue','后端埋点':'orange','派生指标':'gray'};
@@ -445,7 +458,7 @@ const SVG_EYE_OPEN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none
 const SVG_EYE_CLOSE = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#a8abb2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 const ms = v => v ? v.toLocaleString()+' ms' : '—';
 let fbNodeFilter = '全部';
-function onNodeFilter(v){ fbNodeFilter = v; fbPage = 1; renderFeedback(); }
+function onNodeFilter(v){ fbNodeFilter = v; fbPage = 1; renderFeedback(); if(typeof updateTagDist==='function') updateTagDist(v); }
 function renderFeedback(){
   // 先按反馈节点过滤（存原始索引，保证脱敏状态跨页/筛选正确）
   const idxAll = feedbackList.map((f,i)=>i).filter(i=> fbNodeFilter==='全部' || feedbackList[i][13]===fbNodeFilter);
