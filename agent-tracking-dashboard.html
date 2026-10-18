@@ -177,9 +177,9 @@
     </div>
 
   <div class="card" data-page-node-id="n2v81BNiYS5ehtyqZQsEMZ">
-    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw"><span style="display:inline-flex;align-items:center">埋点事件统计明细<span class="tip">?<span class="tip-box">本功能全部 8 个埋点事件的完整台账：每个事件在什么时机触发、按什么维度记录、当前累计触发多少次、覆盖多少用户；其中「未提交关闭」按关闭去向拆为两行展示，「未发起分析会话率」为基于埋点数据计算的派生指标（非独立埋点）。点击「唯一用户」可查看触发用户清单。</span></span></span> <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">8 事件 · 10 行</span></h3>
+    <h3 data-page-node-id="uFESdIL5rsPw9lUTZpAgCw"><span style="display:inline-flex;align-items:center">埋点事件统计明细</span> <span class="tag" data-page-node-id="t4Bi7XedG0q9z0kb1IFFZc">6 行</span></h3>
     <table id="eventTable" data-page-node-id="kOoBCJAGTmNxrDM6fczmGr">
-      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th data-page-node-id="eBJBTDFatCcnOtVAMozBYb">类型</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
+      <thead data-page-node-id="XiFJFCJ9d25yZpbdfWvPSW"><tr data-page-node-id="0marY1xglTtyxMIq8GfMLA"><th data-page-node-id="ZyNT0JXFJwGlWR0YG5keBk">埋点名称</th><th data-page-node-id="dimColNew01">记录维度</th><th data-page-node-id="opColNew01" style="min-width:220px">用户操作（触发时机/用户路径）</th><th style="text-align:center" data-page-node-id="fRx6UwY22bL1YMEFnq9PKY">触发次数</th><th style="text-align:center" data-page-node-id="VfziyW0OZnrXYo3DUsTah8">唯一用户</th><th data-page-node-id="QiA4Aaj5NmqmC2gsnuyQqG">最近触发</th></tr></thead>
       <tbody data-page-node-id="5fk9VMW7vx5fy137OEmSte"></tbody>
     </table>
   </div>
@@ -258,31 +258,23 @@ const fieldData = {
   check:[92,88,79,71,76],          // 勾选率%
   uncheck:[18,22,28,34,24]         // 不认可率%（默认勾选后被取消）
 };
-// 埋点事件明细（与业务埋点 Excel 对齐，共 8 项；E1 拆分为「使用AI识隐患」与「AI识隐患页面曝光」）
+// 埋点事件明细（展示 6 行：E1/E2/E3/E6/E7-直接离开 + 未发起分析会话数派生指标；字段勾选/取消勾选、会话结束、未提交关闭-返回列表不在本表展示）
 // 结构：[埋点名称(简称), Excel全称, 埋点属性, 记录维度, 用户操作(触发时机/用户路径), 埋点类型, 触发次数, 唯一用户, 最近触发, 状态]
 const events = [
   ['使用AI识隐患','使用AI识隐患功能','通用','每次会话记录','进入隐患上报页，AI 识别成功后首次展示描述列表时记录（同会话仅记 1 次）','前端埋点',3842,1210,'2026-10-12 17:58','已上线'],
   ['AI识隐患页面曝光','AI识隐患页面曝光','通用','每次曝光记录','描述列表每次展示完成时记录：含首次进入与关闭分析抽屉返回后的再次展示','前端埋点',4542,1346,'2026-10-12 18:02','已上线'],
   ['描述勾选并辅助分析','AI识别隐患描述勾选且点击辅助分析','业务类','按条分别记录','选中一条隐患描述后点击「辅助分析」时按条记录，并携带会话序号与点击序号','前端埋点',4320,980,'2026-10-12 17:59','已上线'],
-  ['字段勾选','确认填入后-AI分析结果字段勾选','业务类','按字段分别记录','点击「确认填入」时，按保持勾选的字段逐条记录','前端埋点',8932,920,'2026-10-12 17:58','已上线'],
-  ['字段取消勾选（重点）','确认填入后-AI分析结果字段勾选-取消勾选（重点）','业务类','按字段分别记录','取消默认勾选的字段后点击「确认填入」时按字段记录（不认可信号）','前端埋点',1862,680,'2026-10-12 17:59','已上线'],
   ['确认填入（提交）','AI分析结果确认填入（提交）','业务类','按次记录','在分析结果抽屉点击「确认填入」按钮时记录','后端埋点',2158,890,'2026-10-12 17:59','已上线'],
-  ['未提交关闭（返回列表）','AI分析结果未提交关闭-返回列表','业务类','按次记录','未点击「确认填入」关闭抽屉后返回描述列表时记录','前端埋点',700,385,'2026-10-12 17:56','已上线'],
   ['未提交关闭（直接离开）','AI分析结果未提交关闭-直接离开','业务类','按次记录','未点击「确认填入」关闭抽屉后直接离开页面时记录','前端埋点',59,92,'2026-10-12 17:56','已上线'],
-  ['会话结束','AI识隐患会话结束','通用','按会话记录','离开 AI 识隐患页时上报一次，汇总本会话曝光次数、点击次数、是否确认填入与时长','前端埋点',3798,1210,'2026-10-12 18:05','已上线'],
-  ['未发起分析会话率','未发起分析会话率（派生指标）','派生','按会话计算','进入 AI 识隐患页面后整个会话从未点击「辅助分析」即结束的会话占比 = 925 / 使用AI识隐患 3,842；会话中可能点选过描述但未发起分析','派生指标','24.1%','—','2026-10-12 18:05','派生指标'],
+  ['未发起分析会话数','未发起分析会话数（派生指标）','派生','按会话计算','进入 AI 识隐患页面后整个会话从未点击「辅助分析」即结束的会话数 = 925（约占使用AI识隐患 3,842 的 24.1%）；会话中可能点选过描述但未发起分析','派生指标','925','—','2026-10-12 18:05','派生指标'],
 ];
 // 各埋点事件的触发用户清单（mock）：用户 / 所属单位 / 触发次数
 const userLists = {
   '使用AI识隐患':[['张明','蓝星安迪苏',38],['李伟','北化机',29],['王芳','浙化院',25],['赵强','总部HSE部',18],['陈杰','蓝星安迪苏',12]],
   'AI识隐患页面曝光':[['张明','蓝星安迪苏',52],['李伟','北化机',41],['王芳','浙化院',35],['赵强','总部HSE部',26],['陈杰','蓝星安迪苏',19],['刘洋','浙化院',14]],
   '描述勾选并辅助分析':[['张明','蓝星安迪苏',28],['李伟','北化机',24],['王芳','浙化院',21],['赵强','总部HSE部',16],['陈杰','蓝星安迪苏',11]],
-  '字段勾选':[['张明','蓝星安迪苏',86],['李伟','北化机',72],['王芳','浙化院',65],['赵强','总部HSE部',58],['陈杰','蓝星安迪苏',49],['刘洋','浙化院',42],['周强','总部HSE部',35]],
-  '字段取消勾选（重点）':[['张明','蓝星安迪苏',22],['李伟','北化机',19],['王芳','浙化院',17],['赵强','总部HSE部',14],['陈杰','蓝星安迪苏',11],['刘洋','浙化院',9]],
   '确认填入（提交）':[['张明','蓝星安迪苏',24],['李伟','北化机',21],['王芳','浙化院',18],['赵强','总部HSE部',15],['陈杰','蓝星安迪苏',12],['刘洋','浙化院',10]],
-  '未提交关闭（返回列表）':[['张明','蓝星安迪苏',7],['李伟','北化机',6],['王芳','浙化院',5],['赵强','总部HSE部',4],['陈杰','蓝星安迪苏',3]],
   '未提交关闭（直接离开）':[['张明','蓝星安迪苏',2],['李伟','北化机',2],['王芳','浙化院',1],['赵强','总部HSE部',1],['陈杰','蓝星安迪苏',1]],
-  '会话结束':[['张明','蓝星安迪苏',37],['李伟','北化机',28],['王芳','浙化院',25],['赵强','总部HSE部',18],['陈杰','蓝星安迪苏',12]],
 };
 const feedbackList = [
   // [时间, 脱敏名, 来源, 标签, 文本长度, 内容, 所属单位, 真实姓名, 描述首词ms, 描述总ms, 分级首词ms, 分级总ms, 智能体输出完整内容]
@@ -420,7 +412,7 @@ const tbody = document.querySelector('#eventTable tbody');
 events.forEach(e=>{
   const tr=document.createElement('tr');
   tr.innerHTML=`<td title="${e[1]}">${e[0]}</td>
-    <td>${e[3]}</td><td class="op-path">${e[4]}</td><td><span class="pill ${typeMap[e[5]]}">${e[5]}</span></td>
+    <td>${e[3]}</td><td class="op-path">${e[4]}</td>
     <td class="num ctr">${e[6].toLocaleString()}</td>
     <td class="num ctr">${typeof e[7]==='number' ? `<a href="javascript:void(0)" onclick="showUsers('${e[0]}')" style="color:var(--blue);text-decoration:underline">${e[7].toLocaleString()} 👥</a>` : '—'}</td>
     <td>${e[8]}</td>`;
@@ -591,8 +583,8 @@ function downloadCSV(rows, filename){
 function exportExcel(){
   const data = {
     '埋点事件统计': [
-      ['埋点名称','记录维度','用户操作（触发时机/用户路径）','埋点类型','触发次数','唯一用户','最近触发'],
-      ...events.map(e=>[e[0],e[3],e[4],e[5],e[6],e[7],e[8]])
+      ['埋点名称','记录维度','用户操作（触发时机/用户路径）','触发次数','唯一用户','最近触发'],
+      ...events.map(e=>[e[0],e[3],e[4],e[6],e[7],e[8]])
     ],
     '字段勾选统计': [
       ['字段','勾选率(%)','不认可率(%)'],
@@ -642,8 +634,8 @@ function exportWord(){
   html += `<h2>一、埋点情况</h2>`;
   html += `<p class="kpi">使用AI识隐患：<b>3,842</b>　辅助分析（会话去重）：<b>2,917</b>　确认填入（会话去重）：<b>2,090</b>　使用后未填入：<b>1,752</b>　未发起分析会话率：<b>24.1%</b>　提交率（按次）：<b>74.0%</b></p>`;
   html += `<h3>1. 埋点事件统计明细</h3>`;
-  html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>类型</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th></tr>`;
-  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[5]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[7].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
+  html += `<table><tr><th>埋点名称</th><th>记录维度</th><th>用户操作（触发时机/用户路径）</th><th>触发次数</th><th>唯一用户</th><th>最近触发</th></tr>`;
+  events.forEach(ev=>{ html += `<tr><td>${ev[0]}</td><td>${ev[3]}</td><td>${ev[4]}</td><td>${ev[6].toLocaleString()}</td><td>${ev[7].toLocaleString()}</td><td>${ev[8]}</td></tr>`; });
   html += `</table>`;
   html += `<h3>2. 字段勾选率 & 不认可率</h3>`;
   html += `<table><tr><th>字段</th><th>勾选率(%)</th><th>不认可率(%)</th></tr>`;
