@@ -45,9 +45,6 @@
   .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
   .kpi .label{font-size:12px;color:var(--sub)}
   .kpi .value{font-size:26px;font-weight:700;margin-top:4px}
-  .kpi .sub{font-size:11.5px;color:var(--sub);margin-top:7px;display:flex;justify-content:space-between;gap:8px}
-  .kpi .sub b{font-weight:600;color:var(--text)}
-  .kpi .sub .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
   .kpi .delta{font-size:11px;margin-top:4px}
   .kpi .delta.up{color:var(--green)} .kpi .delta.down{color:var(--red)}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
@@ -124,6 +121,12 @@
     </select>
     <span class="lbl" data-page-node-id="lb2">所属租户</span>
     <select id="filterUnit" class="date-range" data-page-node-id="fu1"></select>
+    <span class="lbl" data-page-node-id="lb4">反馈节点</span>
+    <select id="filterNode" class="date-range" data-page-node-id="fn1" onchange="onNodeFilter(this.value)">
+      <option>全部</option>
+      <option>描述识别</option>
+      <option>辅助分析</option>
+    </select>
     <button class="btn" onclick="onQuery()" data-page-node-id="q1">🔍 查询</button>
     <span class="spacer" data-page-node-id="spc"></span>
     <button class="btn btn-primary" onclick="exportExcel()" data-page-node-id="1UlnseEyceqzL6PHMn03wJ">📊 导出 Excel</button>
@@ -171,9 +174,9 @@
 <!-- ============ TAB 2: 反馈 ============ -->
 <div class="tab-panel" id="tab-feedback" data-page-node-id="MKbEyJpxf59PLqVPoR4PlD">
   <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)" data-page-node-id="JsTBZ4IQ2TqJWVJemqFHJb">
-    <div class="kpi" data-page-node-id="liEF9Px7l3CpQeMXVk2gzx"><div class="label" data-page-node-id="d2iVXjuzWAY7N0QrbTYnEc">点赞数</div><div class="value" style="color:var(--green)" data-page-node-id="tU9K60qPdSnVwggL1pnrYu">1,284</div><div class="sub" data-page-node-id="stageSub001"><span><span class="dot" style="background:#2f6df6"></span>描述识别 <b>812</b></span><span><span class="dot" style="background:#f59f27"></span>辅助分析 <b>472</b></span></div></div>
-    <div class="kpi" data-page-node-id="Q3EOqVvrOmWnyFq1AkXkjJ"><div class="label" data-page-node-id="R7DoX1lhlroDHOR2dJ5ifY">点踩数</div><div class="value" style="color:var(--red)" data-page-node-id="UEyK7EIIgO5UbsiOnvefMO">312</div><div class="sub" data-page-node-id="stageSub002"><span><span class="dot" style="background:#2f6df6"></span>描述识别 <b>121</b></span><span><span class="dot" style="background:#f59f27"></span>辅助分析 <b>191</b></span></div></div>
-    <div class="kpi" data-page-node-id="25VVSVIwmvcNUZxnzk91AV"><div class="label" data-page-node-id="rONK5asWFtKlNmRAyCldkB">反馈提交数</div><div class="value" style="color:var(--orange)" data-page-node-id="6wFFyNbaGVt327GMr8LFuG">198</div><div class="sub" data-page-node-id="stageSub003"><span><span class="dot" style="background:#2f6df6"></span>描述识别 <b>86</b></span><span><span class="dot" style="background:#f59f27"></span>辅助分析 <b>112</b></span></div></div>
+    <div class="kpi" data-page-node-id="liEF9Px7l3CpQeMXVk2gzx"><div class="label" data-page-node-id="d2iVXjuzWAY7N0QrbTYnEc">点赞数</div><div class="value" style="color:var(--green)" data-page-node-id="tU9K60qPdSnVwggL1pnrYu">1,284</div></div>
+    <div class="kpi" data-page-node-id="Q3EOqVvrOmWnyFq1AkXkjJ"><div class="label" data-page-node-id="R7DoX1lhlroDHOR2dJ5ifY">点踩数</div><div class="value" style="color:var(--red)" data-page-node-id="UEyK7EIIgO5UbsiOnvefMO">312</div></div>
+    <div class="kpi" data-page-node-id="25VVSVIwmvcNUZxnzk91AV"><div class="label" data-page-node-id="rONK5asWFtKlNmRAyCldkB">反馈提交数</div><div class="value" style="color:var(--orange)" data-page-node-id="6wFFyNbaGVt327GMr8LFuG">198</div></div>
   </div>
 
 
@@ -191,7 +194,6 @@
 
   <div class="card" data-page-node-id="GSlmfzLqfHfMRyhwKXJYIh">
     <h3 data-page-node-id="NqNKxFycEDoCABbAPl2vG8"><span style="display:inline-flex;align-items:center">反馈明细</span><button class="btn" style="height:26px;padding:0 10px;font-size:12px;margin-left:8px;display:inline-flex;align-items:center;gap:5px" id="revealAllBtn" onclick="toggleAllReveal()"></button></h3>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#606266">反馈节点：<select class="date-range" style="width:140px" id="fbNodeFilter" onchange="onNodeFilter(this.value)"><option>全部</option><option>描述识别</option><option>辅助分析</option></select></div>
     <div class="feedback-list" data-page-node-id="egdSZ8jPAZDBYPyk25qb2C">
       <table id="feedbackTable" data-page-node-id="pFFSRn4J7FjGeWhyBMqa0R">
         <thead data-page-node-id="JdjXfsZP0yAABUGdeLVFbm"><tr data-page-node-id="ekpGdVDa9iabDFJSCIHll1"><th data-page-node-id="dqFLUAM8AhP7Bys0j3iL5b">时间</th><th data-page-node-id="bx61AXboFDA4pefWvcdSI1">用户</th><th data-page-node-id="DCP2LvtVaBkeocuPLqdzYE">来源</th><th>反馈节点</th><th data-page-node-id="u1">所属单位</th><th data-page-node-id="wwpNz5FEDvn1C8FqTaWsmH">问题标签</th><th style="text-align:center" data-page-node-id="u2">隐患描述首词耗时</th><th style="text-align:center" data-page-node-id="u3">隐患描述总耗时</th><th style="text-align:center" data-page-node-id="u5">分级分类总耗时</th><th data-page-node-id="MjNq0oCJyX9UCyNpWADw6Y">反馈内容</th><th data-page-node-id="u6">智能体输出完整内容</th></tr></thead>
@@ -230,9 +232,10 @@ function onQuery(){
   const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
   if(!s||!e){ alert('请选择起止日期'); return; }
   if(s>e){ alert('起始日期不能晚于结束日期'); return; }
-  const unit=document.getElementById('filterUnit').value||'全部单位';
+  const unit=document.getElementById('filterUnit').value||'全部租户';
   const sys=document.getElementById('filterSystem').value||'全部系统';
-  toast('查询成功：'+s+' ~ '+e+' · '+unit+' · '+sys);
+  const node=document.getElementById('filterNode').value||'全部节点';
+  toast('查询成功：'+s+' ~ '+e+' · '+unit+' · '+sys+' · '+node);
 }
 function toast(msg){
   const t=document.createElement('div');
