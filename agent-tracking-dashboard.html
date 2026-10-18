@@ -113,16 +113,10 @@
     <input type="date" id="dateStart" class="date-range" data-page-node-id="ds1">
     <span class="sep" data-page-node-id="sp1">~</span>
     <input type="date" id="dateEnd" class="date-range" data-page-node-id="ds2">
-    <span class="lbl" data-page-node-id="lb2">所属单位</span>
-    <select id="filterUnit" class="date-range" data-page-node-id="fu1">
-      <option value="">全部</option>
-      <option>蓝星安迪苏</option>
-      <option>北化机</option>
-      <option>浙化院</option>
-      <option>总部HSE部</option>
-    </select>
+    <span class="lbl" data-page-node-id="lb2">所属租户</span>
+    <select id="filterUnit" class="date-range" data-page-node-id="fu1"></select>
     <span class="lbl" data-page-node-id="lb3">所属系统</span>
-    <select id="filterSystem" class="date-range" data-page-node-id="fs1">
+    <select id="filterSystem" class="date-range" data-page-node-id="fs1" onchange="onSystemChange()">
       <option value="">全部</option>
       <option>现场管理APP</option>
       <option>督查检查</option>
@@ -222,6 +216,24 @@
 // ============ 日期初始化（默认近一个月） ============
 document.getElementById('dateStart').value = '2026-09-12';
 document.getElementById('dateEnd').value = '2026-10-12';
+// 所属租户随所属系统级联：督查检查→仅中国中化；现场管理APP→企业名称；全部→全量
+const TENANT_HQ = ['中国中化'];
+const TENANT_ENT = ['蓝星安迪苏','北化机','浙化院','总部HSE部'];
+function tenantOptions(sys){
+  if(sys==='督查检查') return TENANT_HQ;
+  if(sys==='现场管理APP') return TENANT_ENT;
+  return TENANT_HQ.concat(TENANT_ENT);
+}
+function renderTenantOptions(sys, keep){
+  const sel = document.getElementById('filterUnit');
+  const prev = keep ? sel.value : '';
+  const opts = tenantOptions(sys);
+  sel.innerHTML = '<option value="">全部</option>' + opts.map(o=>`<option${o===prev?' selected':''}>${o}</option>`).join('');
+  if(prev && !opts.includes(prev)) sel.value = '';
+}
+function onSystemChange(){ renderTenantOptions(document.getElementById('filterSystem').value, true); }
+renderTenantOptions('', false);
+
 function onQuery(){
   const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
   if(!s||!e){ alert('请选择起止日期'); return; }
