@@ -2081,7 +2081,7 @@ function showReportDetail(id){
     }
     document.getElementById('rpt-d-badges').innerHTML='';
     document.getElementById('rpt-d-count').innerHTML=r.count.toLocaleString()+'<span class="unit">条</span>';
-    document.getElementById('rpt-d-count-hint').textContent=isAI?'当前清单筛选范围':'原始 1,608 · 去重 3';
+    document.getElementById('rpt-d-count-hint').textContent='原始 '+(r.count+3).toLocaleString()+' · 去重 3';
     const fbw=document.getElementById('rpt-focus-bar-wrap');
     if(isAI&&r.focus&&r.focus.length){
       fbw.innerHTML=`<div class="rpt-focus-bar"><span class="fl-label"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>本次聚焦维度</span><span class="fl-tags">${r.focus.map(f=>`<span class="fl-tag">${f}</span>`).join('')}</span><span style="font-size:12px;color:var(--text-secondary);margin-left:auto"><svg viewBox="0 0 24 24" fill="none" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>时间维度：${r.timeDim||'2025-12-01 ~ 2025-12-31'}</span><span style="font-size:12px;color:var(--text-secondary)"><svg viewBox="0 0 24 24" fill="none" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>所属单位：${r.orgDim||'蓝天氟材料'}</span>${r.note?`<div style="flex-basis:100%;font-size:12.5px;color:#5B4A7E;background:rgba(255,255,255,.65);border:1px dashed #D9C9EE;border-radius:8px;padding:8px 12px;margin-top:2px"><b>关注说明：</b>${r.note}</div>`:''}</div>`;
