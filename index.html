@@ -483,6 +483,9 @@
   #cfg-tags .tag-pick .tag-rm{position:absolute;top:-6px;right:-4px;width:15px;height:15px;border-radius:50%;background:var(--gray-200);color:var(--text-secondary);font-size:11px;line-height:15px;text-align:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
   #cfg-tags .tag-pick:hover .tag-rm{opacity:1}
   #cfg-tags .tag-pick .tag-rm:hover{background:var(--danger-500,#E24B4A);color:#fff}
+  #cfg-tags .tag-pick .tag-edit{position:absolute;top:-6px;right:14px;width:15px;height:15px;border-radius:50%;background:var(--gray-200);color:var(--sys-primary);font-size:10px;line-height:15px;text-align:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
+  #cfg-tags .tag-pick:hover .tag-edit{opacity:1}
+  #cfg-tags .tag-pick .tag-edit:hover{background:var(--sys-primary);color:#fff}
   /* 修订记录 */
   .his-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .his-table th{text-align:left;font-weight:500;color:var(--text-secondary);background:var(--gray-50);padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -1566,6 +1569,63 @@ function showConfirm(msg,onOk){
   newOk.addEventListener('click',()=>{hideConfirm();if(onOk)onOk();});
   m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
 }
+/* ===== 隐患类型编辑弹窗（仅管理员；默认类型仅可改说明，自定义类型可改名称+说明） ===== */
+function hideTypeEdit(){
+  const m=document.getElementById('cfg-edit-mask');
+  if(m){m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+}
+function showTypeEdit(name){
+  if(DEFAULT_TYPE_NAMES.includes(name)&&curRole!=='admin'){showToast('「'+name+'」为默认通用隐患类型，仅管理员可编辑');return;}
+  let m=document.getElementById('cfg-edit-mask');
+  if(!m){
+    m=document.createElement('div');
+    m.id='cfg-edit-mask';m.className='modal-mask';m.hidden=true;
+    m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-labelledby','cfg-edit-title');
+    m.innerHTML=`<div class="modal-card" style="width:420px">
+      <div class="modal-head"><h2 id="cfg-edit-title">编辑隐患类型</h2><button class="modal-close" id="cfg-edit-close" aria-label="关闭">×</button></div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+        <div><div class="field-label">类型名称 <span class="req">*</span></div><input type="text" id="cfg-edit-name" maxlength="20" style="width:100%;box-sizing:border-box" placeholder="输入类型名称"></div>
+        <div><div class="field-label">类型说明 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（选填，用于 AI 分析时理解口径）</span></div><input type="text" id="cfg-edit-desc" maxlength="50" style="width:100%;box-sizing:border-box" placeholder="描述该类型的分析口径与典型情形"></div>
+        <div id="cfg-edit-hint" style="font-size:12px;color:var(--text-tertiary);line-height:1.6"></div>
+      </div>
+      <div class="modal-foot"><button class="btn-cancel" id="cfg-edit-cancel">取消</button><button class="btn-modal-go" id="cfg-edit-ok">保存</button></div>
+    </div>`;
+    document.body.appendChild(m);
+    m.addEventListener('click',e=>{if(e.target===m)hideTypeEdit();});
+    document.getElementById('cfg-edit-close').addEventListener('click',hideTypeEdit);
+    document.getElementById('cfg-edit-cancel').addEventListener('click',hideTypeEdit);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!m.hidden)hideTypeEdit();});
+  }
+  const isDef=DEFAULT_TYPE_NAMES.includes(name);
+  const nameI=document.getElementById('cfg-edit-name'),descI=document.getElementById('cfg-edit-desc'),hint=document.getElementById('cfg-edit-hint');
+  nameI.value=name;nameI.disabled=isDef;
+  descI.value=cfgTypeDesc[name]||'';
+  hint.textContent=isDef?'默认通用隐患类型的名称不可修改，仅可编辑类型说明':'支持修改名称与说明，保存后同步更新已有配置与报告中的引用';
+  const ok=document.getElementById('cfg-edit-ok');
+  const newOk=ok.cloneNode(true);ok.parentNode.replaceChild(newOk,ok);
+  newOk.addEventListener('click',()=>{
+    const newName=(nameI.value||'').trim();
+    const newDesc=(descI.value||'').trim();
+    if(!isDef&&!newName){showToast('请输入类型名称');return;}
+    if(!isDef&&newName!==name&&cfgTypeOptions.includes(newName)){showToast('类型名称「'+newName+'」已存在');return;}
+    if(newDesc)cfgTypeDesc[newName]=newDesc;else if(cfgTypeDesc[name])delete cfgTypeDesc[name];
+    if(!isDef&&newName!==name){
+      /* 改名：同步候选池、已勾选、已保存配置、AI 报告聚焦类型 */
+      cfgTypeOptions=cfgTypeOptions.map(x=>x===name?newName:x);
+      cfgTypeSel=cfgTypeSel.map(x=>x===name?newName:x);
+      if(rptConfig.types.includes(name)){rptConfig.types=rptConfig.types.map(x=>x===name?newName:x);renderCfgSummary();}
+      if(typeof aiReports!=='undefined'&&Array.isArray(aiReports))aiReports.forEach(r=>{if(Array.isArray(r.focus))r.focus=r.focus.map(f=>f===name?newName:f);});
+      renderReportList(currentRFilter);
+      showToast('隐患类型已更名：「'+name+'」→「'+newName+'」');
+    }else{
+      showToast('已更新隐患类型「'+newName+'」'+(newDesc?'的说明':'（已清空说明）'));
+    }
+    renderCfgTypeTags();
+    hideTypeEdit();
+  });
+  m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+  setTimeout(()=>{(nameI.disabled?descI:nameI).focus();},120);
+}
 function showToast(msg){  const wrap=document.getElementById('toast-wrap');
   const el=document.createElement('div');
   el.className='toast';
@@ -2232,8 +2292,8 @@ function renderCfgTypeTags(){
   wrap.innerHTML=cfgTypeOptions.map(t=>{
     const isDef=DEFAULT_TYPE_NAMES.includes(t);
     const desc=cfgTypeDesc[t]||'';
-    const rm=(isDef&&curRole!=='admin')?'':`<span class="tag-rm" title="${isDef?'删除默认类型（仅管理员）':'移除'}" role="button" tabindex="0" aria-label="移除 ${t}">×</span>`;
-    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}" data-type="${t}"${desc?` data-tip="${t}|${desc}"`:''}>${t}${rm}</span>`;
+    const adminCtl=(isDef&&curRole!=='admin')?'':`<span class="tag-edit" title="${isDef?'编辑类型说明（仅管理员）':'编辑类型（仅管理员）'}" role="button" tabindex="0" aria-label="编辑 ${t}">✎</span><span class="tag-rm" title="${isDef?'删除默认类型（仅管理员）':'移除'}" role="button" tabindex="0" aria-label="移除 ${t}">×</span>`;
+    return `<span class="tag-pick${cfgTypeSel.includes(t)?' on':''}" data-type="${t}"${desc?` data-tip="${t}|${desc}"`:''}>${t}${adminCtl}</span>`;
   }).join('');
   const cnt=document.getElementById('cfg-type-cnt');
   if(cnt)cnt.textContent='已选 '+cfgTypeSel.length+'/'+MAX_RPT_TYPES;
@@ -2249,8 +2309,10 @@ function renderCfgTypeTags(){
       }else cfgTypeSel=cfgTypeSel.filter(x=>x!==name);
       syncCnt();
     };
-    t.addEventListener('click',e=>{if(e.target.classList.contains('tag-rm'))return;toggle();});
-    t.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.classList.contains('tag-rm')){e.preventDefault();toggle();}});
+    t.addEventListener('click',e=>{if(e.target.classList.contains('tag-rm')||e.target.classList.contains('tag-edit'))return;toggle();});
+    t.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.classList.contains('tag-rm')&&!e.target.classList.contains('tag-edit')){e.preventDefault();toggle();}});
+    const ed=t.querySelector('.tag-edit');
+    if(ed)ed.addEventListener('click',e=>{e.stopPropagation();showTypeEdit(t.dataset.type);});
     const rm=t.querySelector('.tag-rm');
     if(rm)rm.addEventListener('click',e=>{
       e.stopPropagation();
