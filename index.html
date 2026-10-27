@@ -483,9 +483,16 @@
   #cfg-tags .tag-pick .tag-rm{position:absolute;top:-6px;right:-4px;width:15px;height:15px;border-radius:50%;background:var(--gray-200);color:var(--text-secondary);font-size:11px;line-height:15px;text-align:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
   #cfg-tags .tag-pick:hover .tag-rm{opacity:1}
   #cfg-tags .tag-pick .tag-rm:hover{background:var(--danger-500,#E24B4A);color:#fff}
-  #cfg-tags .tag-pick .tag-edit{position:absolute;top:-6px;right:14px;width:15px;height:15px;border-radius:50%;background:var(--gray-200);color:var(--sys-primary);font-size:10px;line-height:15px;text-align:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
-  #cfg-tags .tag-pick:hover .tag-edit{opacity:1}
-  #cfg-tags .tag-pick .tag-edit:hover{background:var(--sys-primary);color:#fff}
+  #cfg-tags .tag-pick .tag-edit{display:inline-flex;align-items:center;margin-left:5px;margin-right:-4px;color:var(--sys-primary);font-size:11px;cursor:pointer;opacity:.7;transition:opacity .15s}
+  #cfg-tags .tag-pick .tag-edit:hover{opacity:1}
+  /* 反馈明细：所属单位标识 + 脱敏眼睛切换 */
+  .fbd-org{display:inline-block;margin-left:6px;padding:1px 6px;font-size:11px;border-radius:4px;background:rgba(10,77,162,.07);border:1px solid rgba(10,77,162,.15);color:var(--sys-primary);white-space:nowrap;vertical-align:1px}
+  .fbd-eye{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:none;background:transparent;color:var(--text-tertiary);cursor:pointer;border-radius:4px;vertical-align:middle;margin-left:5px}
+  .fbd-eye:hover{background:var(--gray-100,#F3F4F6);color:var(--sys-primary)}
+  .fbd-eye svg{width:14px;height:14px}
+  .fbd-mask-all{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);background:var(--gray-50,#F9FAFB);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;margin-left:10px;white-space:nowrap}
+  .fbd-mask-all:hover{color:var(--sys-primary);border-color:var(--sys-primary)}
+  .fbd-mask-all svg{width:13px;height:13px}
   /* 修订记录 */
   .his-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .his-table th{text-align:left;font-weight:500;color:var(--text-secondary);background:var(--gray-50);padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -1526,7 +1533,7 @@ function applySubmit(code,msg){
   t.fb+=1;
   if(st.type==='like')t.l=(t.l||0)+1;else if(st.type==='dislike')t.d=(t.d||0)+1;else t.c=(t.c||0)+1;
   const st=state[code];
-  fbLogAdd({scope:'type',target:t.name,kind:st.type==='dislike'?'dislike':st.type==='like'?'like':'comment',tags:[...st.tags],comment:st.comment||'',src:'报告详情页'});
+  fbLogAdd({scope:'type',target:t.name,kind:st.type==='dislike'?'dislike':st.type==='like'?'like':'comment',tags:[...st.tags],comment:st.comment||'',src:'报告详情页',user:CUR_USER_NAME,org:rptConfig.org||'中国中化'});
   showToast(msg);
   updateMetrics(currentFocusSet);renderBoard(currentFocusSet);
   st.tags.clear();st.comment='';
@@ -1793,7 +1800,7 @@ function rptFb(id,type,e){
   e.stopPropagation();
   const st=rptFbSt(id);
   st.type=st.type===type?null:type;
-  if(st.type==='like'){st.submitted=true;fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===id)||{}).title||id,kind:'like',tags:[],comment:'',src:'报告列表页'});showToast('报告点赞已记录，将用于报告整体质量评估');}
+  if(st.type==='like'){st.submitted=true;fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===id)||{}).title||id,kind:'like',tags:[],comment:'',src:'报告列表页',user:CUR_USER_NAME,org:rptConfig.org||'中国中化'});showToast('报告点赞已记录，将用于报告整体质量评估');}
   if(st.type==='dislike'){openRptFbModal(id,'dislike');return;}
   syncRptFbCard(id);
 }
@@ -1843,7 +1850,7 @@ function submitRptFb(){
   st.comment=document.getElementById('rpt-fb-textarea').value.trim();
   if(rptFbFrom==='comment'&&!st.comment){showToast('请填写意见描述，以便精准优化报告质量');return;}
   st.submitted=true;
-  fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===rptFbTarget)||{}).title||rptFbTarget,kind:st.type==='dislike'?'dislike':'comment',tags:[...st.tags],comment:st.comment,src:'报告列表页'});
+  fbLogAdd({scope:'report',target:(getAllReports().find(x=>x.id===rptFbTarget)||{}).title||rptFbTarget,kind:st.type==='dislike'?'dislike':'comment',tags:[...st.tags],comment:st.comment,src:'报告列表页',user:CUR_USER_NAME,org:rptConfig.org||'中国中化'});
   const tagStr=st.tags.size?`，标签：${[...st.tags].join('、')}`:'';
   const likeStr=st.type==='like'?'（点赞）':st.type==='dislike'?'（点踩）':'';
   closeRptFbModal();
@@ -1867,25 +1874,27 @@ function syncRptFbCard(id){
 }
 /* ===== 反馈统计看板 ===== */
 let fbdRecPage=1;const FBD_PAGE_SIZE=10;/* 反馈明细分页 */
+let fbdMaskAll=true;/* 反馈人姓名默认脱敏 */
+const fbdUnmaskRow={};/* 行级脱敏覆盖（fid→bool），优先于全局开关 */
 let fbLog=[
-  {time:'2025-12-08 10:24',scope:'type',target:'设备本体及附件缺陷',kind:'dislike',tags:['分析不准确','分类错误'],comment:'R116 工段阀门内漏应归入介质泄漏而非设备缺陷，建议复核分类边界',src:'报告详情页'},
-  {time:'2025-12-08 11:05',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'like',tags:[],comment:'',src:'报告列表页'},
-  {time:'2025-12-09 09:41',scope:'type',target:'介质泄漏/密封点失效',kind:'comment',tags:['分类粒度可更细'],comment:'建议对法兰渗漏类进一步细分密封点失效形式，便于定向治理',src:'报告详情页'},
-  {time:'2025-12-09 14:18',scope:'report',target:'【蓝天氟材料】隐患AI辅助分析报告（2025年11月24日至2025年11月30日）',kind:'dislike',tags:['部位定位不准'],comment:'多条隐患未定位到具体装置楼层，影响整改派单',src:'报告列表页'},
-  {time:'2025-12-10 08:55',scope:'type',target:'现场标识与信息识别',kind:'like',tags:[],comment:'',src:'报告详情页'},
-  {time:'2025-12-11 16:30',scope:'type',target:'电气设备设施隐患',kind:'dislike',tags:['风险分析不对'],comment:'配电室空调漏水的风险等级建议上调，涉及高压区域',src:'报告详情页'},
-  {time:'2025-12-12 10:02',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',kind:'like',tags:[],comment:'',src:'报告列表页'},
-  {time:'2025-12-15 15:47',scope:'type',target:'消防与应急设施不足',kind:'comment',tags:['建议增加趋势对比'],comment:'建议增加消防隐患月度趋势对比，便于观察整改成效',src:'报告详情页'},
-  {time:'2025-12-16 09:12',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'comment',tags:['建议补充关联分析'],comment:'整体结论可用，建议补充类型间关联分析',src:'报告列表页'},
-  {time:'2025-12-18 13:26',scope:'type',target:'物理安全防护设施缺失',kind:'like',tags:[],comment:'',src:'报告详情页'},
-  {time:'2025-12-19 17:03',scope:'type',target:'仪表及监测附件缺陷',kind:'dislike',tags:['部位定位不准','分析不准确'],comment:'仪表类隐患与设备缺陷存在混分',src:'报告详情页'},
-  {time:'2025-12-22 10:48',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年11月17日至2025年11月23日）',kind:'like',tags:[],comment:'',src:'报告列表页'}
+  {fid:'f1',time:'2025-12-08 10:24',scope:'type',target:'设备本体及附件缺陷',kind:'dislike',tags:['分析不准确','分类错误'],comment:'R116 工段阀门内漏应归入介质泄漏而非设备缺陷，建议复核分类边界',src:'报告详情页',user:'张伟',org:'中国中化'},
+  {fid:'f2',time:'2025-12-08 11:05',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'like',tags:[],comment:'',src:'报告列表页',user:'李敏',org:'中国昊华'},
+  {fid:'f3',time:'2025-12-09 09:41',scope:'type',target:'介质泄漏/密封点失效',kind:'comment',tags:['分类粒度可更细'],comment:'建议对法兰渗漏类进一步细分密封点失效形式，便于定向治理',src:'报告详情页',user:'王强',org:'蓝天氟材料'},
+  {fid:'f4',time:'2025-12-09 14:18',scope:'report',target:'【蓝天氟材料】隐患AI辅助分析报告（2025年11月24日至2025年11月30日）',kind:'dislike',tags:['部位定位不准'],comment:'多条隐患未定位到具体装置楼层，影响整改派单',src:'报告列表页',user:'赵磊',org:'中化蓝天'},
+  {fid:'f5',time:'2025-12-10 08:55',scope:'type',target:'现场标识与信息识别',kind:'like',tags:[],comment:'',src:'报告详情页',user:'陈静',org:'中国中化'},
+  {fid:'f6',time:'2025-12-11 16:30',scope:'type',target:'电气设备设施隐患',kind:'dislike',tags:['风险分析不对'],comment:'配电室空调漏水的风险等级建议上调，涉及高压区域',src:'报告详情页',user:'张伟',org:'中国中化'},
+  {fid:'f7',time:'2025-12-12 10:02',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年11月1日至2025年11月30日）',kind:'like',tags:[],comment:'',src:'报告列表页',user:'李敏',org:'中国昊华'},
+  {fid:'f8',time:'2025-12-15 15:47',scope:'type',target:'消防与应急设施不足',kind:'comment',tags:['建议增加趋势对比'],comment:'建议增加消防隐患月度趋势对比，便于观察整改成效',src:'报告详情页',user:'王芳',org:'中化蓝天'},
+  {fid:'f9',time:'2025-12-16 09:12',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年1月1日至2025年12月31日）',kind:'comment',tags:['建议补充关联分析'],comment:'整体结论可用，建议补充类型间关联分析',src:'报告列表页',user:'刘洋',org:'中国昊华'},
+  {fid:'f10',time:'2025-12-18 13:26',scope:'type',target:'物理安全防护设施缺失',kind:'like',tags:[],comment:'',src:'报告详情页',user:'陈静',org:'中国中化'},
+  {fid:'f11',time:'2025-12-19 17:03',scope:'type',target:'仪表及监测附件缺陷',kind:'dislike',tags:['部位定位不准','分析不准确'],comment:'仪表类隐患与设备缺陷存在混分',src:'报告详情页',user:'孙洁',org:'蓝天氟材料'},
+  {fid:'f12',time:'2025-12-22 10:48',scope:'report',target:'【中国昊华】隐患AI辅助分析报告（2025年11月17日至2025年11月23日）',kind:'like',tags:[],comment:'',src:'报告列表页',user:'张伟',org:'中国中化'},
 ];
 function fbKindName(k){return k==='like'?'点赞':k==='dislike'?'点踩':'意见';}
 function fbLogAdd(entry){
   const n=new Date(),pad=x=>String(x).padStart(2,'0');
   entry.time=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())+' '+pad(n.getHours())+':'+pad(n.getMinutes());
-  fbLog.unshift(entry);
+  entry.fid='f'+Date.now();fbLog.unshift(entry);
 }
 function fbDashboardHTML(){
   return `
@@ -1924,6 +1933,7 @@ function fbDashboardHTML(){
       <div class="board-head" style="padding:14px 20px 0">
         <h2>反馈明细记录</h2>
         <div class="legend" id="fbd-count"></div>
+        <button class="fbd-mask-all" id="fbd-mask-toggle" title="一键取消/恢复全部反馈人姓名脱敏"></button>
       </div>
       <div class="fbd-filters" style="display:flex;gap:10px;align-items:flex-end;padding:12px 20px 0;flex-wrap:wrap">
         <div style="width:150px"><div class="field-label" style="margin-bottom:4px">反馈类型</div><select class="fi-select" id="fbd-kind" style="appearance:auto;padding-right:10px"><option value="">全部</option><option value="like">点赞</option><option value="dislike">点踩</option><option value="comment">意见</option></select></div>
@@ -1976,20 +1986,45 @@ function renderFbDashboard(){
   fbdRecPage=Math.min(Math.max(1,fbdRecPage),recPages);
   const pageList=list.slice((fbdRecPage-1)*FBD_PAGE_SIZE,fbdRecPage*FBD_PAGE_SIZE);
   const recBox=document.getElementById('fbd-records');
+  const maskBtn=document.getElementById('fbd-mask-toggle');
+  if(maskBtn){
+    const eyeSvg=fbdMaskAll
+      ?'<svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
+      :'<svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>';
+    maskBtn.innerHTML=eyeSvg+(fbdMaskAll?'一键取消脱敏':'一键恢复脱敏');
+  }
+  const rowVisible=fid=>fbdUnmaskRow[fid]!==undefined?fbdUnmaskRow[fid]:!fbdMaskAll;
+  const eyeTd=fid=>{
+    const shown=rowVisible(fid);
+    const svg=shown
+      ?'<svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>'
+      :'<svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+    return `<button class="fbd-eye" data-fid="${fid}" title="${shown?'点击重新脱敏':'点击查看明文'}" aria-label="切换脱敏">${svg}</button>`;
+  };
   recBox.innerHTML=(recTotal?`
     <table class="his-table fbd-table">
-      <thead><tr><th style="width:120px">反馈时间</th><th>反馈对象</th><th style="width:72px">级别</th><th style="width:72px">反馈类型</th><th style="width:170px">反馈标签</th><th>意见内容</th></tr></thead>
-      <tbody>${pageList.map(r=>`
+      <thead><tr><th style="width:120px">反馈时间</th><th style="width:190px">反馈人</th><th>反馈对象</th><th style="width:72px">级别</th><th style="width:72px">反馈类型</th><th style="width:170px">反馈标签</th><th>意见内容</th></tr></thead>
+      <tbody>${pageList.map(r=>{
+        const shown=rowVisible(r.fid);
+        const disp=shown?(r.user||'—'):(r.user?r.user[0]+'*'.repeat(Math.max(1,r.user.length-1)):'—');
+        return `
         <tr>
           <td class="his-time">${r.time}</td>
+          <td><span style="white-space:nowrap">${disp}<span class="fbd-org" title="所属单位：${r.org||'—'}">${r.org||'—'}</span>${r.user?eyeTd(r.fid):''}</span></td>
           <td title="${r.target}">${r.target}</td>
           <td>${r.scope==='report'?'报告级':'类型级'}</td>
           <td><span class="fbd-kind-badge ${r.kind}">${fbKindName(r.kind)}</span></td>
           <td>${r.tags&&r.tags.length?r.tags.join('；'):'—'}</td>
           <td class="fbd-cmt">${r.comment||'—'}</td>
-        </tr>`).join('')}</tbody>
+        </tr>`;}).join('')}</tbody>
     </table>`:'<div class="his-empty">暂无符合条件的反馈记录</div>')+pagerHTML(fbdRecPage,recTotal,FBD_PAGE_SIZE);
   bindPager(recBox,p=>{fbdRecPage=p;renderFbDashboard();});
+  if(maskBtn)maskBtn.onclick=()=>{fbdMaskAll=!fbdMaskAll;for(const k in fbdUnmaskRow)delete fbdUnmaskRow[k];renderFbDashboard();};
+  recBox.querySelectorAll('.fbd-eye').forEach(b=>b.addEventListener('click',()=>{
+    const fid=b.dataset.fid;
+    fbdUnmaskRow[fid]=!rowVisible(fid);
+    renderFbDashboard();
+  }));
 }
 function exportFbLog(){
   const list=filteredFbLog();
