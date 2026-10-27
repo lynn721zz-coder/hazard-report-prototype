@@ -493,6 +493,12 @@
   .fbd-mask-all{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);background:var(--gray-50,#F9FAFB);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;margin-left:10px;white-space:nowrap}
   .fbd-mask-all:hover{color:var(--sys-primary);border-color:var(--sys-primary)}
   .fbd-mask-all svg{width:13px;height:13px}
+  /* 编辑隐患类型弹窗输入框 */
+  .cfg-edit-input{width:100%;box-sizing:border-box;padding:9px 12px;font-size:13.5px;line-height:1.5;color:var(--text-primary);background:var(--bg-card,#fff);border:1px solid var(--border-strong,#D0D5DD);border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s}
+  .cfg-edit-input::placeholder{color:var(--text-tertiary,#9CA3AF)}
+  .cfg-edit-input:hover:not(:disabled){border-color:var(--sys-primary)}
+  .cfg-edit-input:focus{border-color:var(--sys-primary);box-shadow:0 0 0 3px rgba(10,77,162,.12)}
+  .cfg-edit-input:disabled{background:var(--gray-50,#F9FAFB);color:var(--text-tertiary,#9CA3AF);border-color:var(--border,#E5E7EB);cursor:not-allowed}
   /* 修订记录 */
   .his-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .his-table th{text-align:left;font-weight:500;color:var(--text-secondary);background:var(--gray-50);padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -1591,8 +1597,8 @@ function showTypeEdit(name){
     m.innerHTML=`<div class="modal-card" style="width:420px">
       <div class="modal-head"><h2 id="cfg-edit-title">编辑隐患类型</h2><button class="modal-close" id="cfg-edit-close" aria-label="关闭">×</button></div>
       <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
-        <div><div class="field-label">类型名称 <span class="req">*</span></div><input type="text" id="cfg-edit-name" maxlength="20" style="width:100%;box-sizing:border-box" placeholder="输入类型名称"></div>
-        <div><div class="field-label">类型说明 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（选填，用于 AI 分析时理解口径）</span></div><input type="text" id="cfg-edit-desc" maxlength="50" style="width:100%;box-sizing:border-box" placeholder="描述该类型的分析口径与典型情形"></div>
+        <div><div class="field-label">类型名称 <span class="req">*</span></div><input type="text" id="cfg-edit-name" class="cfg-edit-input" maxlength="20" placeholder="输入类型名称"></div>
+        <div><div class="field-label">类型说明 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（选填，用于 AI 分析时理解口径）</span></div><input type="text" id="cfg-edit-desc" class="cfg-edit-input" maxlength="50" placeholder="描述该类型的分析口径与典型情形"></div>
         <div id="cfg-edit-hint" style="font-size:12px;color:var(--text-tertiary);line-height:1.6"></div>
       </div>
       <div class="modal-foot"><button class="btn-cancel" id="cfg-edit-cancel">取消</button><button class="btn-modal-go" id="cfg-edit-ok">保存</button></div>
