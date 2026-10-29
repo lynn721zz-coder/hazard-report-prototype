@@ -151,6 +151,9 @@
   .stage-item.active .st-ico::before { display: none; }
   .stage-item.active .st-ico { border: 2.5px solid #e3ecff; border-top-color: #2b7cff; border-radius: 50%; animation: stspin .8s linear infinite; }
   @keyframes stspin { to { transform: rotate(360deg); } }
+  .think-line { height: 18px; overflow: hidden; margin: -2px 0 8px; }
+  .think-txt { display: block; font-size: 12px; line-height: 18px; color: #8a97ab; padding-left: 29px; transition: opacity .38s ease, transform .38s ease; }
+  .think-txt.fade { opacity: 0; transform: translateY(7px); }
   .eta { font-size: 12px; color: #9aa8bb; }
   .wait-progress { height: 4px; background: #eef1f6; border-radius: 2px; overflow: hidden; margin: 8px 0 6px; }
   .wp-bar { height: 100%; width: 0; background: linear-gradient(90deg,#4f8bff,#1f6bff); border-radius: 2px; }
@@ -285,6 +288,7 @@
         <div class="stage-item" id="st3" data-page-node-id="st3"><span class="st-ico"></span><span class="st-txt">生成整改措施</span></div>
         <div class="stage-item" id="st4" data-page-node-id="st4"><span class="st-ico"></span><span class="st-txt">核对标准依据</span></div>
       </div>
+      <div class="think-line" data-page-node-id="thinkLine001"><span class="think-txt" id="thinkTxt" data-page-node-id="thinkTxt001">正在解析隐患描述中的关键要素…</span></div>
       <span class="eta" id="etaTxt" data-page-node-id="etaTxt001">已等待 0 秒</span>
       <div class="wait-progress" data-page-node-id="wp001"><div class="wp-bar" id="wpBar"></div></div>
       <div class="calm" id="calmTxt" style="display:none" data-page-node-id="calm001">分析仍在进行，请耐心等待；你也可以先返回列表，完成后将在消息中通知你。</div>
@@ -474,7 +478,7 @@
     var rafId = 0, tickId = 0;
 
     function clearAll(){
-      timers.forEach(clearTimeout); timers = [];
+      timers.forEach(function(id){ clearTimeout(id); clearInterval(id); }); timers = [];
       clearInterval(tickId);
       if(rafId) cancelAnimationFrame(rafId);
     }
@@ -512,6 +516,26 @@
         etaEl.textContent = '已等待 ' + elapsed + ' 秒';
       }, 250);
 
+      // -- 思考语句滚动轮播：按当前阶段切换语句池，强化「系统在干活」的感知 --
+      var THINK_POOLS = {
+        2: ['正在解析隐患描述中的关键要素…', '正在对照隐患分级判定标准评估等级…', '正在判定专业分类与危害因素…'],
+        3: ['正在检索同类隐患的整改案例…', '正在结合现场情况生成整改措施…', '正在评估整改措施的可行性与优先级…'],
+        4: ['正在匹配适用的标准规范条文…', '正在核对引用依据的准确性与时效性…', '正在确认标准条款编号…']
+      };
+      var thinkEl = document.getElementById('thinkTxt');
+      var curPool = THINK_POOLS[2], pi = 0;
+      function showThink(){
+        thinkEl.classList.add('fade');
+        timers.push(setTimeout(function(){
+          thinkEl.textContent = curPool[pi % curPool.length]; pi++;
+          thinkEl.classList.remove('fade');
+        }, 380));
+      }
+      function swapThinkPool(n){ curPool = THINK_POOLS[n]; pi = 0; showThink(); }
+      showThink();
+      var thinkId = setInterval(showThink, 2600);
+      timers.push(thinkId);
+
       // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100%（无 ETA，仅作感知反馈）--
       var bar = document.getElementById('wpBar');
       var CRAWL = 8200, TARGET = 88;
@@ -544,12 +568,15 @@
       timers.push(setTimeout(function(){        // t≈2.6s：分级分类阶段完成
         stageDone(2);
         document.getElementById('st3').classList.add('active');
+        swapThinkPool(3);
       }, 2600));
       timers.push(setTimeout(function(){        // t≈5.8s：整改措施阶段完成
         stageDone(3);
         document.getElementById('st4').classList.add('active');
+        swapThinkPool(4);
       }, 5800));
       timers.push(setTimeout(function(){        // t≈8.6s：模拟接口一次性返回 → 五个字段统一渲染
+        clearInterval(thinkId);
         stageDone(4); revealAll(); finish();
       }, DEMO_RETURN_MS));
 
