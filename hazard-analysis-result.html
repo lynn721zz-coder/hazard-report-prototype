@@ -451,18 +451,16 @@
       setTimeout(function(){ toast('已选入AI识别隐患：' + title); }, 400);
     }catch(e){}
   })();
-  // ============ 等待体验：阶段清单 + 骨架屏 + 正向计时 ============
+  // ============ 等待体验：阶段清单 + 骨架屏 + 正向计时（每次点击「辅助分析」都触发） ============
   // 接口为一次性 JSON 返回（无流式、拿不到预计完成时间），因此：
   //   - 等待时长用正向计时「已等待 X 秒」，不做倒计时；
   //   - 五个字段统一在接口返回后一次性渲染，等待期间保持骨架屏；
   //   - 阶段清单按埋点分阶段耗时比例模拟推进（纯前端感知进度），以接口返回收尾。
+  // 触发时机：页面首次加载 + bfcache 恢复（pageshow persisted）→ 保证每次点击「辅助分析」都完整重放。
   // 真实接入时：将 DEMO_RETURN_MS 定时替换为接口回调（成功 → revealAll()+finish()；失败 → 提示重试）。
   (function(){
     var P95_MS = 20000;                 // 超时安抚阈值：真实环境取埋点 P95 耗时
     var DEMO_RETURN_MS = 8600;          // 演示：模拟接口在 8.6s 一次性返回（真实接入改为回调驱动）
-    var t0 = Date.now();
-
-    // -- 字段卡骨架化（按真实内容行数配置骨架行宽） --
     var cards = Array.prototype.slice.call(document.querySelectorAll('#fieldsWrap .field-card'));
     var skLines = [
       ['58%'],                          // 隐患等级：单行
@@ -472,69 +470,101 @@
       ['94%','88%','52%']               // 标准依据：多行
     ];
     var originals = cards.map(function(c){ return c.innerHTML; });
-    cards.forEach(function(c, i){
-      c.innerHTML = '<div class="field-row"><div class="sk-check"></div><div class="sk-body">' +
-        skLines[i].map(function(w){ return '<div class="sk-line" style="width:'+w+'"></div>'; }).join('') +
-        '</div></div>';
-    });
+    var timers = [];                      // 本轮全部定时器句柄（重放前统一清理，防叠加）
+    var rafId = 0, tickId = 0;
 
-    // -- 正向计时：每 250ms 刷新「已等待 X 秒」 --
-    var etaEl = document.getElementById('etaTxt');
-    var tick = setInterval(function(){
-      var elapsed = Math.floor((Date.now()-t0)/1000);
-      etaEl.textContent = '已等待 ' + elapsed + ' 秒';
-    }, 250);
-
-    // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100%（无 ETA，仅作感知反馈）--
-    var bar = document.getElementById('wpBar');
-    var CRAWL = 8200, TARGET = 88;
-    (function crawl(){
-      var p = Math.min(1, (Date.now()-t0)/CRAWL);
-      var eased = 1 - Math.pow(1-p, 3);
-      bar.style.width = (eased*TARGET) + '%';
-      if(p < 1) requestAnimationFrame(crawl);
-    })();
-
-    // -- 阶段推进与字段卡渐进揭示 --
-    function stageDone(n){ var el = document.getElementById('st'+n); el.classList.remove('active'); el.classList.add('done'); }
-    function revealAll(){
-      cards.forEach(function(c, i){
-        c.innerHTML = originals[i];
-        c.classList.add('reveal');
-      });
-    }
-    function finish(){
-      bar.style.width = '100%';
-      setTimeout(function(){
-        var wb = document.getElementById('waitBlock');
-        wb.classList.add('collapse');
-        setTimeout(function(){ wb.style.display = 'none'; }, 460);
-        document.getElementById('fbBar').style.display = 'flex';
-        document.getElementById('confirmBtn').style.display = 'block';
-      }, 260);
+    function clearAll(){
+      timers.forEach(clearTimeout); timers = [];
+      clearInterval(tickId);
+      if(rafId) cancelAnimationFrame(rafId);
     }
 
-    // t=0：描述已展示（阶段1 ✓），进入分级分类
-    document.getElementById('st2').classList.add('active');
-    setTimeout(function(){                 // t≈2.6s：分级分类阶段完成（感知进度，卡片保持骨架）
-      stageDone(2);
-      document.getElementById('st3').classList.add('active');
-    }, 2600);
-    setTimeout(function(){                 // t≈5.8s：整改措施阶段完成
-      stageDone(3);
-      document.getElementById('st4').classList.add('active');
-    }, 5800);
-    setTimeout(function(){                 // t≈8.6s：模拟接口一次性返回 → 五个字段统一渲染
-      stageDone(4); revealAll(); clearInterval(tick); finish();
-    }, DEMO_RETURN_MS);
-
-    // -- 超时兜底（真实接入后生效；演示节奏不会触发）--
-    setTimeout(function(){
+    window.startWaiting = function(){
+      clearAll();
+      var t0 = Date.now();
       var wb = document.getElementById('waitBlock');
-      if(wb && wb.style.display !== 'none'){
-        document.getElementById('calmTxt').style.display = 'block';
+
+      // -- 复位等待区、阶段、反馈栏、确认按钮 --
+      wb.classList.remove('collapse'); wb.style.display = '';
+      document.getElementById('calmTxt').style.display = 'none';
+      for(var n=1; n<=4; n++){
+        document.getElementById('st'+n).classList.remove('done','active');
       }
-    }, P95_MS);
+      document.getElementById('st1').classList.add('done');    // 隐患描述已随消息展示
+      document.getElementById('st2').classList.add('active');  // 进入分级分类
+      document.getElementById('etaTxt').textContent = '已等待 0 秒';
+      document.getElementById('wpBar').style.width = '0%';
+      document.getElementById('fbBar').style.display = 'none';
+      document.getElementById('confirmBtn').style.display = 'none';
+
+      // -- 字段卡骨架化（按真实内容行数配置骨架行宽） --
+      cards.forEach(function(c, i){
+        c.classList.remove('reveal');
+        c.innerHTML = '<div class="field-row"><div class="sk-check"></div><div class="sk-body">' +
+          skLines[i].map(function(w){ return '<div class="sk-line" style="width:'+w+'"></div>'; }).join('') +
+          '</div></div>';
+      });
+
+      // -- 正向计时：每 250ms 刷新「已等待 X 秒」 --
+      var etaEl = document.getElementById('etaTxt');
+      tickId = setInterval(function(){
+        var elapsed = Math.floor((Date.now()-t0)/1000);
+        etaEl.textContent = '已等待 ' + elapsed + ' 秒';
+      }, 250);
+
+      // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100%（无 ETA，仅作感知反馈）--
+      var bar = document.getElementById('wpBar');
+      var CRAWL = 8200, TARGET = 88;
+      (function crawl(){
+        var p = Math.min(1, (Date.now()-t0)/CRAWL);
+        bar.style.width = ((1 - Math.pow(1-p, 3)) * TARGET) + '%';
+        if(p < 1) rafId = requestAnimationFrame(crawl);
+      })();
+
+      function stageDone(n){ var el = document.getElementById('st'+n); el.classList.remove('active'); el.classList.add('done'); }
+      function revealAll(){
+        cards.forEach(function(c, i){
+          c.innerHTML = originals[i];
+          c.classList.add('reveal');
+        });
+      }
+      function finish(){
+        bar.style.width = '100%';
+        timers.push(setTimeout(function(){
+          wb.classList.add('collapse');
+          timers.push(setTimeout(function(){
+            wb.style.display = 'none';
+            document.getElementById('fbBar').style.display = 'flex';
+            document.getElementById('confirmBtn').style.display = 'block';
+          }, 460));
+        }, 260));
+      }
+
+      // 阶段推进（感知进度，卡片保持骨架，不提前吐字段）
+      timers.push(setTimeout(function(){        // t≈2.6s：分级分类阶段完成
+        stageDone(2);
+        document.getElementById('st3').classList.add('active');
+      }, 2600));
+      timers.push(setTimeout(function(){        // t≈5.8s：整改措施阶段完成
+        stageDone(3);
+        document.getElementById('st4').classList.add('active');
+      }, 5800));
+      timers.push(setTimeout(function(){        // t≈8.6s：模拟接口一次性返回 → 五个字段统一渲染
+        stageDone(4); revealAll(); finish();
+      }, DEMO_RETURN_MS));
+
+      // -- 超时兜底（真实接入后生效；演示节奏不会触发）--
+      timers.push(setTimeout(function(){
+        if(wb.style.display !== 'none') document.getElementById('calmTxt').style.display = 'block';
+      }, P95_MS));
+    };
+
+    // 首次加载触发
+    window.startWaiting();
+    // bfcache 返回恢复时重放：保证每次点击「辅助分析」进入都看到完整等待效果
+    window.addEventListener('pageshow', function(e){
+      if(e.persisted) window.startWaiting();
+    });
   })();
 </script>
 </body>

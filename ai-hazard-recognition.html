@@ -497,7 +497,7 @@ function onAnalyze(){
   // 跳转隐患分析结果页（同目录存在则跳转，否则提示）
   const target = 'hazard-analysis-result.html';
   fetch(target, {method:'HEAD'}).then(r=>{
-    if(r.ok) location.href = target + '?item=' + encodeURIComponent(selectedId);
+    if(r.ok) location.href = target + '?item=' + encodeURIComponent(selectedId) + '&t=' + Date.now();  // 加时间戳防 bfcache，确保每次点击都重放等待效果
     else toast('演示环境：即将进入「隐患分析结果」（'+h.title+'）');
   }).catch(()=> toast('演示环境：即将进入「隐患分析结果」（'+h.title+'）'));
 }
