@@ -494,12 +494,9 @@ function onAnalyze(){
   if(!selectedId){ toast('请先选择一条隐患'); return; }
   const h = hazards.find(x=>x.id===selectedId);
   // 埋点：hse_agent_assist_click（has_selection=selected, selected_item_ids=[selectedId]）
-  // 跳转隐患分析结果页（同目录存在则跳转，否则提示）
-  const target = 'hazard-analysis-result.html';
-  fetch(target, {method:'HEAD'}).then(r=>{
-    if(r.ok) location.href = target + '?item=' + encodeURIComponent(selectedId) + '&t=' + Date.now();  // 加时间戳防 bfcache，确保每次点击都重放等待效果
-    else toast('演示环境：即将进入「隐患分析结果」（'+h.title+'）');
-  }).catch(()=> toast('演示环境：即将进入「隐患分析结果」（'+h.title+'）'));
+  // 跳转隐患分析结果页；加时间戳防 bfcache/缓存，确保每次点击都完整重放等待效果
+  // （不做 fetch 探测：file:// 等环境下 fetch 相对路径会失败，导致点按钮无反应）
+  location.href = 'hazard-analysis-result.html?item=' + encodeURIComponent(selectedId) + '&t=' + Date.now();
 }
 
 function goBack(){ history.back(); }
