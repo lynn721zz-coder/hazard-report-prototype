@@ -285,7 +285,7 @@
         <div class="stage-item" id="st3" data-page-node-id="st3"><span class="st-ico"></span><span class="st-txt">生成整改措施</span></div>
         <div class="stage-item" id="st4" data-page-node-id="st4"><span class="st-ico"></span><span class="st-txt">核对标准依据</span></div>
       </div>
-      <span class="eta" id="etaTxt" data-page-node-id="etaTxt001">AI 分析约需 9 秒，请稍候</span>
+      <span class="eta" id="etaTxt" data-page-node-id="etaTxt001">已等待 0 秒</span>
       <div class="wait-progress" data-page-node-id="wp001"><div class="wp-bar" id="wpBar"></div></div>
       <div class="calm" id="calmTxt" style="display:none" data-page-node-id="calm001">分析仍在进行，请耐心等待；你也可以先返回列表，完成后将在消息中通知你。</div>
     </div>
@@ -451,11 +451,15 @@
       setTimeout(function(){ toast('已选入AI识别隐患：' + title); }, 400);
     }catch(e){}
   })();
-  // ============ 等待体验：阶段清单 + 骨架屏渐进渲染 ============
-  // 阶段与真实生成链路一一对应（埋点已分阶段记耗时：隐患描述首词/总耗时、分级分类总耗时）。
-  // 真实接入时：由各阶段接口返回驱动 stageDone/revealCards，此处 setTimeout 仅为演示节奏（总时长压缩至约 9 秒）。
+  // ============ 等待体验：阶段清单 + 骨架屏 + 正向计时 ============
+  // 接口为一次性 JSON 返回（无流式、拿不到预计完成时间），因此：
+  //   - 等待时长用正向计时「已等待 X 秒」，不做倒计时；
+  //   - 五个字段统一在接口返回后一次性渲染，等待期间保持骨架屏；
+  //   - 阶段清单按埋点分阶段耗时比例模拟推进（纯前端感知进度），以接口返回收尾。
+  // 真实接入时：将 DEMO_RETURN_MS 定时替换为接口回调（成功 → revealAll()+finish()；失败 → 提示重试）。
   (function(){
     var P95_MS = 20000;                 // 超时安抚阈值：真实环境取埋点 P95 耗时
+    var DEMO_RETURN_MS = 8600;          // 演示：模拟接口在 8.6s 一次性返回（真实接入改为回调驱动）
     var t0 = Date.now();
 
     // -- 字段卡骨架化（按真实内容行数配置骨架行宽） --
@@ -474,7 +478,14 @@
         '</div></div>';
     });
 
-    // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100% --
+    // -- 正向计时：每 250ms 刷新「已等待 X 秒」 --
+    var etaEl = document.getElementById('etaTxt');
+    var tick = setInterval(function(){
+      var elapsed = Math.floor((Date.now()-t0)/1000);
+      etaEl.textContent = '已等待 ' + elapsed + ' 秒';
+    }, 250);
+
+    // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100%（无 ETA，仅作感知反馈）--
     var bar = document.getElementById('wpBar');
     var CRAWL = 8200, TARGET = 88;
     (function crawl(){
@@ -486,13 +497,12 @@
 
     // -- 阶段推进与字段卡渐进揭示 --
     function stageDone(n){ var el = document.getElementById('st'+n); el.classList.remove('active'); el.classList.add('done'); }
-    function revealCards(idx){
-      idx.forEach(function(i){
-        cards[i].innerHTML = originals[i];
-        cards[i].classList.add('reveal');
+    function revealAll(){
+      cards.forEach(function(c, i){
+        c.innerHTML = originals[i];
+        c.classList.add('reveal');
       });
     }
-    function setEta(txt){ document.getElementById('etaTxt').textContent = txt; }
     function finish(){
       bar.style.width = '100%';
       setTimeout(function(){
@@ -506,26 +516,23 @@
 
     // t=0：描述已展示（阶段1 ✓），进入分级分类
     document.getElementById('st2').classList.add('active');
-    setTimeout(function(){                 // t≈2.6s：分级分类完成 → 产出等级/专业分类/危害因素
-      stageDone(2); revealCards([0,1,2]);
+    setTimeout(function(){                 // t≈2.6s：分级分类阶段完成（感知进度，卡片保持骨架）
+      stageDone(2);
       document.getElementById('st3').classList.add('active');
-      setEta('预计还需约 6 秒');
     }, 2600);
-    setTimeout(function(){                 // t≈5.8s：整改措施完成
-      stageDone(3); revealCards([3]);
+    setTimeout(function(){                 // t≈5.8s：整改措施阶段完成
+      stageDone(3);
       document.getElementById('st4').classList.add('active');
-      setEta('预计还需约 3 秒');
     }, 5800);
-    setTimeout(function(){                 // t≈8.6s：标准依据完成 → 分析结束
-      stageDone(4); revealCards([4]); finish();
-    }, 8600);
+    setTimeout(function(){                 // t≈8.6s：模拟接口一次性返回 → 五个字段统一渲染
+      stageDone(4); revealAll(); clearInterval(tick); finish();
+    }, DEMO_RETURN_MS);
 
     // -- 超时兜底（真实接入后生效；演示节奏不会触发）--
     setTimeout(function(){
       var wb = document.getElementById('waitBlock');
       if(wb && wb.style.display !== 'none'){
         document.getElementById('calmTxt').style.display = 'block';
-        setEta('分析时间比通常更长…');
       }
     }, P95_MS);
   })();
