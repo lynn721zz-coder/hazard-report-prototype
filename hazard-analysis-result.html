@@ -136,6 +136,32 @@
     border-radius: 6px;
   }
 
+  /* ========== 等待体验：阶段清单 + 骨架屏渐进渲染 ========== */
+  .wait-block { margin-bottom: 12px; overflow: hidden; max-height: 420px; transition: max-height .45s ease, opacity .4s ease, margin .45s ease; }
+  .wait-block.collapse { max-height: 0; opacity: 0; margin-bottom: 0; }
+  .stage-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 12px; }
+  .stage-item { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: #9aa8bb; transition: color .2s; }
+  .st-ico { flex: none; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .stage-item .st-ico::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #d6deea; }
+  .stage-item.done { color: #55617a; }
+  .stage-item.done .st-ico { background: #18b58b; border-radius: 50%; color: #fff; }
+  .stage-item.done .st-ico::before { display: none; }
+  .stage-item.done .st-ico::after { content: '\2713'; }
+  .stage-item.active { color: #1a1a1a; font-weight: 600; }
+  .stage-item.active .st-ico::before { display: none; }
+  .stage-item.active .st-ico { border: 2.5px solid #e3ecff; border-top-color: #2b7cff; border-radius: 50%; animation: stspin .8s linear infinite; }
+  @keyframes stspin { to { transform: rotate(360deg); } }
+  .eta { font-size: 12px; color: #9aa8bb; }
+  .wait-progress { height: 4px; background: #eef1f6; border-radius: 2px; overflow: hidden; margin: 8px 0 6px; }
+  .wp-bar { height: 100%; width: 0; background: linear-gradient(90deg,#4f8bff,#1f6bff); border-radius: 2px; }
+  .calm { margin-top: 8px; font-size: 12.5px; color: #b26a00; background: #fff7e8; border: 1px solid #ffe7bd; border-radius: 8px; padding: 8px 10px; line-height: 1.6; }
+  .sk-check { flex: none; width: 20px; height: 20px; border-radius: 5px; margin-top: 1px; }
+  .sk-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .sk-line, .sk-check { background: linear-gradient(90deg,#eef2f8 25%,#f7fafd 45%,#eef2f8 65%); background-size: 200% 100%; animation: shimmer 1.3s infinite; }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .field-card.reveal { animation: cardIn .4s ease; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
   /* ========== 点赞 / 点踩 / 意见反馈 ========== */
   .feedback-bar {
     display: flex; align-items: center;
@@ -252,7 +278,19 @@
       作业区域未设置任何安全防护设施，存在人员坠落或物体打击风险。
     </div>
 
-    <div class="fields" data-page-node-id="Off0sDp0fkaQs27z0bOWJY">
+    <div class="wait-block" id="waitBlock" data-page-node-id="waitBlock001">
+      <div class="stage-list" data-page-node-id="stageList001">
+        <div class="stage-item done" id="st1" data-page-node-id="st1"><span class="st-ico"></span><span class="st-txt">识别隐患描述</span></div>
+        <div class="stage-item" id="st2" data-page-node-id="st2"><span class="st-ico"></span><span class="st-txt">进行分级分类</span></div>
+        <div class="stage-item" id="st3" data-page-node-id="st3"><span class="st-ico"></span><span class="st-txt">生成整改措施</span></div>
+        <div class="stage-item" id="st4" data-page-node-id="st4"><span class="st-ico"></span><span class="st-txt">核对标准依据</span></div>
+      </div>
+      <span class="eta" id="etaTxt" data-page-node-id="etaTxt001">AI 分析约需 9 秒，请稍候</span>
+      <div class="wait-progress" data-page-node-id="wp001"><div class="wp-bar" id="wpBar"></div></div>
+      <div class="calm" id="calmTxt" style="display:none" data-page-node-id="calm001">分析仍在进行，请耐心等待；你也可以先返回列表，完成后将在消息中通知你。</div>
+    </div>
+
+    <div class="fields" id="fieldsWrap" data-page-node-id="Off0sDp0fkaQs27z0bOWJY">
       <div class="field-card" data-page-node-id="Ukz6kGKTT06Y1ANe5IKBvf">
         <div class="field-row" data-page-node-id="07GTfCE3EVn9mkW42bBTu3">
           <div class="checkbox" onclick="this.classList.toggle('off')" data-page-node-id="OfBYNWhURnUlBPBcVLhIJ5"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="tZpJTLuQlXeLwCHpxzJMDA"><path d="M4 12.5l5 5L20 6.5" data-page-node-id="tR7khHyz5d7vCY5ejgQOxb"/></svg></div>
@@ -305,7 +343,7 @@
     </div>
 
     <!-- 点赞 / 点踩 / 意见反馈 -->
-    <div class="feedback-bar" data-page-node-id="YMMwVhw3qF7tn4yxgxM2JL">
+    <div class="feedback-bar" id="fbBar" style="display:none" data-page-node-id="YMMwVhw3qF7tn4yxgxM2JL">
       <span class="fb-tip" data-page-node-id="DVnjPCMBMqwFV5d5HIjCd1">分析结果有帮助吗？</span>
       <button class="fb-btn" id="likeBtn" onclick="tapLike()" data-page-node-id="hZnvzrrtq0b8WoLr6NCH7s">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="q6iE8cpgusCx0EW5ncU6c6"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm0 0l4.2-7.1a1.8 1.8 0 0 1 3.3 1.3L13.6 9H19a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 17.5 20H7" data-page-node-id="8ozsaUK05kqWcV54wyPPcY"/></svg>
@@ -318,7 +356,7 @@
       <button class="fb-btn" onclick="openFeedback(false, '意见反馈')" data-page-node-id="IA25f2kVT3hKCrqTejlX5D">💬 意见反馈</button>
     </div>
 
-    <button class="confirm-btn" onclick="toast('已确认填入隐患信息')" data-page-node-id="qP7EThXSHtEnpN7ab4yHpE">确认填入</button>
+    <button class="confirm-btn" id="confirmBtn" style="display:none" onclick="toast('已确认填入隐患信息')" data-page-node-id="qP7EThXSHtEnpN7ab4yHpE">确认填入</button>
   </div>
 
   <!-- 意见反馈弹层 -->
@@ -412,6 +450,84 @@
       // 埋点：hse_agent_output_show（source_item_ids=[item]，recognition_id 关联）
       setTimeout(function(){ toast('已选入AI识别隐患：' + title); }, 400);
     }catch(e){}
+  })();
+  // ============ 等待体验：阶段清单 + 骨架屏渐进渲染 ============
+  // 阶段与真实生成链路一一对应（埋点已分阶段记耗时：隐患描述首词/总耗时、分级分类总耗时）。
+  // 真实接入时：由各阶段接口返回驱动 stageDone/revealCards，此处 setTimeout 仅为演示节奏（总时长压缩至约 9 秒）。
+  (function(){
+    var P95_MS = 20000;                 // 超时安抚阈值：真实环境取埋点 P95 耗时
+    var t0 = Date.now();
+
+    // -- 字段卡骨架化（按真实内容行数配置骨架行宽） --
+    var cards = Array.prototype.slice.call(document.querySelectorAll('#fieldsWrap .field-card'));
+    var skLines = [
+      ['58%'],                          // 隐患等级：单行
+      ['46%'],                          // 隐患专业分类：单行
+      ['82%'],                          // 危害因素分类：单行
+      ['96%','90%','64%'],              // 整改措施：多行
+      ['94%','88%','52%']               // 标准依据：多行
+    ];
+    var originals = cards.map(function(c){ return c.innerHTML; });
+    cards.forEach(function(c, i){
+      c.innerHTML = '<div class="field-row"><div class="sk-check"></div><div class="sk-body">' +
+        skLines[i].map(function(w){ return '<div class="sk-line" style="width:'+w+'"></div>'; }).join('') +
+        '</div></div>';
+    });
+
+    // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100% --
+    var bar = document.getElementById('wpBar');
+    var CRAWL = 8200, TARGET = 88;
+    (function crawl(){
+      var p = Math.min(1, (Date.now()-t0)/CRAWL);
+      var eased = 1 - Math.pow(1-p, 3);
+      bar.style.width = (eased*TARGET) + '%';
+      if(p < 1) requestAnimationFrame(crawl);
+    })();
+
+    // -- 阶段推进与字段卡渐进揭示 --
+    function stageDone(n){ var el = document.getElementById('st'+n); el.classList.remove('active'); el.classList.add('done'); }
+    function revealCards(idx){
+      idx.forEach(function(i){
+        cards[i].innerHTML = originals[i];
+        cards[i].classList.add('reveal');
+      });
+    }
+    function setEta(txt){ document.getElementById('etaTxt').textContent = txt; }
+    function finish(){
+      bar.style.width = '100%';
+      setTimeout(function(){
+        var wb = document.getElementById('waitBlock');
+        wb.classList.add('collapse');
+        setTimeout(function(){ wb.style.display = 'none'; }, 460);
+        document.getElementById('fbBar').style.display = 'flex';
+        document.getElementById('confirmBtn').style.display = 'block';
+      }, 260);
+    }
+
+    // t=0：描述已展示（阶段1 ✓），进入分级分类
+    document.getElementById('st2').classList.add('active');
+    setTimeout(function(){                 // t≈2.6s：分级分类完成 → 产出等级/专业分类/危害因素
+      stageDone(2); revealCards([0,1,2]);
+      document.getElementById('st3').classList.add('active');
+      setEta('预计还需约 6 秒');
+    }, 2600);
+    setTimeout(function(){                 // t≈5.8s：整改措施完成
+      stageDone(3); revealCards([3]);
+      document.getElementById('st4').classList.add('active');
+      setEta('预计还需约 3 秒');
+    }, 5800);
+    setTimeout(function(){                 // t≈8.6s：标准依据完成 → 分析结束
+      stageDone(4); revealCards([4]); finish();
+    }, 8600);
+
+    // -- 超时兜底（真实接入后生效；演示节奏不会触发）--
+    setTimeout(function(){
+      var wb = document.getElementById('waitBlock');
+      if(wb && wb.style.display !== 'none'){
+        document.getElementById('calmTxt').style.display = 'block';
+        setEta('分析时间比通常更长…');
+      }
+    }, P95_MS);
   })();
 </script>
 </body>
