@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>隐患填写表单</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    background:#e8f0fd;
+    display:flex; justify-content:center;
+    min-height:100vh;
+  }
+  .phone {
+    width:375px; max-width:100vw; min-height:100vh;
+    background:linear-gradient(180deg,#e8f0fd 0%,#f3f7fe 100%);
+    position:relative;
+    padding-bottom:96px;
+  }
+  /* ===== 顶部导航 ===== */
+  .nav {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px 16px;
+    margin-bottom:12px;
+    background:#fff;
+    position:sticky; top:0; z-index:15;
+  }
+  .nav-btn {
+    width:44px; height:44px; border-radius:12px;
+    background:#f1f5fb; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+  }
+  .nav-text { flex:1; }
+  .nav-title { font-size:18px; font-weight:700; color:#1f2a44; }
+  .nav-status { font-size:12.5px; color:#8a96ad; margin-top:3px; }
+
+  /* ===== 通用卡片 ===== */
+  .card {
+    background:#fff; border-radius:16px;
+    margin:0 12px 12px; padding:16px;
+    box-shadow:0 1px 4px rgba(31,58,110,.05);
+  }
+  .sec-head { display:flex; align-items:center; gap:7px; margin-bottom:12px; }
+  .sec-head svg { flex:none; }
+  .sec-head .t { font-size:16px; font-weight:700; color:#1f2a44; }
+  .req { color:#ef4444; font-weight:400; }
+
+  /* ===== 照片上传 ===== */
+  .upload-area {
+    border:1.5px dashed #b9c8e2; border-radius:12px;
+    background:#f6f9fe;
+    padding:26px 0 22px;
+    display:flex; flex-direction:column; align-items:center; gap:9px;
+    cursor:pointer;
+  }
+  .upload-area .u-t { font-size:14px; color:#3d4a63; font-weight:500; }
+  .upload-area .u-s { font-size:11.5px; color:#9aa8bb; }
+  .uploaded { display:flex; gap:10px; flex-wrap:wrap; }
+  .thumb {
+    width:112px; border-radius:10px; overflow:hidden;
+    position:relative; line-height:0;
+    box-shadow:0 1px 4px rgba(31,58,110,.12);
+  }
+  .thumb svg { width:100%; height:auto; display:block; }
+  .thumb .del {
+    position:absolute; top:5px; right:5px;
+    width:20px; height:20px; border-radius:50%;
+    background:rgba(15,23,42,.55); color:#fff;
+    font-size:13px; display:flex; align-items:center; justify-content:center;
+    line-height:1; cursor:pointer;
+  }
+  .add-cell {
+    width:112px; height:76px;
+    border:1.5px dashed #c3cfe2; border-radius:10px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    color:#9aa8bb; font-size:11px; cursor:pointer;
+  }
+  .photo-name {
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    margin-top:12px; font-size:12.5px; color:#8a96ad;
+  }
+
+  /* ===== 表单字段 ===== */
+  .f-label { font-size:13.5px; color:#3d4a63; font-weight:500; margin-bottom:8px; }
+  .f-textarea {
+    width:100%; height:76px; resize:none;
+    border:1px solid #e3eaf4; border-radius:10px;
+    background:#f8fafd; padding:10px 12px;
+    font-size:13.5px; color:#1f2a44; line-height:1.6;
+    font-family:inherit; outline:none;
+  }
+  .f-textarea::placeholder { color:#a8b3c7; }
+  .f-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:11px 2px; border-bottom:1px solid #f0f4fa;
+  }
+  .f-row:last-child { border-bottom:none; }
+  .f-row .k { font-size:13.5px; color:#6b7896; }
+  .f-row .v { font-size:13.5px; color:#1f2a44; display:flex; align-items:center; gap:4px; }
+  .f-row .arrow { color:#b6c2d6; font-size:14px; }
+
+  /* ===== 底部操作栏 ===== */
+  .bar-fix {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:375px; max-width:100vw;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:#fff;
+    box-shadow:0 -2px 12px rgba(31,58,110,.06);
+    display:flex; z-index:20;
+  }
+  .btn-ai {
+    flex:1; height:48px; border:none; border-radius:14px;
+    background:linear-gradient(135deg,#4d8bff,#2f6df6);
+    color:#fff; font-size:16px; font-weight:600;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(47,109,246,.3);
+  }
+  .btn-ai.loading { opacity:.75; pointer-events:none; }
+  .spin {
+    width:17px; height:17px; flex:none;
+    border:2.5px solid rgba(255,255,255,.35); border-top-color:#fff;
+    border-radius:50%; animation:sp .8s linear infinite;
+  }
+  @keyframes sp { to { transform:rotate(360deg); } }
+
+  /* ===== toast ===== */
+  #toast {
+    position:fixed; left:50%; bottom:96px; transform:translateX(-50%);
+    background:rgba(15,23,42,.82); color:#fff;
+    font-size:13px; padding:9px 16px; border-radius:20px;
+    display:none; z-index:99; white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- 顶部导航 -->
+  <div class="nav">
+    <button class="nav-btn" onclick="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#1f2a44" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="nav-text">
+      <div class="nav-title">隐患上报</div>
+      <div class="nav-status">隐患填写表单</div>
+    </div>
+  </div>
+
+  <!-- 现场照片（必填） -->
+  <div class="card">
+    <div class="sec-head">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="15" rx="2.5" stroke="#2f6df6" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="#2f6df6"/><path d="M4 17.5l4.8-4.5 3.4 3.2 3.6-3.8L20 16" stroke="#2f6df6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="t">现场照片 <span class="req">*</span></span>
+    </div>
+    <!-- 未上传态 -->
+    <div class="upload-area" id="uploadArea" onclick="uploadPhoto()">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1.1-1.6c.3-.5.8-.7 1.3-.7h3.8c.5 0 1 .2 1.3.7L16.3 6h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8z" stroke="#8fa5c6" stroke-width="1.7"/><circle cx="12" cy="12.2" r="3.1" stroke="#8fa5c6" stroke-width="1.7"/></svg>
+      <div class="u-t">点击上传隐患照片</div>
+      <div class="u-s">支持拍照或从相册选择，上传后可 AI 识隐患</div>
+    </div>
+    <!-- 已上传态 -->
+    <div class="uploaded" id="uploadedGrid" style="display:none">
+      <div class="thumb">
+        <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" data-page-node-id="dkLlnjf6S3qhjO2JaOtgGr">
+        <rect width="640" height="420" fill="#c9d3e0" data-page-node-id="0D10zkg5NCtqjErSCwWzoa"/>
+        <rect x="0" y="0" width="640" height="150" fill="#b3c2d4" data-page-node-id="jCjpDyO3hsqgoFRhWD1A5l"/>
+        <!-- 远处建筑 -->
+        <rect x="30" y="60" width="90" height="80" fill="#9fb0c6" data-page-node-id="eMe8EPEpveOrAhF6P449Ri"/>
+        <rect x="140" y="40" width="60" height="100" fill="#a8b8cc" data-page-node-id="zXwFDcIxVb3RMXFUfxEmb9"/>
+        <rect x="520" y="70" width="80" height="70" fill="#9fb0c6" data-page-node-id="mjtD2qOy8GNOT8bRQ980CJ"/>
+        <!-- 地面 -->
+        <rect x="0" y="300" width="640" height="120" fill="#8e9bb0" data-page-node-id="R3kHCpBocjfBEFSqBLGrGg"/>
+        <rect x="0" y="300" width="640" height="14" fill="#7c8aa0" data-page-node-id="4ZdezFXLbj39WBB7XN8ok8"/>
+        <!-- 黄黑警示条纹立柱 -->
+        <g data-page-node-id="AHfXqp6NXHYWnRFFBQs4g1">
+          <rect x="470" y="180" width="26" height="180" fill="#e8c34a" data-page-node-id="S4Ypk4PmEheHuUK4Olod6l"/>
+          <rect x="470" y="180" width="26" height="16" fill="#2b2f38" transform="skewX(-18)" data-page-node-id="PKdhlNORCGUHV2aB991BAP" />
+          <path d="M470 200 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="Ru0LXQ88FiwfuSnsuxXyDd"/>
+          <path d="M470 240 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="c2T4wEf1z1pgkKGey2wSCO"/>
+          <path d="M470 280 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="uHex0n04eoV4cwwxeiuBWY"/>
+          <path d="M470 320 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="kQMrhIvdt6mcoa6gB5cRhM"/>
+        </g>
+        <!-- 主管道（横） -->
+        <rect x="0" y="196" width="640" height="58" rx="8" fill="#d7dde6" data-page-node-id="lBdhWkojeUjoYqBd7i5jf5"/>
+        <rect x="0" y="196" width="640" height="16" fill="#eceff4" data-page-node-id="gD3zdpcazG5u0GBT2gbHZt"/>
+        <!-- 法兰盘 -->
+        <rect x="120" y="188" width="22" height="74" rx="4" fill="#b7c1cf" data-page-node-id="SAmDPFg3VG2pMkLSijCifJ"/>
+        <rect x="300" y="188" width="22" height="74" rx="4" fill="#b7c1cf" data-page-node-id="LJWDMyjf691smN8HGNU1SH"/>
+        <!-- 蓝色阀门主体 -->
+        <rect x="216" y="150" width="110" height="150" rx="14" fill="#3b6fd4" data-page-node-id="8AV0LtR5sDz8I2RGtWnNjB"/>
+        <rect x="216" y="150" width="110" height="150" rx="14" fill="url(#vshade)" data-page-node-id="dCSk4x8g9u6YHWAaka70B3"/>
+        <rect x="228" y="170" width="40" height="34" rx="6" fill="#5b8ae0" opacity=".8" data-page-node-id="MVuzD3CgtMN3AIalFvU7TS"/>
+        <!-- 阀门红色手轮（顶部） -->
+        <ellipse cx="271" cy="140" rx="64" ry="26" fill="#d9363e" data-page-node-id="FPdTknuc590JgouCklDABe"/>
+        <ellipse cx="271" cy="134" rx="64" ry="24" fill="#ef5350" data-page-node-id="Yv1YnZRv6zwSKbDEkguw26"/>
+        <ellipse cx="271" cy="134" rx="30" ry="11" fill="#c62828" data-page-node-id="ot1SKaOcQMOVnlkc15icBH"/>
+        <rect x="263" y="150" width="16" height="34" fill="#8f2b2b" data-page-node-id="Isy6fkgdNlO0EkX4pBoGT9"/>
+        <!-- 金属软管（下方波纹管） -->
+        <path d="M150 254 C 190 330, 260 340, 330 320 C 400 300, 430 280, 470 300" stroke="#cfd6df" stroke-width="26" fill="none" stroke-linecap="round" data-page-node-id="pphYFGbhzLnnEaMIEtEDYe"/>
+        <path d="M150 254 C 190 330, 260 340, 330 320 C 400 300, 430 280, 470 300" stroke="#aab4c2" stroke-width="26" fill="none" stroke-linecap="round" stroke-dasharray="4 10" data-page-node-id="ZcLiy6XgPOsl0xYnVniN25"/>
+        <!-- 支架 -->
+        <rect x="200" y="300" width="12" height="120" fill="#6d7a8e" data-page-node-id="Rwdd4XB1vJV1IscAqsmdP9"/>
+        <rect x="380" y="300" width="12" height="120" fill="#6d7a8e" data-page-node-id="wdtgu0le7UK7xDOH0YH3JK"/>
+        <!-- 红色隐患标注圈 -->
+        <circle cx="271" cy="200" r="72" fill="none" stroke="#e53935" stroke-width="5" opacity=".92" data-page-node-id="PYIeTt28vWONuFlbMWVn5I"/>
+        <defs data-page-node-id="hRyk5nPWJZUHdMsNVL357L">
+          <linearGradient id="vshade" x1="0" y1="0" x2="1" y2="1" data-page-node-id="Th1ABDN4XCPTIX4U0P2ACt">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".18" data-page-node-id="gZGBW6w7Z5kBfcCeAT3g7H"/>
+            <stop offset="1" stop-color="#000000" stop-opacity=".12" data-page-node-id="vW06zM5MKR1oMIwFQkpu2n"/>
+          </linearGradient>
+        </defs>
+      </svg>
+        <div class="del" onclick="event.stopPropagation(); removePhoto()">×</div>
+      </div>
+      <div class="add-cell" onclick="toast('演示环境：上传 1 张照片即可体验')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#b6c2d6" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>继续添加</span>
+      </div>
+    </div>
+    <div class="photo-name" id="photoName" style="display:none">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-8z" stroke="#8a96ad" stroke-width="1.8"/></svg>
+      IMG_20261102_143215.jpg
+    </div>
+  </div>
+
+  <!-- 隐患描述 -->
+  <div class="card">
+    <div class="f-label">隐患描述</div>
+    <textarea class="f-textarea" placeholder="可简单描述隐患情况，上传照片后可点击下方按钮由 AI 自动识别生成"></textarea>
+  </div>
+
+  <!-- 基本信息 -->
+  <div class="card">
+    <div class="f-row">
+      <span class="k">隐患部位</span>
+      <span class="v" onclick="toast('演示环境：部位选择略')">管廊作业区 <span class="arrow">›</span></span>
+    </div>
+    <div class="f-row">
+      <span class="k">发现时间</span>
+      <span class="v">2026-11-02 14:30</span>
+    </div>
+  </div>
+
+  <!-- 底部操作栏 -->
+  <div class="bar-fix">
+    <button class="btn-ai" id="aiBtn" onclick="onAiRecognize()">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" id="aiIcon"><path d="M12 2.8l1.9 4.6 4.6 1.9-4.6 1.9L12 15.8l-1.9-4.6-4.6-1.9 4.6-1.9L12 2.8z" fill="#fff"/><path d="M18.8 14.2l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9.9-2.2z" fill="#fff"/></svg>
+      <span id="aiBtnTxt">AI 识隐患</span>
+    </button>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+// ============ 隐患填写表单：流程第 1 步（上传图片 → 点击 AI识隐患） ============
+let photoUploaded = false;
+let toastTimer;
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.style.display='none', 1800);
+}
+
+// 上传照片（演示：点击即模拟从相册选择成功）
+function uploadPhoto(){
+  photoUploaded = true;
+  document.getElementById('uploadArea').style.display = 'none';
+  document.getElementById('uploadedGrid').style.display = 'flex';
+  document.getElementById('photoName').style.display = 'flex';
+  // 埋点：hse_form_photo_upload（count=1）
+  toast('照片上传成功');
+}
+
+function removePhoto(){
+  photoUploaded = false;
+  document.getElementById('uploadArea').style.display = 'flex';
+  document.getElementById('uploadedGrid').style.display = 'none';
+  document.getElementById('photoName').style.display = 'none';
+}
+
+function goBack(){ history.back(); }
+
+// 点击 AI识隐患：未上传提示；已上传 loading 后跳转识别结果页
+function onAiRecognize(){
+  if(!photoUploaded){ toast('请先上传隐患照片'); return; }
+  const btn = document.getElementById('aiBtn');
+  btn.classList.add('loading');
+  document.getElementById('aiIcon').outerHTML = '<span class="spin" id="aiIcon"></span>';
+  document.getElementById('aiBtnTxt').textContent = '正在识别隐患…';
+  // 埋点：hse_ai_recognize_click（has_photo=1）
+  // 跳转 AI识隐患结果页；加时间戳防 bfcache
+  setTimeout(function(){
+    location.href = 'ai-hazard-recognition.html?src=form&t=' + Date.now();
+  }, 1400);
+}
+</script>
+</body>
+</html>
