@@ -3,132 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>隐患填写表单</title>
+<title>隐患登记</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
-    background:#e8f0fd;
+    background:#fff;
     display:flex; justify-content:center;
     min-height:100vh;
   }
   .phone {
     width:375px; max-width:100vw; min-height:100vh;
-    background:linear-gradient(180deg,#e8f0fd 0%,#f3f7fe 100%);
+    background:#fff;
     position:relative;
-    padding-bottom:96px;
+    padding-bottom:88px;
   }
   /* ===== 顶部导航 ===== */
   .nav {
-    display:flex; align-items:center; gap:12px;
-    padding:14px 16px 16px;
-    margin-bottom:12px;
+    display:flex; align-items:center; gap:10px;
+    padding:14px 14px 12px;
     background:#fff;
     position:sticky; top:0; z-index:15;
+    border-bottom:0.5px solid #f0f2f5;
   }
   .nav-btn {
-    width:44px; height:44px; border-radius:12px;
-    background:#f1f5fb; border:none; cursor:pointer;
+    width:34px; height:34px; border:none; background:none;
     display:flex; align-items:center; justify-content:center;
-    flex:none;
+    flex:none; cursor:pointer;
   }
-  .nav-text { flex:1; }
-  .nav-title { font-size:18px; font-weight:700; color:#1f2a44; }
-  .nav-status { font-size:12.5px; color:#8a96ad; margin-top:3px; }
-
-  /* ===== 通用卡片 ===== */
-  .card {
-    background:#fff; border-radius:16px;
-    margin:0 12px 12px; padding:16px;
-    box-shadow:0 1px 4px rgba(31,58,110,.05);
+  .nav-title {
+    flex:1; text-align:center;
+    font-size:17.5px; font-weight:600; color:#1f2329;
+    margin-right:34px; /* 平衡返回键宽度，标题居中 */
   }
-  .sec-head { display:flex; align-items:center; gap:7px; margin-bottom:12px; }
-  .sec-head svg { flex:none; }
-  .sec-head .t { font-size:16px; font-weight:700; color:#1f2a44; }
-  .req { color:#ef4444; font-weight:400; }
 
-  /* ===== 照片上传 ===== */
-  .upload-area {
-    border:1.5px dashed #b9c8e2; border-radius:12px;
-    background:#f6f9fe;
-    padding:26px 0 22px;
-    display:flex; flex-direction:column; align-items:center; gap:9px;
+  /* ===== 流程步骤条 ===== */
+  .steps-grid {
+    display:grid; grid-template-columns:repeat(5, 1fr);
+    padding:20px 14px 4px;
+  }
+  .sg-cell { display:flex; flex-direction:column; align-items:center; gap:9px; position:relative; }
+  .sg-cell .dot {
+    width:22px; height:22px; border-radius:50%;
+    background:#c6d4f0; z-index:2;
+  }
+  .sg-cell.active .dot {
+    background:#1d4fd7;
+    box-shadow:0 0 0 4.5px rgba(29,79,215,.18);
+    position:relative;
+  }
+  .sg-cell.active .dot::after {
+    content:''; position:absolute; inset:6.5px; border-radius:50%; background:#fff;
+  }
+  .sg-cell .lab { font-size:13.5px; color:#8a94a6; }
+  .sg-cell.active .lab { color:#1d4fd7; font-weight:600; }
+  .sg-cell:not(:last-child)::before {
+    content:''; position:absolute; top:10px; left:calc(50% + 13px);
+    width:calc(100% - 26px); height:3px;
+    background:#c6d4f0; border-radius:2px; z-index:1;
+  }
+
+  /* ===== 表单行 ===== */
+  .form-rows { padding:6px 16px 0; }
+  .frow { border-bottom:0.5px solid #eceff3; padding:15px 0 13px; }
+  .frow:last-child { border-bottom:none; }
+  .fhead { display:flex; align-items:baseline; }
+  .flabel {
+    width:88px; flex:none;
+    font-size:15.5px; color:#1f2329; font-weight:500;
+    line-height:1.5;
+  }
+  .flabel .req { color:#e5484d; margin-right:1px; }
+  .fvalue { flex:1; }
+  .finput {
+    width:100%; border:none; outline:none;
+    font-size:15px; color:#1f2329;
+    font-family:inherit;
+    background:transparent;
+    line-height:1.5;
+  }
+  .finput::placeholder { color:#b3bccb; }
+  textarea.finput { resize:none; height:66px; display:block; }
+  .counter { text-align:right; font-size:12.5px; color:#b3bccb; margin-top:2px; }
+
+  /* 单选组 */
+  .radio-group { display:flex; flex-wrap:wrap; gap:10px 0; }
+  .radio-item { width:50%; display:flex; align-items:center; gap:8px; font-size:15px; color:#1f2329; cursor:pointer; }
+  .radio-item .rc {
+    width:17px; height:17px; border-radius:50%; flex:none;
+    border:1.5px solid #c3ccd9; position:relative; background:#fff;
+  }
+  .radio-item.on .rc { border-color:#1d4fd7; }
+  .radio-item.on .rc::after {
+    content:''; position:absolute; inset:3.5px; border-radius:50%; background:#1d4fd7;
+  }
+  .radio-item .other-input {
+    border:none; outline:none; background:transparent;
+    font-size:14.5px; color:#1f2329; width:96px;
+    border-bottom:0.5px solid #dfe3ea;
+    font-family:inherit;
+  }
+  .radio-item .other-input::placeholder { color:#b3bccb; }
+
+  /* 发现时间行 */
+  .sel-row { display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+  .sel-row .sel-txt { flex:1; font-size:15px; color:#b3bccb; }
+  .sel-row .sel-txt.filled { color:#1f2329; }
+  .sel-row .arr { color:#c3ccd9; font-size:15px; }
+
+  /* ===== 现场照片区 ===== */
+  .photo-area { display:flex; gap:14px; align-items:flex-start; }
+  .photo-left { flex:none; }
+  .btn-ai {
+    display:inline-flex; align-items:center; gap:5px;
+    background:#1d4fd7; color:#fff;
+    border:none; border-radius:5px;
+    font-size:12.5px; font-weight:500;
+    padding:7px 11px; cursor:pointer;
+    font-family:inherit;
+  }
+  .btn-ai.loading { opacity:.75; pointer-events:none; }
+  .photo-right { flex:1; display:flex; flex-wrap:wrap; gap:10px; }
+  .upload-cell {
+    width:88px; height:88px;
+    border:1.2px dashed #c9d2e0; border-radius:6px;
+    background:#fafbfd;
+    display:flex; align-items:center; justify-content:center;
     cursor:pointer;
   }
-  .upload-area .u-t { font-size:14px; color:#3d4a63; font-weight:500; }
-  .upload-area .u-s { font-size:11.5px; color:#9aa8bb; }
-  .uploaded { display:flex; gap:10px; flex-wrap:wrap; }
   .thumb {
-    width:112px; border-radius:10px; overflow:hidden;
+    width:88px; height:88px; border-radius:6px; overflow:hidden;
     position:relative; line-height:0;
-    box-shadow:0 1px 4px rgba(31,58,110,.12);
   }
-  .thumb svg { width:100%; height:auto; display:block; }
+  .thumb svg { width:100%; height:100%; display:block; }
   .thumb .del {
-    position:absolute; top:5px; right:5px;
-    width:20px; height:20px; border-radius:50%;
+    position:absolute; top:3px; right:3px;
+    width:19px; height:19px; border-radius:50%;
     background:rgba(15,23,42,.55); color:#fff;
-    font-size:13px; display:flex; align-items:center; justify-content:center;
+    font-size:12px; display:flex; align-items:center; justify-content:center;
     line-height:1; cursor:pointer;
   }
-  .add-cell {
-    width:112px; height:76px;
-    border:1.5px dashed #c3cfe2; border-radius:10px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-    color:#9aa8bb; font-size:11px; cursor:pointer;
-  }
-  .photo-name {
-    display:flex; align-items:center; justify-content:center; gap:5px;
-    margin-top:12px; font-size:12.5px; color:#8a96ad;
-  }
-
-  /* ===== 表单字段 ===== */
-  .f-label { font-size:13.5px; color:#3d4a63; font-weight:500; margin-bottom:8px; }
-  .f-textarea {
-    width:100%; height:76px; resize:none;
-    border:1px solid #e3eaf4; border-radius:10px;
-    background:#f8fafd; padding:10px 12px;
-    font-size:13.5px; color:#1f2a44; line-height:1.6;
-    font-family:inherit; outline:none;
-  }
-  .f-textarea::placeholder { color:#a8b3c7; }
-  .f-row {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:11px 2px; border-bottom:1px solid #f0f4fa;
-  }
-  .f-row:last-child { border-bottom:none; }
-  .f-row .k { font-size:13.5px; color:#6b7896; }
-  .f-row .v { font-size:13.5px; color:#1f2a44; display:flex; align-items:center; gap:4px; }
-  .f-row .arrow { color:#b6c2d6; font-size:14px; }
 
   /* ===== 底部操作栏 ===== */
   .bar-fix {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
     width:375px; max-width:100vw;
-    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
     background:#fff;
-    box-shadow:0 -2px 12px rgba(31,58,110,.06);
-    display:flex; z-index:20;
+    border-top:0.5px solid #eceff3;
+    display:flex; gap:12px; z-index:20;
   }
-  .btn-ai {
-    flex:1; height:48px; border:none; border-radius:14px;
-    background:linear-gradient(135deg,#4d8bff,#2f6df6);
-    color:#fff; font-size:16px; font-weight:600;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    cursor:pointer;
-    box-shadow:0 4px 12px rgba(47,109,246,.3);
+  .btn-draft, .btn-submit {
+    flex:1; height:44px; border:none; border-radius:8px;
+    font-size:16px; font-weight:500; cursor:pointer;
+    font-family:inherit;
   }
-  .btn-ai.loading { opacity:.75; pointer-events:none; }
+  .btn-draft { background:#f2f3f5; color:#1f2329; }
+  .btn-submit { background:#1d4fd7; color:#fff; }
   .spin {
-    width:17px; height:17px; flex:none;
-    border:2.5px solid rgba(255,255,255,.35); border-top-color:#fff;
+    width:14px; height:14px; flex:none; display:inline-block; vertical-align:-2px;
+    border:2px solid rgba(255,255,255,.4); border-top-color:#fff;
     border-radius:50%; animation:sp .8s linear infinite;
   }
   @keyframes sp { to { transform:rotate(360deg); } }
 
   /* ===== toast ===== */
   #toast {
-    position:fixed; left:50%; bottom:96px; transform:translateX(-50%);
+    position:fixed; left:50%; bottom:100px; transform:translateX(-50%);
     background:rgba(15,23,42,.82); color:#fff;
     font-size:13px; padding:9px 16px; border-radius:20px;
     display:none; z-index:99; white-space:nowrap;
@@ -140,31 +181,88 @@
 
   <!-- 顶部导航 -->
   <div class="nav">
-    <button class="nav-btn" onclick="goBack()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#1f2a44" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="nav-btn" onclick="history.back()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#1f2329" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <div class="nav-text">
-      <div class="nav-title">隐患上报</div>
-      <div class="nav-status">隐患填写表单</div>
-    </div>
+    <div class="nav-title">隐患登记</div>
   </div>
 
-  <!-- 现场照片（必填） -->
-  <div class="card">
-    <div class="sec-head">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="15" rx="2.5" stroke="#2f6df6" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="#2f6df6"/><path d="M4 17.5l4.8-4.5 3.4 3.2 3.6-3.8L20 16" stroke="#2f6df6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="t">现场照片 <span class="req">*</span></span>
+  <!-- 流程步骤条：登记 → 确认 → 接收 → 整改 → 验收 -->
+  <div class="steps-grid">
+    <div class="sg-cell active"><div class="dot"></div><div class="lab">登记</div></div>
+    <div class="sg-cell"><div class="dot"></div><div class="lab">确认</div></div>
+    <div class="sg-cell"><div class="dot"></div><div class="lab">接收</div></div>
+    <div class="sg-cell"><div class="dot"></div><div class="lab">整改</div></div>
+    <div class="sg-cell"><div class="dot"></div><div class="lab">验收</div></div>
+  </div>
+
+  <div class="form-rows">
+
+    <!-- 检查类型（单选组；截图顶部被截断，按可见选项补全为4项） -->
+    <div class="frow">
+      <div class="fhead"><span class="flabel">检查类型</span></div>
+      <div class="fvalue radio-group" id="typeGroup">
+        <div class="radio-item" data-v="现场检查" onclick="pickType(this)"><span class="rc"></span>现场检查</div>
+        <div class="radio-item" data-v="专业检查" onclick="pickType(this)"><span class="rc"></span>专业检查</div>
+        <div class="radio-item" data-v="包保履职" onclick="pickType(this)"><span class="rc"></span>包保履职</div>
+        <div class="radio-item" data-v="其他" onclick="pickType(this)"><span class="rc"></span>其他 <input class="other-input" placeholder="请输入内容" onclick="event.stopPropagation()"></div>
+      </div>
     </div>
-    <!-- 未上传态 -->
-    <div class="upload-area" id="uploadArea" onclick="uploadPhoto()">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1.1-1.6c.3-.5.8-.7 1.3-.7h3.8c.5 0 1 .2 1.3.7L16.3 6h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8z" stroke="#8fa5c6" stroke-width="1.7"/><circle cx="12" cy="12.2" r="3.1" stroke="#8fa5c6" stroke-width="1.7"/></svg>
-      <div class="u-t">点击上传隐患照片</div>
-      <div class="u-s">支持拍照或从相册选择，上传后可 AI 识隐患</div>
+
+    <!-- 发现时间（必填） -->
+    <div class="frow">
+      <div class="fhead">
+        <span class="flabel"><span class="req">*</span>发现时间</span>
+        <div class="fvalue sel-row" onclick="pickTime()">
+          <span class="sel-txt" id="timeTxt">请选择发现时间</span>
+          <span class="arr">›</span>
+        </div>
+      </div>
     </div>
-    <!-- 已上传态 -->
-    <div class="uploaded" id="uploadedGrid" style="display:none">
-      <div class="thumb">
-        <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" data-page-node-id="dkLlnjf6S3qhjO2JaOtgGr">
+
+    <!-- 隐患描述 -->
+    <div class="frow">
+      <div class="fhead"><span class="flabel">隐患描述</span></div>
+      <div class="fvalue">
+        <textarea class="finput" id="descInput" maxlength="500" placeholder="请输入内容" oninput="updCount('descInput','descCnt')"></textarea>
+        <div class="counter"><span id="descCnt">0</span>/500</div>
+      </div>
+    </div>
+
+    <!-- 检查依据 -->
+    <div class="frow">
+      <div class="fhead"><span class="flabel">检查依据</span></div>
+      <div class="fvalue">
+        <textarea class="finput" id="basisInput" maxlength="500" placeholder="请输入内容" oninput="updCount('basisInput','basisCnt')"></textarea>
+        <div class="counter"><span id="basisCnt">0</span>/500</div>
+      </div>
+    </div>
+
+    <!-- 整改措施 -->
+    <div class="frow">
+      <div class="fhead"><span class="flabel">整改措施</span></div>
+      <div class="fvalue">
+        <textarea class="finput" id="measureInput" maxlength="500" placeholder="请输入内容" oninput="updCount('measureInput','measureCnt')"></textarea>
+        <div class="counter"><span id="measureCnt">0</span>/500</div>
+      </div>
+    </div>
+
+    <!-- 现场照片 + AI识隐患 -->
+    <div class="frow">
+      <div class="fhead" style="align-items:flex-start">
+        <span class="flabel" style="padding-top:2px">现场照片</span>
+        <div class="fvalue photo-area">
+          <div class="photo-left">
+            <button class="btn-ai" id="aiBtn" onclick="onAiRecognize()"><span id="aiBtnTxt">AI识隐患</span></button>
+          </div>
+          <div class="photo-right">
+            <!-- 未上传态 -->
+            <div class="upload-cell" id="uploadCell" onclick="uploadPhoto()">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1.1-1.6c.3-.5.8-.7 1.3-.7h3.8c.5 0 1 .2 1.3.7L16.3 6h1.2A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-8z" stroke="#c3ccd9" stroke-width="1.6"/><circle cx="12" cy="12.2" r="3" stroke="#c3ccd9" stroke-width="1.6"/></svg>
+            </div>
+            <!-- 已上传态（演示缩略图，与后续页面同款现场图） -->
+            <div class="thumb" id="thumbCell" style="display:none">
+              <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" data-page-node-id="dkLlnjf6S3qhjO2JaOtgGr">
         <rect width="640" height="420" fill="#c9d3e0" data-page-node-id="0D10zkg5NCtqjErSCwWzoa"/>
         <rect x="0" y="0" width="640" height="150" fill="#b3c2d4" data-page-node-id="jCjpDyO3hsqgoFRhWD1A5l"/>
         <!-- 远处建筑 -->
@@ -213,50 +311,26 @@
           </linearGradient>
         </defs>
       </svg>
-        <div class="del" onclick="event.stopPropagation(); removePhoto()">×</div>
+              <div class="del" onclick="removePhoto()">×</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="add-cell" onclick="toast('演示环境：上传 1 张照片即可体验')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#b6c2d6" stroke-width="2" stroke-linecap="round"/></svg>
-        <span>继续添加</span>
-      </div>
     </div>
-    <div class="photo-name" id="photoName" style="display:none">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-8z" stroke="#8a96ad" stroke-width="1.8"/></svg>
-      IMG_20261102_143215.jpg
-    </div>
-  </div>
 
-  <!-- 隐患描述 -->
-  <div class="card">
-    <div class="f-label">隐患描述</div>
-    <textarea class="f-textarea" placeholder="可简单描述隐患情况，上传照片后可点击下方按钮由 AI 自动识别生成"></textarea>
-  </div>
-
-  <!-- 基本信息 -->
-  <div class="card">
-    <div class="f-row">
-      <span class="k">隐患部位</span>
-      <span class="v" onclick="toast('演示环境：部位选择略')">管廊作业区 <span class="arrow">›</span></span>
-    </div>
-    <div class="f-row">
-      <span class="k">发现时间</span>
-      <span class="v">2026-11-02 14:30</span>
-    </div>
   </div>
 
   <!-- 底部操作栏 -->
   <div class="bar-fix">
-    <button class="btn-ai" id="aiBtn" onclick="onAiRecognize()">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" id="aiIcon"><path d="M12 2.8l1.9 4.6 4.6 1.9-4.6 1.9L12 15.8l-1.9-4.6-4.6-1.9 4.6-1.9L12 2.8z" fill="#fff"/><path d="M18.8 14.2l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9.9-2.2z" fill="#fff"/></svg>
-      <span id="aiBtnTxt">AI 识隐患</span>
-    </button>
+    <button class="btn-draft" onclick="toast('演示环境：草稿已保存')">存草稿</button>
+    <button class="btn-submit" id="submitBtn" onclick="onSubmit()">提交</button>
   </div>
 
   <div id="toast"></div>
 </div>
 
 <script>
-// ============ 隐患填写表单：流程第 1 步（上传图片 → 点击 AI识隐患） ============
+// ============ 隐患登记表单：流程第 1 步（填表 + 上传图片 → 点击 AI识隐患） ============
 let photoUploaded = false;
 let toastTimer;
 
@@ -267,37 +341,56 @@ function toast(msg){
   toastTimer = setTimeout(()=>t.style.display='none', 1800);
 }
 
+function pickType(el){
+  document.querySelectorAll('#typeGroup .radio-item').forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+  // 埋点：hse_form_field_change（字段=检查类型，值=所选项）
+}
+
+function pickTime(){
+  // 演示：直接填入当前时间（真实环境为日期时间选择器）
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const txt = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  const t = document.getElementById('timeTxt');
+  t.textContent = txt; t.classList.add('filled');
+}
+
+function updCount(inputId, cntId){
+  document.getElementById(cntId).textContent = document.getElementById(inputId).value.length;
+}
+
 // 上传照片（演示：点击即模拟从相册选择成功）
+// 埋点：hse_form_photo_upload（count=1）
 function uploadPhoto(){
   photoUploaded = true;
-  document.getElementById('uploadArea').style.display = 'none';
-  document.getElementById('uploadedGrid').style.display = 'flex';
-  document.getElementById('photoName').style.display = 'flex';
-  // 埋点：hse_form_photo_upload（count=1）
+  document.getElementById('uploadCell').style.display = 'none';
+  document.getElementById('thumbCell').style.display = 'block';
   toast('照片上传成功');
 }
 
 function removePhoto(){
   photoUploaded = false;
-  document.getElementById('uploadArea').style.display = 'flex';
-  document.getElementById('uploadedGrid').style.display = 'none';
-  document.getElementById('photoName').style.display = 'none';
+  document.getElementById('uploadCell').style.display = 'flex';
+  document.getElementById('thumbCell').style.display = 'none';
 }
 
-function goBack(){ history.back(); }
-
-// 点击 AI识隐患：未上传提示；已上传 loading 后跳转识别结果页
+// 点击 AI识隐患：未上传提示；已上传 loading 后跳转 AI识隐患结果页
+// 埋点：hse_ai_recognize_click（has_photo=1）
 function onAiRecognize(){
   if(!photoUploaded){ toast('请先上传隐患照片'); return; }
   const btn = document.getElementById('aiBtn');
   btn.classList.add('loading');
-  document.getElementById('aiIcon').outerHTML = '<span class="spin" id="aiIcon"></span>';
-  document.getElementById('aiBtnTxt').textContent = '正在识别隐患…';
-  // 埋点：hse_ai_recognize_click（has_photo=1）
-  // 跳转 AI识隐患结果页；加时间戳防 bfcache
+  document.getElementById('aiBtnTxt').innerHTML = '<span class="spin"></span> 识别中…';
   setTimeout(function(){
+    // 加时间戳防 bfcache，确保每次点击都重放后续等待效果
     location.href = 'ai-hazard-recognition.html?src=form&t=' + Date.now();
   }, 1400);
+}
+
+function onSubmit(){
+  if(!photoUploaded){ toast('请先上传隐患照片'); return; }
+  toast('演示环境：提交成功');
 }
 </script>
 </body>
