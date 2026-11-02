@@ -463,8 +463,8 @@
   // 触发时机：页面首次加载 + bfcache 恢复（pageshow persisted）→ 保证每次点击「辅助分析」都完整重放。
   // 真实接入时：将 DEMO_RETURN_MS 定时替换为接口回调（成功 → revealAll()+finish()；失败 → 提示重试）。
   (function(){
-    var P95_MS = 20000;                 // 超时安抚阈值：真实环境取埋点 P95 耗时
-    var DEMO_RETURN_MS = 8600;          // 演示：模拟接口在 8.6s 一次性返回（真实接入改为回调驱动）
+    var RETURN_MS = 40000;              // 智能体输出一般约 40s（真实接入改为接口回调驱动）
+    var P95_MS = 60000;                 // 超时安抚阈值：真实环境取埋点 P95 耗时（按输出约 40s 设计，取 60s）
     var cards = Array.prototype.slice.call(document.querySelectorAll('#fieldsWrap .field-card'));
     var skLines = [
       ['58%'],                          // 隐患等级：单行
@@ -518,9 +518,9 @@
 
       // -- 思考语句滚动轮播：按当前阶段切换语句池，强化「系统在干活」的感知 --
       var THINK_POOLS = {
-        2: ['正在解析隐患描述中的关键要素…', '正在对照隐患分级判定标准评估等级…', '正在判定专业分类与危害因素…'],
-        3: ['正在检索同类隐患的整改案例…', '正在结合现场情况生成整改措施…', '正在评估整改措施的可行性与优先级…'],
-        4: ['正在匹配适用的标准规范条文…', '正在核对引用依据的准确性与时效性…', '正在确认标准条款编号…']
+        2: ['正在解析隐患描述中的关键要素…', '正在识别作业场景与风险特征…', '正在对照隐患分级判定标准评估等级…', '正在判定专业分类与危害因素…', '正在比对同类隐患的历史分级记录…', '正在校验等级判定的一致性…'],
+        3: ['正在检索同类隐患的整改案例…', '正在结合现场情况生成整改措施…', '正在参考行业标准的管理要求…', '正在评估整改措施的可行性与优先级…', '正在梳理措施实施的责任与时序…'],
+        4: ['正在匹配适用的标准规范条文…', '正在检索法规库中的关联条款…', '正在核对引用依据的准确性与时效性…', '正在核验条文与隐患类型的对应关系…', '正在确认标准条款编号…']
       };
       var thinkEl = document.getElementById('thinkTxt');
       var curPool = THINK_POOLS[2], pi = 0;
@@ -536,9 +536,9 @@
       var thinkId = setInterval(showThink, 2600);
       timers.push(thinkId);
 
-      // -- 进度条：8.2 秒缓动推进至 88%，完成时补满 100%（无 ETA，仅作感知反馈）--
+      // -- 进度条：38 秒缓动推进至 88%，完成时补满 100%（无 ETA，仅作感知反馈）--
       var bar = document.getElementById('wpBar');
-      var CRAWL = 8200, TARGET = 88;
+      var CRAWL = 38000, TARGET = 88;
       (function crawl(){
         var p = Math.min(1, (Date.now()-t0)/CRAWL);
         bar.style.width = ((1 - Math.pow(1-p, 3)) * TARGET) + '%';
@@ -565,20 +565,20 @@
       }
 
       // 阶段推进（感知进度，卡片保持骨架，不提前吐字段）
-      timers.push(setTimeout(function(){        // t≈2.6s：分级分类阶段完成
+      timers.push(setTimeout(function(){        // t≈16s：分级分类阶段完成（占总时长 40%）
         stageDone(2);
         document.getElementById('st3').classList.add('active');
         swapThinkPool(3);
-      }, 2600));
-      timers.push(setTimeout(function(){        // t≈5.8s：整改措施阶段完成
+      }, 16000));
+      timers.push(setTimeout(function(){        // t≈28s：整改措施阶段完成（占 70%）
         stageDone(3);
         document.getElementById('st4').classList.add('active');
         swapThinkPool(4);
-      }, 5800));
-      timers.push(setTimeout(function(){        // t≈8.6s：模拟接口一次性返回 → 五个字段统一渲染
+      }, 28000));
+      timers.push(setTimeout(function(){        // t≈40s：模拟接口一次性返回 → 五个字段统一渲染
         clearInterval(thinkId);
         stageDone(4); revealAll(); finish();
-      }, DEMO_RETURN_MS));
+      }, RETURN_MS));
 
       // -- 超时兜底（真实接入后生效；演示节奏不会触发）--
       timers.push(setTimeout(function(){
