@@ -167,6 +167,36 @@
   }
   @keyframes sp { to { transform:rotate(360deg); } }
 
+  /* ===== 补充说明（选填）===== */
+  .prompt-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    border:1px solid #dfe3ea; border-radius:14px;
+    background:#fff; padding:5px 12px;
+    font-size:12.5px; color:#3d4a63;
+    cursor:pointer; transition:all .15s;
+  }
+  .chip.on {
+    background:#e8effd; border-color:#1d4fd7; color:#1d4fd7; font-weight:500;
+  }
+  .prompt-box { position:relative; margin-top:10px; }
+  .prompt-textarea {
+    width:100%; height:58px; resize:none;
+    border:1px solid #e3eaf4; border-radius:8px;
+    background:#f8fafd; padding:9px 34px 9px 11px;
+    font-size:13.5px; color:#1f2329; line-height:1.55;
+    font-family:inherit; outline:none;
+  }
+  .prompt-textarea:focus { border-color:#1d4fd7; background:#f3f7ff; }
+  .prompt-textarea::placeholder { color:#b3bccb; }
+  .mic-btn {
+    position:absolute; right:7px; top:8px;
+    width:26px; height:26px; border:none; border-radius:50%;
+    background:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .prompt-counter { text-align:right; font-size:12px; color:#b3bccb; margin-top:3px; }
+  .prompt-hint { font-size:11.5px; color:#9aa8bb; margin-top:7px; line-height:1.5; }
+
   /* ===== toast ===== */
   #toast {
     position:fixed; left:50%; bottom:100px; transform:translateX(-50%);
@@ -244,6 +274,30 @@
       <div class="fvalue">
         <textarea class="finput" id="measureInput" maxlength="500" placeholder="请输入内容" oninput="updCount('measureInput','measureCnt')"></textarea>
         <div class="counter"><span id="measureCnt">0</span>/500</div>
+      </div>
+    </div>
+
+    <!-- 补充说明（选填）：图主文辅，识别时作为上下文注入 -->
+    <div class="frow">
+      <div class="fhead" style="align-items:flex-start">
+        <span class="flabel" style="width:88px">补充说明<span style="font-weight:400;font-size:12px;color:#9aa8bb">（选填）</span></span>
+        <div class="fvalue">
+          <div class="prompt-chips" id="promptChips">
+            <span class="chip" data-t="动火作业" onclick="toggleChip(this)">动火作业</span>
+            <span class="chip" data-t="高处作业" onclick="toggleChip(this)">高处作业</span>
+            <span class="chip" data-t="用电安全" onclick="toggleChip(this)">用电安全</span>
+            <span class="chip" data-t="消防通道" onclick="toggleChip(this)">消防通道</span>
+            <span class="chip" data-t="有限空间" onclick="toggleChip(this)">有限空间</span>
+          </div>
+          <div class="prompt-box">
+            <textarea class="prompt-textarea" id="promptText" maxlength="100" placeholder="如：今天有雨，重点看脚手架…" oninput="updPromptCnt()"></textarea>
+            <button class="mic-btn" title="语音输入" onclick="voiceInput()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#1d4fd7" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0" stroke="#1d4fd7" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17.5V21" stroke="#1d4fd7" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="prompt-counter"><span id="promptCnt">0</span>/100</div>
+          <div class="prompt-hint">可点选上方标签或输入文字，AI 将结合补充说明识别隐患（以图片为准）</div>
+        </div>
       </div>
     </div>
 
@@ -379,6 +433,7 @@ function removePhoto(){
 // 埋点：hse_ai_recognize_click（has_photo=1）
 function onAiRecognize(){
   if(!photoUploaded){ toast('请先上传隐患照片'); return; }
+  collectPrompt();   // 补充说明随跳转传递（sessionStorage）
   const btn = document.getElementById('aiBtn');
   btn.classList.add('loading');
   document.getElementById('aiBtnTxt').innerHTML = '<span class="spin"></span> 识别中…';
@@ -391,6 +446,38 @@ function onAiRecognize(){
 function onSubmit(){
   if(!photoUploaded){ toast('请先上传隐患照片'); return; }
   toast('演示环境：提交成功');
+}
+
+// ============ 补充说明（选填）：快捷标签 + 自由文本 + 语音 ============
+function toggleChip(el){
+  el.classList.toggle('on');
+  // 埋点：hse_prompt_tag_click（tag=el.dataset.t, on=选中/取消）
+}
+
+function updPromptCnt(){
+  document.getElementById('promptCnt').textContent = document.getElementById('promptText').value.length;
+}
+
+// 语音输入（演示：模拟语音转文字填入示例语句；真实环境接入 ASR）
+function voiceInput(){
+  const ta = document.getElementById('promptText');
+  if(ta.value.length >= 90){ toast('已达 100 字上限'); return; }
+  ta.value = (ta.value ? ta.value + '，' : '') + '现场正在进行动火作业';
+  updPromptCnt();
+  toast('语音识别完成');
+  // 埋点：hse_prompt_voice_used
+}
+
+// 收集补充说明：选中标签 + 自由文本；无内容则清除
+function collectPrompt(){
+  const tags = Array.prototype.map.call(
+    document.querySelectorAll('#promptChips .chip.on'), c => c.dataset.t);
+  const text = document.getElementById('promptText').value.trim();
+  if(tags.length === 0 && !text){ sessionStorage.removeItem('hazardPrompt'); return null; }
+  const p = { tags: tags, text: text };
+  sessionStorage.setItem('hazardPrompt', JSON.stringify(p));
+  // 埋点：hse_prompt_usage（tag_count=tags.length, has_text=!!text）
+  return p;
 }
 </script>
 </body>
