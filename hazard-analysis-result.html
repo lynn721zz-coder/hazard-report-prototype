@@ -136,6 +136,10 @@
     border-radius: 6px;
   }
 
+  /* ========== 现场照片：与AI识隐患页面一致的原图片 ========== */
+  .photo-wrap { border-radius:12px; overflow:hidden; background:#dfe5ee; line-height:0; }
+  .photo-wrap svg { width:100%; height:auto; display:block; }
+
   /* ========== 等待体验：阶段清单 + 骨架屏渐进渲染 ========== */
   .wait-block { margin-bottom: 12px; overflow: hidden; max-height: 420px; transition: max-height .45s ease, opacity .4s ease, margin .45s ease; }
   .wait-block.collapse { max-height: 0; opacity: 0; margin-bottom: 0; }
@@ -257,10 +261,56 @@
     </div>
     <div class="section-card" data-page-node-id="YhhsFrNvmaJ77BI1YTtJdY">
       <div class="section-head" data-page-node-id="72WCfUePoODXOpQU5AyBjq"><div class="bar" data-page-node-id="g6oE3hwFkMJbMwnx0XIv42"></div><div class="txt" data-page-node-id="pGmyV2a5bkqsfClHEYtyio">现场照片</div></div>
-      <div class="photo-grid" data-page-node-id="Enp62st0eKgVAqySmVOSkC">
-        <div class="photo" style="background:linear-gradient(135deg,#8fb3d9,#5d82ab)" data-page-node-id="H5GtaRgQldGFn0NU1CLlLh"></div>
-        <div class="photo" style="background:linear-gradient(135deg,#d9a08f,#b06a55)" data-page-node-id="wBEgyTDrlxjFSQEXq8qRlJ"></div>
-        <div class="photo add" data-page-node-id="MhbGhZ2fRpA6rxv4znhnlc">+</div>
+      <div class="photo-wrap" data-page-node-id="Enp62st0eKgVAqySmVOSkC">
+        <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" data-page-node-id="dkLlnjf6S3qhjO2JaOtgGr">
+        <rect width="640" height="420" fill="#c9d3e0" data-page-node-id="0D10zkg5NCtqjErSCwWzoa"/>
+        <rect x="0" y="0" width="640" height="150" fill="#b3c2d4" data-page-node-id="jCjpDyO3hsqgoFRhWD1A5l"/>
+        <!-- 远处建筑 -->
+        <rect x="30" y="60" width="90" height="80" fill="#9fb0c6" data-page-node-id="eMe8EPEpveOrAhF6P449Ri"/>
+        <rect x="140" y="40" width="60" height="100" fill="#a8b8cc" data-page-node-id="zXwFDcIxVb3RMXFUfxEmb9"/>
+        <rect x="520" y="70" width="80" height="70" fill="#9fb0c6" data-page-node-id="mjtD2qOy8GNOT8bRQ980CJ"/>
+        <!-- 地面 -->
+        <rect x="0" y="300" width="640" height="120" fill="#8e9bb0" data-page-node-id="R3kHCpBocjfBEFSqBLGrGg"/>
+        <rect x="0" y="300" width="640" height="14" fill="#7c8aa0" data-page-node-id="4ZdezFXLbj39WBB7XN8ok8"/>
+        <!-- 黄黑警示条纹立柱 -->
+        <g data-page-node-id="AHfXqp6NXHYWnRFFBQs4g1">
+          <rect x="470" y="180" width="26" height="180" fill="#e8c34a" data-page-node-id="S4Ypk4PmEheHuUK4Olod6l"/>
+          <rect x="470" y="180" width="26" height="16" fill="#2b2f38" transform="skewX(-18)" data-page-node-id="PKdhlNORCGUHV2aB991BAP" />
+          <path d="M470 200 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="Ru0LXQ88FiwfuSnsuxXyDd"/>
+          <path d="M470 240 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="c2T4wEf1z1pgkKGey2wSCO"/>
+          <path d="M470 280 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="uHex0n04eoV4cwwxeiuBWY"/>
+          <path d="M470 320 l26 -14 v18 l-26 14 z" fill="#2b2f38" data-page-node-id="kQMrhIvdt6mcoa6gB5cRhM"/>
+        </g>
+        <!-- 主管道（横） -->
+        <rect x="0" y="196" width="640" height="58" rx="8" fill="#d7dde6" data-page-node-id="lBdhWkojeUjoYqBd7i5jf5"/>
+        <rect x="0" y="196" width="640" height="16" fill="#eceff4" data-page-node-id="gD3zdpcazG5u0GBT2gbHZt"/>
+        <!-- 法兰盘 -->
+        <rect x="120" y="188" width="22" height="74" rx="4" fill="#b7c1cf" data-page-node-id="SAmDPFg3VG2pMkLSijCifJ"/>
+        <rect x="300" y="188" width="22" height="74" rx="4" fill="#b7c1cf" data-page-node-id="LJWDMyjf691smN8HGNU1SH"/>
+        <!-- 蓝色阀门主体 -->
+        <rect x="216" y="150" width="110" height="150" rx="14" fill="#3b6fd4" data-page-node-id="8AV0LtR5sDz8I2RGtWnNjB"/>
+        <rect x="216" y="150" width="110" height="150" rx="14" fill="url(#vshade)" data-page-node-id="dCSk4x8g9u6YHWAaka70B3"/>
+        <rect x="228" y="170" width="40" height="34" rx="6" fill="#5b8ae0" opacity=".8" data-page-node-id="MVuzD3CgtMN3AIalFvU7TS"/>
+        <!-- 阀门红色手轮（顶部） -->
+        <ellipse cx="271" cy="140" rx="64" ry="26" fill="#d9363e" data-page-node-id="FPdTknuc590JgouCklDABe"/>
+        <ellipse cx="271" cy="134" rx="64" ry="24" fill="#ef5350" data-page-node-id="Yv1YnZRv6zwSKbDEkguw26"/>
+        <ellipse cx="271" cy="134" rx="30" ry="11" fill="#c62828" data-page-node-id="ot1SKaOcQMOVnlkc15icBH"/>
+        <rect x="263" y="150" width="16" height="34" fill="#8f2b2b" data-page-node-id="Isy6fkgdNlO0EkX4pBoGT9"/>
+        <!-- 金属软管（下方波纹管） -->
+        <path d="M150 254 C 190 330, 260 340, 330 320 C 400 300, 430 280, 470 300" stroke="#cfd6df" stroke-width="26" fill="none" stroke-linecap="round" data-page-node-id="pphYFGbhzLnnEaMIEtEDYe"/>
+        <path d="M150 254 C 190 330, 260 340, 330 320 C 400 300, 430 280, 470 300" stroke="#aab4c2" stroke-width="26" fill="none" stroke-linecap="round" stroke-dasharray="4 10" data-page-node-id="ZcLiy6XgPOsl0xYnVniN25"/>
+        <!-- 支架 -->
+        <rect x="200" y="300" width="12" height="120" fill="#6d7a8e" data-page-node-id="Rwdd4XB1vJV1IscAqsmdP9"/>
+        <rect x="380" y="300" width="12" height="120" fill="#6d7a8e" data-page-node-id="wdtgu0le7UK7xDOH0YH3JK"/>
+        <!-- 红色隐患标注圈 -->
+        <circle cx="271" cy="200" r="72" fill="none" stroke="#e53935" stroke-width="5" opacity=".92" data-page-node-id="PYIeTt28vWONuFlbMWVn5I"/>
+        <defs data-page-node-id="hRyk5nPWJZUHdMsNVL357L">
+          <linearGradient id="vshade" x1="0" y1="0" x2="1" y2="1" data-page-node-id="Th1ABDN4XCPTIX4U0P2ACt">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".18" data-page-node-id="gZGBW6w7Z5kBfcCeAT3g7H"/>
+            <stop offset="1" stop-color="#000000" stop-opacity=".12" data-page-node-id="vW06zM5MKR1oMIwFQkpu2n"/>
+          </linearGradient>
+        </defs>
+      </svg>
       </div>
     </div>
     <div class="section-card" data-page-node-id="KGYwV0PiQqzyoo4x2tffDi">
