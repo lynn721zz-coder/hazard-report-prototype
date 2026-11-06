@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="77AxCfvqpTbAUpmit5j0JM">
+<head data-page-node-id="NBcnap0VYxnYeNxp8k3RVh">
+<meta charset="UTF-8" data-page-node-id="PI7FftUi1nGAn2m06yXso1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="gMgCuefaEJEyHtOEFziiTb">
+<title>隐患登记 - AI识别隐患（补充说明交互原型）</title>
+<style>
+  :root{
+    --primary:#1A3B8C;
+    --primary-weak:#E8EEFA;
+    --text:#1F2937;
+    --text-2:#6B7280;
+    --text-3:#9CA3AF;
+    --line:#E5E7EB;
+    --bg:#F5F6FA;
+    --danger:#E24B4A;
+    --ok:#0F6E56;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{background:#E9EBF0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;color:var(--text);}
+  .phone{max-width:375px;margin:24px auto;background:#fff;min-height:calc(100vh - 48px);position:relative;overflow:hidden;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;}
+  @media (max-width:430px){.phone{margin:0;border-radius:0;min-height:100vh;}}
+
+  /* 顶部导航 */
+  .navbar{display:flex;align-items:center;justify-content:center;position:relative;height:52px;border-bottom:.5px solid var(--line);background:#fff;position:sticky;top:0;z-index:20;}
+  .navbar .title{font-size:17px;font-weight:600;color:#16305F;}
+  .navbar .back{position:absolute;left:12px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;}
+  .navbar .back:hover{background:#F3F4F6;}
+  .navbar .back svg{width:20px;height:20px;stroke:#333;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+  .page{flex:1;overflow-y:auto;padding-bottom:96px;}
+
+  /* 步骤条 */
+  .stepper{padding:28px 20px 8px;}
+  .steps{display:flex;align-items:center;}
+  .step{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:52px;}
+  .dot{width:16px;height:16px;border-radius:50%;background:#D8DCE6;border:4px solid #D8DCE6;transition:all .2s;}
+  .step.active .dot{background:var(--primary);border-color:var(--primary);box-shadow:0 0 0 3px #fff,0 0 0 5px var(--primary);}
+  .step-label{margin-top:10px;font-size:13px;color:var(--text-2);white-space:nowrap;}
+  .step.active .step-label{color:var(--primary);font-weight:600;}
+  .bar{height:2px;background:#D8DCE6;flex:1;margin-top:0;}
+
+  /* 表单 */
+  .form{padding:0 16px;}
+  .field{display:flex;align-items:flex-start;padding:16px 0;border-bottom:.5px solid var(--line);}
+  .field-label{width:92px;flex:0 0 92px;font-size:15px;color:var(--text);line-height:24px;padding-top:2px;}
+  .field-label .req{color:var(--danger);margin-right:2px;}
+  .field-body{flex:1;min-width:0;}
+  .field input[type=text],.field input[type=date]{width:100%;border:none;outline:none;font-size:15px;line-height:24px;color:var(--text);background:transparent;}
+  .field ::placeholder{color:var(--text-3);}
+  .field:focus-within .field-label{color:var(--primary);}
+  textarea{width:100%;border:none;outline:none;resize:none;font-size:15px;line-height:22px;color:var(--text);font-family:inherit;background:transparent;}
+  .counter{text-align:right;font-size:12px;color:var(--text-3);margin-top:4px;}
+
+  /* 单选组 */
+  .radio-row{display:flex;align-items:center;padding:8px 0;font-size:15px;color:var(--text);cursor:pointer;gap:8px;}
+  .radio-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid #C4C9D4;flex:0 0 18px;position:relative;transition:border-color .15s;}
+  .radio-row.on .radio-dot{border-color:var(--primary);border-width:5px;}
+  .other-input{border:none;outline:none;font-size:15px;color:var(--text);width:140px;background:transparent;}
+  .other-input::placeholder{color:var(--text-3);}
+
+  /* 现场照片区 */
+  .photo-field{border-bottom:none;}
+  .ai-btn{display:inline-flex;align-items:center;gap:4px;margin-top:10px;background:var(--primary);color:#fff;font-size:12px;padding:6px 12px;border-radius:4px;border:none;cursor:pointer;transition:transform .15s,opacity .15s;}
+  .ai-btn:active{transform:scale(.95);}
+  .ai-btn:disabled{opacity:.5;cursor:not-allowed;}
+  .ai-btn.off{opacity:.5;}
+  .ai-btn svg{width:14px;height:14px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+  .photo-area{display:flex;gap:12px;flex-wrap:wrap;margin-top:0;position:relative;}
+  .ai-bubble{position:absolute;top:-16px;left:108px;background:#fff;border:1px solid #D9E2F5;border-radius:10px 10px 10px 2px;padding:6px 10px;font-size:11px;font-weight:500;color:var(--primary);box-shadow:0 2px 8px rgba(26,59,140,.12);white-space:nowrap;cursor:pointer;animation:bubbleFloat 2s ease-in-out infinite;z-index:5;}
+  .ai-bubble::before{content:"";position:absolute;left:-4.5px;bottom:5px;width:8px;height:8px;background:#fff;border-left:1px solid #D9E2F5;border-bottom:1px solid #D9E2F5;transform:rotate(45deg);}
+  @keyframes bubbleFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+  .ai-row{padding:4px 0 16px;}
+  .ai-btn.big{width:100%;height:42px;font-size:14px;justify-content:center;border-radius:8px;}
+  .step-pane{display:flex;flex-direction:column;min-height:0;}
+  .step-pane .sheet-foot{margin-top:auto;}
+  .sheet-list{flex:1;overflow-y:auto;}
+  .upload-box{width:96px;height:96px;border:1.5px dashed #C4C9D4;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#FAFBFC;transition:border-color .15s;flex-direction:column;gap:8px;animation:borderBreath 1.8s ease-in-out infinite;}
+  .upload-box:hover{border-color:var(--primary);}
+  @keyframes borderBreath{0%,100%{border-color:#C4C9D4;box-shadow:0 0 0 0 rgba(26,59,140,0);}50%{border-color:#3D6BE0;box-shadow:0 0 0 4px rgba(61,107,224,.14);}}
+  .upload-box .cam{width:24px;height:24px;stroke:#B6BCC9;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .ub-ai{display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:500;color:#fff;background:linear-gradient(120deg,#3D6BE0,#1A3B8C);padding:3.5px 8px;border-radius:9px;margin-top:6px;animation:aiPulse 1.8s ease-in-out infinite;white-space:nowrap;}
+  .ub-ai svg{width:9px;height:9px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  @keyframes aiPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.75;transform:scale(1.04);}}
+  @media (prefers-reduced-motion: reduce){.ub-ai,.upload-box,.ai-bubble{animation:none;}}
+  .photo-thumb{width:96px;height:96px;border-radius:6px;position:relative;overflow:hidden;background:#DCE7F7;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+  .photo-thumb .ph-ico{width:30px;height:30px;stroke:#5B7BC0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .photo-thumb .ph-txt{font-size:11px;color:#5B7BC0;}
+  .photo-thumb .scanline{position:absolute;left:0;right:0;height:2px;background:var(--primary);opacity:.85;top:8px;animation:scan 1.2s linear infinite;display:none;}
+  .photo-thumb.scanning .scanline{display:block;}
+  @keyframes scan{0%{top:6px;}50%{top:86px;}100%{top:6px;}}
+  .photo-thumb .del{position:absolute;top:0;right:0;width:20px;height:20px;background:rgba(0,0,0,.55);border-radius:0 0 0 6px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .photo-thumb .del svg{width:12px;height:12px;stroke:#fff;stroke-width:2;stroke-linecap:round;}
+  .ai-pill{position:absolute;left:0;right:0;bottom:0;height:26px;background:rgba(26,59,140,.92);color:#fff;font-size:11px;border:none;display:flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;width:100%;padding:0;}
+  .ai-pill svg{width:12px;height:12px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:0 0 12px;}
+  .ai-pill:active{opacity:.8;}
+
+  /* ===== 补充说明模块（新增） ===== */
+  .supplement{margin-top:2px;background:#F7F9FD;border:1px solid #E3E9F5;border-radius:10px;padding:12px 12px 10px;animation:fadeUp .25s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .sup-head{display:flex;align-items:center;gap:6px;}
+  .sup-head .t{font-size:14px;font-weight:600;color:var(--text);}
+  .sup-head .opt{font-size:10px;color:var(--text-3);border:1px solid var(--line);border-radius:3px;padding:1px 4px;background:#fff;}
+  .sup-head .help{margin-left:auto;font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:3px;cursor:pointer;}
+  .sup-head .help svg{width:13px;height:13px;stroke:var(--text-3);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto;font-size:12px;color:#3D5A9E;background:#fff;border:1px solid #C9D6F0;border-radius:14px;padding:5px 12px;cursor:pointer;transition:all .15s;user-select:none;}
+  .chip:active{transform:scale(.95);}
+  .chip.on{background:var(--primary-weak);border-color:var(--primary);color:var(--primary);font-weight:600;position:relative;}
+  .chip.on::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--primary);margin-right:4px;vertical-align:1px;}
+  .sup-input-row{display:flex;align-items:center;gap:6px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 8px 0 12px;transition:border-color .15s,box-shadow .15s;}
+  .sup-input-row:focus-within{border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,59,140,.08);}
+  .sup-input-row input{flex:1;border:none;outline:none;font-size:13px;line-height:38px;color:var(--text);background:transparent;min-width:0;}
+  .sup-input-row input::placeholder{color:var(--text-3);}
+  .mic-btn{width:32px;height:32px;border:none;background:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 32px;touch-action:none;user-select:none;-webkit-user-select:none;}
+  .mic-btn svg{width:17px;height:17px;stroke:#6B7AB8;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .mic-btn.rec svg{stroke:var(--danger);animation:pulse 1s ease infinite;}
+  @keyframes pulse{50%{opacity:.35;}}
+
+  /* 按住说话浮层 */
+  .rec-mask{position:absolute;inset:0;background:rgba(15,23,42,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:55;display:flex;align-items:center;justify-content:center;}
+  .rec-mask.show{opacity:1;pointer-events:auto;}
+  .rec-card{width:230px;background:#fff;border-radius:16px;padding:22px 16px 16px;text-align:center;transform:scale(.94);transition:transform .2s;box-shadow:0 8px 30px rgba(0,0,0,.15);}
+  .rec-mask.show .rec-card{transform:scale(1);}
+  .rec-card .mic-big{width:58px;height:58px;border-radius:50%;background:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto;}
+  .rec-card .mic-big.cancelling{background:#9CA3AF;}
+  .rec-card .mic-big svg{width:26px;height:26px;stroke:#fff;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rec-wave{display:flex;gap:3px;justify-content:center;height:24px;align-items:center;margin-top:16px;}
+  .rec-wave i{width:3px;border-radius:2px;background:var(--primary);animation:wave .9s ease-in-out infinite;display:block;}
+  .rec-wave.cancelling i{background:#C4C9D4;animation:none;height:6px;}
+  .rec-wave i:nth-child(2){animation-delay:.15s;}
+  .rec-wave i:nth-child(3){animation-delay:.3s;}
+  .rec-wave i:nth-child(4){animation-delay:.45s;}
+  .rec-wave i:nth-child(5){animation-delay:.6s;}
+  @keyframes wave{0%,100%{height:6px;}50%{height:22px;}}
+  .rec-time{font-size:14px;color:var(--text);margin-top:8px;font-variant-numeric:tabular-nums;font-weight:600;}
+  .rec-hint{margin-top:10px;font-size:12px;color:var(--text-3);}
+  .rec-hint.cancel{color:var(--danger);font-weight:600;}
+  .sup-counter{text-align:right;font-size:11px;color:var(--text-3);margin-top:4px;}
+  .sup-tip{font-size:11px;color:var(--text-3);margin-top:6px;line-height:16px;}
+
+  /* 底部操作 */
+  .footer{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:.5px solid var(--line);padding:12px 16px;display:flex;gap:12px;z-index:20;}
+  .btn{flex:1;height:44px;border-radius:8px;font-size:16px;border:none;cursor:pointer;transition:transform .15s,opacity .15s;}
+  .btn:active{transform:scale(.96);}
+  .btn-ghost{background:#F3F4F6;color:var(--text);}
+  .btn-primary{background:var(--primary);color:#fff;font-weight:600;}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+
+  /* ===== 辅助分析：隐患分析结果抽屉 ===== */
+  .ana-mask{position:absolute;inset:0;background:rgba(15,23,42,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:48;}
+  .ana-mask.show{opacity:1;pointer-events:auto;}
+  .ana-sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;z-index:49;padding:16px 16px 14px;transform:translateY(105%);transition:transform .28s ease-out;max-height:92%;display:flex;flex-direction:column;}
+  .ana-sheet.show{transform:translateY(0);}
+  .ana-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .ana-title{font-size:20px;font-weight:700;color:var(--text-1);}
+  .ana-close{width:30px;height:30px;border:none;border-radius:50%;background:#F1F4F9;color:#8B98AB;font-size:14px;cursor:pointer;flex:0 0 30px;}
+  .ana-desc{font-size:13.5px;line-height:1.65;color:var(--text-2);margin-bottom:12px;}
+  .ana-wait{margin-bottom:12px;overflow:hidden;max-height:420px;transition:max-height .45s ease,opacity .4s ease,margin .45s ease;}
+  .ana-wait.collapse{max-height:0;opacity:0;margin-bottom:0;}
+  .stg-list{display:flex;flex-direction:column;gap:9px;margin-bottom:10px;}
+  .stg{display:flex;align-items:center;gap:9px;font-size:13.5px;color:#9AA8BB;transition:color .2s;}
+  .stg .ic{flex:none;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .stg .ic::before{content:'';width:8px;height:8px;border-radius:50%;background:#D6DEEA;}
+  .stg.done{color:var(--text-2);}
+  .stg.done .ic{background:#18B58B;border-radius:50%;color:#fff;}
+  .stg.done .ic::before{display:none;}
+  .stg.done .ic::after{content:'\2713';}
+  .stg.active{color:var(--text-1);font-weight:600;}
+  .stg.active .ic::before{display:none;}
+  .stg.active .ic{border:2.5px solid #E3ECFF;border-top-color:var(--primary);border-radius:50%;animation:stgSpin .8s linear infinite;}
+  @keyframes stgSpin{to{transform:rotate(360deg);}}
+  .think-line{height:18px;overflow:hidden;margin:-2px 0 8px;}
+  .think-txt{display:block;font-size:12px;line-height:18px;color:#8A97AB;padding-left:29px;transition:opacity .38s ease,transform .38s ease;}
+  .think-txt.fade{opacity:0;transform:translateY(7px);}
+  .ana-eta{font-size:12px;color:#9AA8BB;}
+  .ana-prog{height:4px;background:#EEF1F6;border-radius:2px;overflow:hidden;margin:8px 0 6px;}
+  .ana-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3D6BE0,var(--primary));border-radius:2px;}
+  .ana-calm{display:none;margin-top:8px;font-size:12.5px;color:#B26A00;background:#FFF7E8;border:1px solid #FFE7BD;border-radius:8px;padding:8px 10px;line-height:1.6;}
+  .ana-fields{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px;padding-bottom:4px;min-height:0;}
+  .af-card{background:#F8FAFF;border:1px solid #E8EFFC;border-radius:12px;padding:12px 14px;}
+  .af-row{display:flex;gap:10px;}
+  .af-ck{flex:none;width:20px;height:20px;margin-top:1px;border-radius:5px;background:var(--primary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;}
+  .af-ck.off{background:#fff;border:1.5px solid #C4CFDD;}
+  .af-ck.off svg{display:none;}
+  .af-ck svg{width:12px;height:12px;}
+  .af-label{font-size:13px;color:#3D4A5F;margin-bottom:5px;}
+  .af-value{font-size:14.5px;line-height:1.6;color:var(--text-1);word-break:break-all;}
+  .af-level{display:inline-block;padding:3px 10px;font-size:13px;font-weight:600;color:#B26A00;background:#FFF3D6;border-radius:6px;}
+  .af-card.reveal{animation:afIn .4s ease;}
+  @keyframes afIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .sk-ck{flex:none;width:20px;height:20px;border-radius:5px;margin-top:1px;}
+  .sk-bd{flex:1;display:flex;flex-direction:column;gap:8px;}
+  .af-card .sk-ck,.af-card .sk-ln{background:linear-gradient(90deg,#EEF2F8 25%,#F7FAFD 45%,#EEF2F8 65%);background-size:200% 100%;animation:afShimmer 1.3s infinite;}
+  @keyframes afShimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+  .ana-fb{display:none;align-items:center;padding:10px 4px 2px;}
+  .ana-fb .tip{font-size:12px;color:#9AA8BB;margin-right:auto;white-space:nowrap;}
+  .afb-btn{border:1px solid #E3E9F2;background:#fff;border-radius:16px;padding:5px 9px;font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:4px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .afb-btn+.afb-btn{margin-left:8px;}
+  .afb-btn svg{width:14px;height:14px;}
+  .afb-btn:active{transform:scale(.94);}
+  .afb-btn.on-like{color:var(--primary);border-color:var(--primary);background:var(--primary-weak);}
+  .afb-btn.on-dislike{color:#E6543A;border-color:#F0A294;background:#FDEFEC;}
+  .ana-confirm{display:none;margin-top:12px;width:100%;height:46px;border:none;border-radius:23px;background:linear-gradient(90deg,#3D6BE0,var(--primary));color:#fff;font-size:15.5px;font-weight:600;letter-spacing:2px;cursor:pointer;}
+  .ana-confirm:active{opacity:.85;}
+  .afb-sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;padding:16px;z-index:50;transform:translateY(105%);transition:transform .25s ease-out;}
+  .afb-sheet.show{transform:translateY(0);}
+  .afb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .afb-title{font-size:16px;font-weight:700;color:var(--text-1);}
+  .afb-tags{display:none;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .afb-tag{padding:6px 12px;font-size:12.5px;color:var(--text-2);background:#F4F6FA;border-radius:15px;cursor:pointer;border:1px solid transparent;}
+  .afb-tag.on{color:var(--primary);background:var(--primary-weak);border-color:var(--primary);}
+  .afb-text{width:100%;height:80px;resize:none;border:1px solid #E3E9F2;border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:inherit;outline:none;background:#FAFBFD;color:var(--text-1);}
+  .afb-text:focus{border-color:var(--primary);background:#fff;}
+  .afb-submit{width:100%;margin-top:12px;border:none;cursor:pointer;height:44px;border-radius:22px;background:linear-gradient(90deg,#3D6BE0,var(--primary));color:#fff;font-size:15px;font-weight:600;}
+
+  /* toast */
+  .toast{position:absolute;left:50%;top:42%;transform:translateX(-50%) translateY(-50%) translateY(10px);background:rgba(23,32,52,.9);color:#fff;font-size:13px;padding:9px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:all .25s;z-index:60;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-50%);}
+
+  /* ===== AI 识别结果整页 ===== */
+  .result-page{position:absolute;inset:0;background:#EAF1FA;z-index:35;transform:translateX(102%);transition:transform .32s cubic-bezier(.32,.72,.24,1);display:flex;flex-direction:column;}
+  .result-page.show{transform:translateX(0);}
+  .rp-head{background:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:.5px solid var(--line);flex:0 0 auto;}
+  .rp-back{width:38px;height:38px;border:none;border-radius:50%;background:#EEF2F8;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 38px;}
+  .rp-back svg{width:18px;height:18px;stroke:#333;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rp-app{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#4D8DF7,#2E6BE6);display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 42px;}
+  .rp-app svg{width:24px;height:24px;stroke:#fff;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rp-appdot{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#22C55E;border:2px solid #fff;}
+  .rp-titles{min-width:0;}
+  .rp-title{font-size:17px;font-weight:600;color:#1B2A4A;line-height:22px;}
+  .rp-status{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2);margin-top:2px;}
+  .rp-dot{width:7px;height:7px;border-radius:50%;background:#C4C9D4;flex:0 0 7px;}
+  .rp-status.ok{color:#18A058;}
+  .rp-status.ok .rp-dot{background:#22C55E;}
+  .rp-status.loading .rp-dot{background:#F0A020;animation:pulse 1s ease infinite;}
+  .rp-body{flex:1;overflow-y:auto;padding:12px 12px 110px;}
+  .rp-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(30,60,120,.05);}
+  .photo-card{background:linear-gradient(180deg,#F7FAFF,#FFFFFF);}
+  .rp-label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#1B2A4A;}
+  .rp-label svg{width:17px;height:17px;stroke:#2E6BE6;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rp-photo{margin-top:10px;border-radius:10px;overflow:hidden;position:relative;height:200px;background:#9AA3AE;}
+  .sc-sky{position:absolute;inset:0 0 35% 0;background:#8D959F;}
+  .sc-floor{position:absolute;left:0;right:0;bottom:0;height:38%;background:#5FA777;}
+  .sc-floor::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:#4E9166;}
+  .sc-motor{position:absolute;left:22%;top:14%;width:44%;height:42%;background:linear-gradient(160deg,#5B8FD9,#33639F);border-radius:8px;box-shadow:0 4px 10px rgba(20,40,80,.35);}
+  .sc-motor i{position:absolute;top:12%;bottom:12%;width:5px;background:rgba(20,35,60,.55);border-radius:2px;}
+  .sc-motor i:nth-child(1){left:14%;}.sc-motor i:nth-child(2){left:34%;}
+  .sc-motor i:nth-child(3){left:54%;}.sc-motor i:nth-child(4){left:74%;}
+  .sc-rail{position:absolute;background:linear-gradient(90deg,#B98A5E,#8F6540);border-radius:3px;}
+  .sc-rail.r1{width:56%;height:9px;left:18%;top:58%;transform:rotate(-14deg);}
+  .sc-rail.r2{width:48%;height:8px;left:34%;top:74%;transform:rotate(-10deg);opacity:.9;}
+  .rp-fname{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--text-2);}
+  .rp-fname svg{width:14px;height:14px;stroke:#9CA3AF;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rp-section{display:flex;align-items:center;gap:10px;padding:16px 2px 10px;}
+  .rp-sec-ico{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#4D8DF7,#2E6BE6);display:flex;align-items:center;justify-content:center;flex:0 0 38px;}
+  .rp-sec-ico svg{width:20px;height:20px;stroke:#fff;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rp-sec-t{font-size:15px;font-weight:600;color:#1B2A4A;}
+  .rp-sec-s{font-size:12px;color:var(--text-2);margin-top:2px;}
+  .ana-card{padding:0 14px;}
+  .da-head{display:flex;align-items:center;padding:14px 0;cursor:pointer;}
+  .da-title{font-size:14px;font-weight:600;color:#1B2A4A;}
+  .ana-toggle{margin-left:auto;display:flex;align-items:center;gap:2px;font-size:13px;color:#2E6BE6;}
+  .ana-toggle svg{width:14px;height:14px;stroke:#2E6BE6;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s;}
+  .ana-card.open .ana-toggle svg{transform:rotate(90deg);}
+  .ana-body{padding-bottom:14px;border-top:.5px solid var(--line);}
+  .ana-sec{font-size:13px;font-weight:600;color:#1B2A4A;margin-top:12px;}
+  .ana-txt{font-size:13px;color:var(--text-2);margin-top:4px;line-height:1.6;}
+  .ana-item{display:flex;gap:8px;margin-top:10px;}
+  .ana-item .no{font-size:13px;font-weight:600;color:#2E6BE6;flex:0 0 auto;}
+  .ana-item b{font-size:13px;color:#1B2A4A;}
+  .ana-item p{font-size:13px;color:var(--text-2);line-height:1.6;margin-top:3px;}
+  /* 隐患条目卡片 */
+  .hz-card{background:#fff;border-radius:12px;padding:14px;margin-top:12px;position:relative;border:1.5px solid transparent;cursor:pointer;transition:border-color .2s;}
+  .hz-card.on{border-color:#2E6BE6;}
+  .hz-card .corner{position:absolute;top:-1px;right:-1px;width:36px;height:32px;background:linear-gradient(135deg,#4D8DF7,#2E6BE6);border-radius:0 12px 0 22px;display:none;align-items:flex-start;justify-content:flex-end;padding:6px 8px 0 0;}
+  .hz-card.on .corner{display:flex;}
+  .hz-card .corner svg{width:14px;height:14px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .hz-top{display:flex;gap:12px;}
+  .hz-warn{width:42px;height:42px;border-radius:10px;background:#FFF3D6;display:flex;align-items:center;justify-content:center;flex:0 0 42px;}
+  .hz-warn svg{width:22px;height:22px;stroke:#E8A23D;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .hz-t{font-size:15px;font-weight:600;color:#2E6BE6;line-height:20px;}
+  .hz-d{font-size:13px;color:var(--text-2);line-height:1.65;margin-top:5px;}
+  .hz-state{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:#9CA3AF;}
+  .hz-state .st-ico{width:17px;height:17px;border-radius:50%;border:1.5px solid #C4C9D4;display:flex;align-items:center;justify-content:center;flex:0 0 17px;}
+  .hz-state .st-ico svg{width:10px;height:10px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;display:none;}
+  .hz-card.on .hz-state{color:#2E6BE6;font-weight:600;}
+  .hz-card.on .st-ico{background:#2E6BE6;border-color:#2E6BE6;}
+  .hz-card.on .st-ico svg{display:block;}
+  /* 骨架屏 */
+  .sk-card{background:#fff;border-radius:12px;padding:14px;margin-top:12px;}
+  .sk-row{display:flex;gap:12px;}
+  .sk-ico{width:42px;height:42px;border-radius:10px;flex:0 0 42px;background:linear-gradient(90deg,#EEF1F6 25%,#F7F9FC 40%,#EEF1F6 60%);background-size:200% 100%;animation:shimmer 1.2s linear infinite;}
+  .sk-lines{flex:1;}
+  .sk-line{height:13px;border-radius:6px;background:linear-gradient(90deg,#EEF1F6 25%,#F7F9FC 40%,#EEF1F6 60%);background-size:200% 100%;animation:shimmer 1.2s linear infinite;margin-bottom:9px;}
+  .sk-line.t{width:55%;height:15px;}
+  .sk-line.l{width:100%;}.sk-line.s{width:70%;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  /* 底部固定栏 */
+  .rp-foot{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:.5px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:5;}
+  .rp-count{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#1B2A4A;margin-bottom:10px;}
+  .rp-count .ck{width:18px;height:18px;border-radius:50%;background:#2E6BE6;display:flex;align-items:center;justify-content:center;flex:0 0 18px;}
+  .rp-count .ck svg{width:10px;height:10px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .rp-btns{display:flex;gap:12px;}
+  .rp-btn{flex:1;height:46px;border-radius:10px;font-size:16px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:transform .15s;}
+  .rp-btn:active{transform:scale(.96);}
+  .rp-btn.ghost{background:#EEF1F6;color:var(--text);flex:1.1;}
+  .rp-btn.primary{background:linear-gradient(120deg,#4D8DF7,#2E6BE6);color:#fff;font-weight:600;flex:1.3;}
+  .rp-btn.primary svg{width:17px;height:17px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* ===== 识别结果底部弹层 ===== */
+  .mask{position:absolute;inset:0;background:rgba(15,23,42,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40;}
+  .mask.show{opacity:1;pointer-events:auto;}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;transform:translateY(105%);transition:transform .3s cubic-bezier(.32,.72,.24,1);z-index:50;max-height:78%;display:flex;flex-direction:column;}
+  .sheet.show{transform:translateY(0);}
+  .sheet-head{padding:16px 16px 10px;display:flex;align-items:center;}
+  .sheet-head .t{font-size:16px;font-weight:600;}
+  .sheet-head .close{margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .sheet-head .close svg{width:14px;height:14px;stroke:#666;stroke-width:2;stroke-linecap:round;}
+  .sheet-sub{padding:0 16px 10px;font-size:12px;color:var(--ok);display:none;align-items:center;gap:4px;}
+  .sheet-sub.show{display:flex;}
+  .sheet-sub.info{display:flex;color:var(--text-2);}
+  .sheet-sub.info svg{stroke:var(--text-3);}
+  .sheet-sub.info span{color:var(--text-2);}
+  .sheet-sub svg{width:14px;height:14px;stroke:var(--ok);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:0 0 14px;}
+  .sheet-list{overflow-y:auto;padding:0 16px 8px;}
+  .h-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;gap:10px;cursor:pointer;transition:all .15s;}
+  .h-card:active{transform:scale(.985);}
+  .h-card.on{border-color:var(--primary);background:var(--primary-weak);}
+  .h-card .radio-dot{margin-top:2px;}
+  .h-card .hd{font-size:14px;line-height:20px;color:var(--text);}
+  .h-card .meta{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .tag{font-size:10px;padding:2px 6px;border-radius:3px;background:#EEF1F6;color:var(--text-2);}
+  .tag.src{background:#E1F0EA;color:var(--ok);}
+  .tag.from-user{background:var(--primary-weak);color:var(--primary);}
+  .conf{margin-left:auto;font-size:11px;color:var(--text-3);}
+  .sheet-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;gap:12px;border-top:.5px solid var(--line);}
+  .sheet-empty{padding:32px 0 40px;text-align:center;color:var(--text-3);font-size:13px;display:none;}
+</style>
+</head>
+<body data-page-node-id="icBVPdErIfjeGlsuOHTbiU">
+<div class="phone" data-page-node-id="Ot3xVFc7Mz77ZQxSqGGUVr">
+
+  <!-- 顶部导航 -->
+  <div class="navbar" data-page-node-id="KdapJVx7B7jS4EX2QIxgpG">
+    <div class="back" aria-label="返回" data-page-node-id="jV0ZcNNattDcdlyHqZwR7j">
+      <svg viewBox="0 0 24 24" data-page-node-id="wjzqlRqcXcRuOWUZFGSMWd"><path d="M15 5l-7 7 7 7" data-page-node-id="ke5Gl3PEPttZDpZ1o6xfaU"/></svg>
+    </div>
+    <div class="title" data-page-node-id="dvNKcdLZLFrbiBkZBwV1MW">隐患登记</div>
+  </div>
+
+  <div class="page" data-page-node-id="715gXEWxPjydLGR0p1zYXZ">
+    <!-- 步骤条 -->
+    <div class="stepper" aria-label="流程：登记、确认、接收、整改、验收，当前在登记环节" data-page-node-id="L815qJx2oU1DDkfw25TKRV">
+      <div class="steps" data-page-node-id="uEcMqHV9ZzLl5F36LdzlTB">
+        <div class="step active" data-page-node-id="Aan0V3ObmLftFPOX4Diaud"><div class="dot" data-page-node-id="mPG4Roah6Ni9uTiCFStTP1"></div><div class="step-label" data-page-node-id="nzKOgi9adsixCgxwph2WRq">登记</div></div>
+        <div class="bar" data-page-node-id="4fWAhrR3lt1hgOMGC4Tp7L"></div>
+        <div class="step" data-page-node-id="SHlOLnTsqNm2EYYQSd072J"><div class="dot" data-page-node-id="NocDTlj8W65jNloe4UZIsE"></div><div class="step-label" data-page-node-id="ZFcmO29KGwfk10je7R2OfK">确认</div></div>
+        <div class="bar" data-page-node-id="ncFBwaApC2Afjw3uEFdVl0"></div>
+        <div class="step" data-page-node-id="4vq9awpZyUQGL8f0hN7GZL"><div class="dot" data-page-node-id="E4Ru8LZUTnzfAHP1Tq9TBo"></div><div class="step-label" data-page-node-id="u8HuhAH46Zxf2rX8unXDVT">接收</div></div>
+        <div class="bar" data-page-node-id="jZx5iK76fyx4RPnnYqEmhC"></div>
+        <div class="step" data-page-node-id="0KixMGkAdD8JJmMMOYHSnj"><div class="dot" data-page-node-id="QVOc6OAhz6M5X5zwKHmn5X"></div><div class="step-label" data-page-node-id="1DBupfA2FHhgYIGlc8rBAR">整改</div></div>
+        <div class="bar" data-page-node-id="BU8FF4ZfOD6mqnE3lF27Ar"></div>
+        <div class="step" data-page-node-id="IPRrrOVsC3D5cHRXdtwf6K"><div class="dot" data-page-node-id="HF80ushbW4ORhaJt4G7FtW"></div><div class="step-label" data-page-node-id="ZJf1l3odZhW4NjG4GANvUE">验收</div></div>
+      </div>
+    </div>
+
+    <div class="form" data-page-node-id="wRg5CADGXips0Pp8yeMUox">
+      <div class="field" data-page-node-id="abufv7dyPaqU9r6Nws1DXU">
+        <div class="field-label" data-page-node-id="dgZ4KmTnMYpPb95TeUTiYY"><span class="req" data-page-node-id="Rb4Xmmxy2tqzKfAXTqkvhT">*</span>发现时间</div>
+        <div class="field-body" data-page-node-id="LibFBF9GChF9c5nIWnUaDS"><input type="text" placeholder="请选择发现时间" data-page-node-id="OV2DhlI1G8BlTMrpkOOHEN"></div>
+      </div>
+
+      <div class="field" id="descField" data-page-node-id="ApI5mnHrSRWJPbBERD4jqy">
+        <div class="field-label" data-page-node-id="wMcfiq5PlVuRNP8G3fja02">隐患描述</div>
+        <div class="field-body" data-page-node-id="gGhYruv7NLWKq9vM7RqUpB">
+          <textarea id="descInput" rows="3" maxlength="500" placeholder="请输入内容"></textarea>
+          <div class="counter" data-page-node-id="y9YYCErrEeezzL4sgNnwBV"><span id="descCount" data-page-node-id="4vDnASUq5I6hYEpt6S9yJK">0</span>/500</div>
+        </div>
+      </div>
+
+      <div class="field" data-page-node-id="t6jOsLJkHL94vQkWtre8Bc">
+        <div class="field-label" data-page-node-id="2xIBtHCuhtbdMz2rsErOpu">检查依据</div>
+        <div class="field-body" data-page-node-id="OLUYOGPXIrbE9VFGt6pAI9">
+          <textarea rows="3" maxlength="500" placeholder="请输入内容"></textarea>
+          <div class="counter" data-page-node-id="9t3y5T6UwgD2XSpksyZi4u">0/500</div>
+        </div>
+      </div>
+
+      <div class="field" data-page-node-id="gCTxqM9BnbMOlUpdtcdIIi">
+        <div class="field-label" data-page-node-id="Ad4iGjwFwV7KKMRN3GmGmV">整改措施</div>
+        <div class="field-body" data-page-node-id="baLaXMhoLNDFbUfZkCH9rq">
+          <textarea rows="3" maxlength="500" placeholder="请输入内容"></textarea>
+          <div class="counter" data-page-node-id="h3xuyCFh5XuMNtez2ZYjiW">0/500</div>
+        </div>
+      </div>
+
+      <!-- 现场照片 + AI识别 -->
+      <div class="field photo-field" data-page-node-id="PEW2v7BO9kPaShpc12Hawc">
+        <div class="field-label" data-page-node-id="r8hITFrFto4VFdIMxdnu58">现场照片</div>
+        <div class="field-body">
+        <div class="photo-area" id="photoArea" data-page-node-id="twAoHMtnGDp1mDZJem3w0g">
+          <div class="upload-box" id="uploadBox" role="button" aria-label="上传现场照片，支持AI识别隐患" tabindex="0" data-page-node-id="oiTKBP3nCFsFIyQR8xfr8p">
+            <svg class="cam" viewBox="0 0 24 24" data-page-node-id="xzA6GGUoHKj4pJXU7b8LQv"><path d="M4 8h3l2-3h6l2 3h3v11H4z" data-page-node-id="nxSZ91HsBZaNqGEmtWLxkj"/><circle cx="12" cy="13" r="3.5" data-page-node-id="hrNLzH6B8jJDJyzfcFFiTn"/></svg>
+            <span class="ub-ai"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>支持 AI 识别</span>
+          </div>
+          <div class="ai-bubble" id="aiBubble" role="button" aria-label="快来体验AI能力吧">快来体验 AI 能力吧！</div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部操作 -->
+  <div class="footer" data-page-node-id="vLcZc3cpSCX7wdxltHdSLE">
+    <button class="btn btn-ghost" data-page-node-id="QoMW1UBwxPdcQIwO621d5d">存草稿</button>
+    <button class="btn btn-primary" data-page-node-id="eX8XeLktB2Df40w425EZYS">提交</button>
+  </div>
+
+  <!-- 辅助分析：隐患分析结果抽屉 -->
+  <div class="ana-mask" id="anaMask"></div>
+  <div class="ana-sheet" id="anaSheet" role="dialog" aria-label="隐患分析结果">
+    <div class="ana-head">
+      <div class="ana-title">隐患分析结果</div>
+      <button class="ana-close" id="anaClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="ana-desc" id="anaDesc"></div>
+    <div class="ana-wait" id="anaWait">
+      <div class="stg-list">
+        <div class="stg" id="stg1"><span class="ic"></span><span>识别隐患描述</span></div>
+        <div class="stg" id="stg2"><span class="ic"></span><span>进行分级分类</span></div>
+        <div class="stg" id="stg3"><span class="ic"></span><span>生成整改措施</span></div>
+        <div class="stg" id="stg4"><span class="ic"></span><span>核对标准依据</span></div>
+      </div>
+      <div class="think-line"><span class="think-txt" id="anaThink">正在解析隐患描述中的关键要素…</span></div>
+      <span class="ana-eta" id="anaEta">已等待 0 秒</span>
+      <div class="ana-prog"><i id="anaBar"></i></div>
+      <div class="ana-calm" id="anaCalm">分析仍在进行，请耐心等待；你也可以先返回，完成后将在消息中通知你。</div>
+    </div>
+    <div class="ana-fields" id="anaFields"></div>
+    <div class="ana-fb" id="anaFb">
+      <span class="tip">分析结果有帮助吗？</span>
+      <button class="afb-btn" id="anaLike" aria-label="点赞"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm0 0l4.2-7.1a1.8 1.8 0 0 1 3.3 1.3L13.6 9H19a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 17.5 20H7"/></svg><span>赞</span></button>
+      <button class="afb-btn" id="anaDislike" aria-label="点踩"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(180deg)"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm0 0l4.2-7.1a1.8 1.8 0 0 1 3.3 1.3L13.6 9H19a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 17.5 20H7"/></svg><span>踩</span></button>
+      <button class="afb-btn" id="anaFbEntry">💬 意见反馈</button>
+    </div>
+    <button class="ana-confirm" id="anaConfirm">确认填入</button>
+  </div>
+
+  <!-- 反馈弹层（抽屉内 赞/踩/意见反馈 唤起） -->
+  <div class="afb-sheet" id="afbSheet">
+    <div class="afb-head">
+      <div class="afb-title" id="afbTitle">意见反馈</div>
+      <button class="ana-close" id="afbClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="afb-tags" id="afbTags">
+      <span class="afb-tag">分析结果不准确</span>
+      <span class="afb-tag">隐患描述不准</span>
+      <span class="afb-tag">整改措施不适用</span>
+      <span class="afb-tag">标准依据有误</span>
+      <span class="afb-tag">分类判定错误</span>
+      <span class="afb-tag">其他问题</span>
+    </div>
+    <textarea class="afb-text" id="afbText" placeholder="请填写您的反馈内容（必填）"></textarea>
+    <button class="afb-submit" id="afbSubmit">提交反馈</button>
+  </div>
+
+  <div class="toast" id="toast" data-page-node-id="F1UJyZf2td7LzGYbHCNbvw"></div>
+
+  <!-- 按住说话浮层 -->
+  <div class="rec-mask" id="recMask">
+    <div class="rec-card">
+      <div class="mic-big" id="recMic">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg>
+      </div>
+      <div class="rec-wave" id="recWave"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="rec-time" id="recTime">0:00</div>
+      <div class="rec-hint" id="recHint">松开手指，结束说话</div>
+    </div>
+  </div>
+
+  <!-- AI识别弹层：第一步 补充说明 / 第二步 识别结果 -->
+  <div class="mask" id="mask" data-page-node-id="ul0Fov3ADF1Ih1jffP1VKY"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-label="AI识别隐患" data-page-node-id="SIVMqpw8A1jdZDwTVLOWGw">
+    <div class="sheet-head" data-page-node-id="JlYxi9PHE3XdDhJZKCYh0x">
+      <div class="t" id="sheetTitle" data-page-node-id="iljABUvWtuHgt2K8ZFB7BV">AI 识别隐患</div>
+      <div class="close" id="sheetClose" data-page-node-id="TtuLgD77b7JAhK4CWwBPrq"><svg viewBox="0 0 24 24" data-page-node-id="aQhpA0CJVs5u9HAzErBPNW"><path d="M6 6l12 12M18 6L6 18" data-page-node-id="vEnJGA87OZtnpuaLjScqLk"/></svg></div>
+    </div>
+
+    <!-- 第一步：补充说明 -->
+    <div class="step-pane" id="supStep">
+      <div class="supplement" id="supplement" data-page-node-id="jc8Pgp5BeewmJlyU5tYotK" style="margin:0 16px 8px;">
+        <div class="sup-head" data-page-node-id="Lr7baLPeQsr5qk9sAM8AwU">
+          <span class="t" data-page-node-id="yHHg2tnnGm2WzkpSL54NGt">补充说明</span>
+          <span class="opt" data-page-node-id="DprM9qtViueOgnusAtHtHV">选填</span>
+        </div>
+        <div class="chips" id="chips" aria-label="快捷标签，点击选中" data-page-node-id="KCJIEXjL9OGP8JkHl4hEa1">
+          <span class="chip" data-tag="动火作业" data-page-node-id="dsYRFvUeQ0XuWlDFqHDJol">动火作业</span>
+          <span class="chip" data-tag="高处作业" data-page-node-id="0ldYW8Az0ONgwyhhfr1sZx">高处作业</span>
+          <span class="chip" data-tag="用电安全" data-page-node-id="o8Iqw7sbqxcAb9pEDG2mfx">用电安全</span>
+          <span class="chip" data-tag="消防通道" data-page-node-id="O1NQAaQT2EowEKwFzRDQF7">消防通道</span>
+          <span class="chip" data-tag="有限空间" data-page-node-id="2acfCEQc9KVjikIy9hav1j">有限空间</span>
+          <span class="chip" data-tag="机械防护" data-page-node-id="PEThV3s3V1JjNyr9D7OKSp">机械防护</span>
+        </div>
+        <div class="sup-input-row" data-page-node-id="SSAylCp7MB8fM7rjmMFzau">
+          <input type="text" id="supInput" maxlength="200" placeholder="如：重点看脚手架，或直接描述隐患" aria-label="补充说明输入框" data-page-node-id="3MDiABq41EcZ1ODttl0CRt">
+          <button class="mic-btn" id="micBtn" aria-label="按住说话" title="按住说话" data-page-node-id="4abUajvAVh8uIdvYtRBcqG">
+            <svg viewBox="0 0 24 24" data-page-node-id="l4P7VY2lCIsgxKkCIzlLlH"><rect x="9" y="3" width="6" height="11" rx="3" data-page-node-id="A04GEXK4mF61oahTHE0K8h"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" data-page-node-id="YC2f5AueG9IjQv4DFL9ICz"/></svg>
+          </button>
+        </div>
+        <div class="sup-counter" data-page-node-id="6tR10779P1wp9EHHXatajY"><span id="supCount" data-page-node-id="trGtpQSk7Mw3WcTyAXS3HF">0</span>/200</div>
+        <div class="sup-tip" data-page-node-id="4BnFL14uEDIsjDOrCBK8AJ">补充现场语境或关注重点，AI 会结合照片更准地识别；也可直接写隐患，AI 将优先采纳。长按麦克风可说话输入。</div>
+      </div>
+      <div class="sheet-foot">
+        <button class="btn btn-primary" id="startRecBtn">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;margin-right:4px;"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
+          开始识别
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AI 识别结果整页（视频还原） ===== -->
+  <div class="result-page" id="resultPage" aria-label="AI识隐患结果页">
+    <div class="rp-head">
+      <button class="rp-back" id="rpBack" aria-label="返回">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="rp-app">
+        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="12" rx="2"/><path d="M9 20h6M12 17v3"/><path d="M12 8l1.2 2.6L16 12l-2.8 1.4L12 16l-1.2-2.6L8 12l2.8-1.4z" fill="#fff" stroke="none"/></svg>
+        <span class="rp-appdot" id="rpAppDot"></span>
+      </div>
+      <div class="rp-titles">
+        <div class="rp-title">AI识隐患</div>
+        <div class="rp-status"><span class="rp-dot" id="rpDot"></span><span id="rpStatusText">智能分析中…</span></div>
+      </div>
+    </div>
+
+    <div class="rp-body" id="rpBody">
+      <!-- 现场照片卡片 -->
+      <div class="rp-card photo-card">
+        <div class="rp-label">
+          <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M9 6l1.5-2h3L15 6"/></svg>
+          现场照片
+        </div>
+        <div class="rp-photo" id="rpPhoto">
+          <div class="sc-sky"></div>
+          <div class="sc-motor"><i></i><i></i><i></i><i></i></div>
+          <div class="sc-rail r1"></div>
+          <div class="sc-rail r2"></div>
+          <div class="sc-floor"></div>
+        </div>
+        <div class="rp-fname">
+          <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M9 6l1.5-2h3L15 6"/></svg>
+          <span id="rpFname">现场照片1.jpg</span>
+        </div>
+      </div>
+
+      <!-- 区块标题 -->
+      <div class="rp-section">
+        <div class="rp-sec-ico"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div class="rp-sec-txt">
+          <div class="rp-sec-t">AI安全智能识别出以下隐患</div>
+          <div class="rp-sec-s">请选择一条隐患进行后续处理</div>
+        </div>
+      </div>
+
+      <!-- 已深度分析 -->
+      <div class="rp-card ana-card">
+        <div class="da-head" id="anaHead">
+          <span class="da-title">已深度分析（用时6秒）</span>
+          <span class="ana-toggle" id="anaToggle">展开<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="ana-body" id="anaBody" style="display:none">
+          <div class="ana-sec">现场情况</div>
+          <div class="ana-txt">室外化工装置区，电机设备及平台区域</div>
+          <div class="ana-item"><span class="no">1.</span><div><b>电机防护罩锈蚀严重</b><p>蓝色电机上方的金属防护罩表面存在大面积锈蚀和漆面剥落，防护设施结构完整性受损，可能影响防护效果或导致部件脱落。</p></div></div>
+          <div class="ana-item"><span class="no">2.</span><div><b>平台护栏严重锈蚀</b><p>前景处的金属平台护栏及支撑结构存在严重锈蚀，部分区域漆面剥落露出锈迹，结构强度可能下降，存在断裂或坍塌风险。</p></div></div>
+          <div class="ana-item"><span class="no">3.</span><div><b>电机接线裸露</b><p>电机底座附近的接线处可见裸露的导线（绿色线），未进行规范的绝缘包裹或穿管保护，存在触电或短路风险。</p></div></div>
+        </div>
+      </div>
+
+      <!-- 隐患条目卡片（加载时为骨架屏） -->
+      <div id="resultCards"></div>
+    </div>
+
+    <!-- 底部固定栏 -->
+    <div class="rp-foot">
+      <div class="rp-count">
+        <span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>
+        已选择 <b id="selCount">0</b> 项
+      </div>
+      <div class="rp-btns">
+        <button class="rp-btn ghost" id="rpCancel">取消</button>
+        <button class="rp-btn primary" id="rpNext">辅助分析<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var uploadBox=document.getElementById('uploadBox'),
+      photoArea=document.getElementById('photoArea'),
+      supplement=document.getElementById('supplement'),
+      chips=document.getElementById('chips'),
+      supInput=document.getElementById('supInput'),
+      supCount=document.getElementById('supCount'),
+      micBtn=document.getElementById('micBtn'),
+      descInput=document.getElementById('descInput'),
+      descCount=document.getElementById('descCount'),
+      mask=document.getElementById('mask'),
+      sheet=document.getElementById('sheet'),
+      toast=document.getElementById('toast'),
+      recognizing=false,
+      photos=[],MAX_PHOTOS=6,currentPhoto=null;
+
+  function showToast(msg){
+    toast.textContent=msg;toast.classList.add('show');
+    setTimeout(function(){toast.classList.remove('show');},1800);
+  }
+
+  /* 多图上传（模拟），AI识别入口在每张图片上 */
+  function photoTpl(n){
+    return '<svg class="ph-ico" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'+
+      '<div class="ph-txt">现场照片'+n+'.jpg</div>'+
+      '<div class="scanline"></div>'+
+      '<button class="ai-pill" type="button" aria-label="对此照片进行AI识别"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>AI识别</button>'+
+      '<div class="del" role="button" aria-label="删除照片"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div>';
+  }
+  function addPhoto(){
+    if(photos.length>=MAX_PHOTOS){showToast('最多上传'+MAX_PHOTOS+'张照片');return;}
+    var el=document.createElement('div');
+    el.className='photo-thumb';
+    el.innerHTML=photoTpl(photos.length+1);
+    photoArea.appendChild(el);
+    photos.push(el);
+    document.getElementById('aiBubble').style.display='none';
+    el.querySelector('.del').addEventListener('click',function(e){e.stopPropagation();removePhoto(el);});
+    el.querySelector('.ai-pill').addEventListener('click',function(e){e.stopPropagation();openForPhoto(el);});
+    showToast('照片已添加，点图片上的“AI识别”开始');
+  }
+  function removePhoto(el){
+    var i=photos.indexOf(el);
+    if(i>-1)photos.splice(i,1);
+    el.remove();
+    if(currentPhoto===el)currentPhoto=null;
+    photos.forEach(function(p,idx){p.querySelector('.ph-txt').textContent='现场照片'+(idx+1)+'.jpg';});
+  }
+  /* 弹窗（补充说明）显隐 */
+  function openSheet(){supStep.style.display='flex';mask.classList.add('show');sheet.classList.add('show');}
+  function closeSheet(){mask.classList.remove('show');sheet.classList.remove('show');}
+  mask.addEventListener('click',closeSheet);
+  document.getElementById('sheetClose').addEventListener('click',closeSheet);
+
+  function openForPhoto(el){
+    currentPhoto=el;
+    openSheet();
+  }
+  uploadBox.addEventListener('click',addPhoto);
+  uploadBox.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();addPhoto();}});
+  /* 气泡：点击关闭 */
+  var aiBubble=document.getElementById('aiBubble');
+  aiBubble.addEventListener('click',function(){aiBubble.style.display='none';});
+
+  /* 快捷标签 */
+  chips.addEventListener('click',function(e){
+    var chip=e.target.closest('.chip');if(!chip)return;
+    chip.classList.toggle('on');
+  });
+
+  /* 补充说明字数 */
+  supInput.addEventListener('input',function(){supCount.textContent=supInput.value.length;});
+
+  /* 语音：按住说话，松开识别；上滑取消 */
+  var recMask=document.getElementById('recMask'),
+      recTime=document.getElementById('recTime'),
+      recHint=document.getElementById('recHint'),
+      recWave=document.getElementById('recWave'),
+      recMic=document.getElementById('recMic'),
+      holding=false,cancelled=false,recSeconds=0,recTimer=null,startY=0;
+
+  function fmt(s){return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);}
+  function setCancelUI(on){
+    recHint.textContent=on?'松开手指，取消输入':'松开手指，结束说话';
+    recHint.classList.toggle('cancel',on);
+    recWave.classList.toggle('cancelling',on);
+    recMic.classList.toggle('cancelling',on);
+  }
+  function startRec(e){
+    if(holding)return;
+    holding=true;cancelled=false;recSeconds=0;
+    startY=e.clientY;
+    micBtn.classList.add('rec');
+    recTime.textContent='0:00';
+    setCancelUI(false);
+    recMask.classList.add('show');
+    recTimer=setInterval(function(){recSeconds++;recTime.textContent=fmt(recSeconds);},1000);
+  }
+  function endRec(){
+    if(!holding)return;
+    holding=false;
+    clearInterval(recTimer);
+    micBtn.classList.remove('rec');
+    recMask.classList.remove('show');
+    if(cancelled){showToast('已取消');return;}
+    if(recSeconds<1){showToast('说话时间太短');return;}
+    showToast('语音识别中…');
+    setTimeout(function(){
+      if(supInput.value.length<180){
+        supInput.value=(supInput.value?supInput.value+'；':'')+'现场正在动火作业，附近有可燃物';
+        supInput.dispatchEvent(new Event('input'));
+      }
+      showToast('语音已转为文字');
+    },900);
+  }
+  micBtn.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    if(micBtn.setPointerCapture){try{micBtn.setPointerCapture(e.pointerId);}catch(err){}}
+    startRec(e);
+  });
+  micBtn.addEventListener('pointermove',function(e){
+    if(!holding)return;
+    if(startY-e.clientY>70&&!cancelled){setCancelUI(true);cancelled=true;}
+    else if(cancelled&&e.clientY-startY>30){setCancelUI(false);cancelled=false;}
+  });
+  micBtn.addEventListener('pointerup',endRec);
+  micBtn.addEventListener('pointercancel',endRec);
+  micBtn.addEventListener('contextmenu',function(e){e.preventDefault();});
+
+  /* AI 识别：弹窗补充说明 → 整页结果（视频还原） */
+  var supStep=document.getElementById('supStep'),
+      resultPage=document.getElementById('resultPage'),
+      rpBody=document.getElementById('rpBody'),
+      startRecBtn=document.getElementById('startRecBtn'),
+      rpDot=document.getElementById('rpDot'),
+      rpStatusText=document.getElementById('rpStatusText'),
+      rpStatusEl=rpStatusText.parentElement,
+      rpFname=document.getElementById('rpFname'),
+      resultCards=document.getElementById('resultCards'),
+      selCountEl=document.getElementById('selCount'),
+      anaCard=resultPage.querySelector('.ana-card'),
+      anaHead=document.getElementById('anaHead'),
+      anaBody=document.getElementById('anaBody'),
+      anaToggle=document.getElementById('anaToggle');
+
+  /* 开始识别：关弹窗 → 滑入结果页 → 骨架屏加载 */
+  startRecBtn.addEventListener('click',function(){
+    if(recognizing)return;
+    if(!currentPhoto){showToast('请先选择识别的照片');return;}
+    recognizing=true;
+    var photoIdx=photos.indexOf(currentPhoto)+1;
+    rpFname.textContent='现场照片'+photoIdx+'.jpg';
+    closeSheet();
+    openResult();
+    setLoadingState();
+    currentPhoto.classList.add('scanning');
+    setTimeout(function(){
+      recognizing=false;
+      currentPhoto.classList.remove('scanning');
+      renderResults();
+    },1800);
+  });
+
+  function openResult(){resultPage.classList.add('show');rpBody.scrollTop=0;}
+  function closeResult(){resultPage.classList.remove('show');}
+
+  function setLoadingState(){
+    rpStatusEl.classList.remove('ok');rpStatusEl.classList.add('loading');
+    rpStatusText.textContent='智能分析中…';
+    selCountEl.textContent='0';
+    anaCard.classList.remove('open');
+    anaBody.style.display='none';
+    anaToggle.firstChild.textContent='展开';
+    var sk='<div class="sk-card"><div class="sk-row"><div class="sk-ico"></div><div class="sk-lines"><div class="sk-line t"></div><div class="sk-line l"></div><div class="sk-line l"></div><div class="sk-line s"></div></div></div></div>';
+    resultCards.innerHTML=sk+sk+sk;
+  }
+
+  var RESULTS=[
+    {name:'电机防护罩锈蚀严重',desc:'蓝色电机上方的金属防护罩表面存在大面积锈蚀和漆面剥落，防护设施结构完整性受损，可能影响防护效果或导致部件脱落。'},
+    {name:'平台护栏严重锈蚀',desc:'前景处的金属平台护栏及支撑结构存在严重锈蚀，部分区域漆面剥落露出锈迹，结构强度可能下降，存在断裂或坍塌风险。'},
+    {name:'电机接线裸露',desc:'电机底座附近的接线处可见裸露的导线（绿色线），未进行规范的绝缘包裹或穿管保护，存在触电或短路风险。'}
+  ];
+
+  function renderResults(){
+    rpStatusEl.classList.remove('loading');rpStatusEl.classList.add('ok');
+    rpStatusText.textContent='智能分析完成';
+    resultCards.innerHTML='';
+    RESULTS.forEach(function(r,i){addHzCard(r,i===0);});
+    selCountEl.textContent='1';
+  }
+
+  function addHzCard(item,selected){
+    var card=document.createElement('div');
+    card.className='hz-card'+(selected?' on':'');
+    card.setAttribute('role','radio');
+    card.setAttribute('aria-checked',selected?'true':'false');
+    card.innerHTML=
+      '<div class="corner"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>'+
+      '<div class="hz-top"><div class="hz-warn"><svg viewBox="0 0 24 24"><path d="M12 4L2.5 20h19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r=".6"/></svg></div>'+
+      '<div style="flex:1;min-width:0"><div class="hz-t">'+item.name+'</div><div class="hz-d">'+item.desc+'</div></div></div>'+
+      '<div class="hz-state"><span class="st-ico"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span class="st-txt">'+(selected?'已选择':'点击选择')+'</span></div>';
+    card.addEventListener('click',function(){selectCard(card);});
+    resultCards.appendChild(card);
+  }
+
+  /* 单选：点谁选谁 */
+  function selectCard(card){
+    if(card.classList.contains('on'))return;
+    [].forEach.call(resultCards.querySelectorAll('.hz-card'),function(c){
+      c.classList.remove('on');
+      c.setAttribute('aria-checked','false');
+      c.querySelector('.st-txt').textContent='点击选择';
+    });
+    card.classList.add('on');
+    card.setAttribute('aria-checked','true');
+    card.querySelector('.st-txt').textContent='已选择';
+    selCountEl.textContent='1';
+  }
+
+  /* 深度分析 展开/收起 */
+  anaHead.addEventListener('click',function(){
+    var open=anaCard.classList.toggle('open');
+    anaBody.style.display=open?'block':'none';
+    anaToggle.firstChild.textContent=open?'收起':'展开';
+  });
+
+  /* 返回 / 取消 → 回登记页；辅助分析 → 隐患分析结果抽屉 */
+  document.getElementById('rpBack').addEventListener('click',closeResult);
+  document.getElementById('rpCancel').addEventListener('click',closeResult);
+
+  /* ===== 辅助分析：隐患分析结果（等待体验 + 字段揭晓，移植自参考交互） ===== */
+  var ANALYSIS=[
+    {level:'一般B级隐患',profession:'设备安全管理',hazard:'物的因素-物理性危险和有害因素-防护缺陷',
+     measure:'立即停用该电机并挂牌上锁，更换或除锈补漆修复防护罩，恢复防护罩固定螺栓与联锁装置；建立设备防腐台账，将潮湿区域电气设备纳入周期性防腐维护计划。',
+     basis:'《机械安全 防护装置 固定式防护装置的要求》（GB/T 8196-2018，第5章 一般要求）；《用人单位劳动防护用品管理规范》（安监总厅安健〔2018〕3号）'},
+    {level:'一般B级隐患',profession:'设备安全管理',hazard:'物的因素-物理性危险和有害因素-强度不足',
+     measure:'对锈蚀护栏进行承载检测，先设置临时警戒隔离；除锈后按规范补焊加固并涂刷防锈漆，护栏高度、立柱间距应符合规范要求；验收合格后方可恢复使用。',
+     basis:'《固定式钢梯及平台安全要求 第3部分：工业防护栏杆及钢平台》（GB 4053.3-2009，第4条）；《涂装前钢材表面锈蚀等级和除锈等级》（GB/T 8923.1）'},
+    {level:'较大A级隐患',profession:'电气安全',hazard:'物的因素-物理性危险和有害因素-电危害',
+     measure:'立即断电并设置警示标识，由持证电工对裸露接线进行绝缘包裹或穿管保护，整理接线盒并恢复端子盖；排查同类设备接线状况，纳入电气隐患专项检查。',
+     basis:'《电气安全 低压电气装置》（GB/T 16895 系列）；《施工现场临时用电安全技术规范》（JGJ 46，第8章）'}
+  ];
+  var ANA_RETURN_MS=30000,ANA_P95_MS=60000;   // 真实接入时改为接口回调驱动
+  var ANA_THINK={
+    2:['正在解析隐患描述中的关键要素…','正在识别作业场景与风险特征…','正在对照隐患分级判定标准评估等级…','正在判定专业分类与危害因素…','正在比对同类隐患的历史分级记录…','正在校验等级判定的一致性…'],
+    3:['正在检索同类隐患的整改案例…','正在结合现场情况生成整改措施…','正在参考行业标准的管理要求…','正在评估整改措施的可行性与优先级…','正在梳理措施实施的责任与时序…'],
+    4:['正在匹配适用的标准规范条文…','正在检索法规库中的关联条款…','正在核对引用依据的准确性与时效性…','正在核验条文与隐患类型的对应关系…','正在确认标准条款编号…']
+  };
+  var anaSk=[['58%'],['46%'],['82%'],['96%','90%','64%'],['94%','88%','52%']],
+      anaTimers=[],anaRaf=0,anaTick=0,anaOriginals=[],
+      anaMask=document.getElementById('anaMask'),
+      anaSheet=document.getElementById('anaSheet'),
+      afbSheet=document.getElementById('afbSheet');
+
+  document.getElementById('rpNext').addEventListener('click',function(){
+    var card=resultCards.querySelector('.hz-card.on');
+    if(!card){showToast('请先选择一条隐患');return;}
+    var idx=[].indexOf.call(resultCards.querySelectorAll('.hz-card'),card);
+    openAnaSheet(idx);
+  });
+
+  function openAnaSheet(idx){
+    var a=ANALYSIS[idx]||ANALYSIS[0];
+    document.getElementById('anaDesc').textContent=RESULTS[idx].name+'：'+RESULTS[idx].desc;
+    renderAnaFields(a);
+    anaOriginals=[].map.call(document.querySelectorAll('#anaFields .af-card'),function(c){return c.innerHTML;});
+    anaMask.classList.add('show');anaSheet.classList.add('show');
+    startAnaWait();
+  }
+  function renderAnaFields(a){
+    var ck='<span class="af-ck"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>';
+    var cards=[
+      {l:'隐患等级',v:'<span class="af-level">'+a.level+'</span>'},
+      {l:'隐患专业分类',v:a.profession},
+      {l:'隐患危害因素分类',v:a.hazard},
+      {l:'整改措施',v:a.measure},
+      {l:'标准依据',v:a.basis}
+    ];
+    document.getElementById('anaFields').innerHTML=cards.map(function(c){
+      return '<div class="af-card"><div class="af-row">'+ck+'<div style="flex:1;min-width:0"><div class="af-label">'+c.l+'</div><div class="af-value">'+c.v+'</div></div></div></div>';
+    }).join('');
+    [].forEach.call(document.querySelectorAll('#anaFields .af-ck'),function(k){
+      k.addEventListener('click',function(){k.classList.toggle('off');});
+    });
+  }
+  function anaClear(){
+    anaTimers.forEach(function(id){clearTimeout(id);clearInterval(id);});anaTimers=[];
+    clearInterval(anaTick);
+    if(anaRaf)cancelAnimationFrame(anaRaf);
+  }
+  function stgDone(n){var el=document.getElementById('stg'+n);el.classList.remove('active');el.classList.add('done');}
+  function startAnaWait(){
+    anaClear();
+    var t0=Date.now(),wb=document.getElementById('anaWait');
+    wb.classList.remove('collapse');wb.style.display='';
+    document.getElementById('anaCalm').style.display='none';
+    for(var n=1;n<=4;n++)document.getElementById('stg'+n).classList.remove('done','active');
+    document.getElementById('stg1').classList.add('done');
+    document.getElementById('stg2').classList.add('active');
+    document.getElementById('anaEta').textContent='已等待 0 秒';
+    document.getElementById('anaBar').style.width='0%';
+    document.getElementById('anaFb').style.display='none';
+    document.getElementById('anaConfirm').style.display='none';
+    /* 字段卡骨架化（按真实内容行数配骨架行宽） */
+    [].forEach.call(document.querySelectorAll('#anaFields .af-card'),function(c,i){
+      c.classList.remove('reveal');
+      c.innerHTML='<div class="af-row"><div class="sk-ck"></div><div class="sk-bd">'+anaSk[i].map(function(w){return '<div class="sk-ln" style="width:'+w+'"></div>';}).join('')+'</div></div>';
+    });
+    /* 正向计时 */
+    var etaEl=document.getElementById('anaEta');
+    anaTick=setInterval(function(){etaEl.textContent='已等待 '+Math.floor((Date.now()-t0)/1000)+' 秒';},250);
+    /* 思考语句：按阶段切换语句池 */
+    var thinkEl=document.getElementById('anaThink'),pool=ANA_THINK[2],pi=0;
+    function showThink(){
+      thinkEl.classList.add('fade');
+      anaTimers.push(setTimeout(function(){thinkEl.textContent=pool[pi%pool.length];pi++;thinkEl.classList.remove('fade');},380));
+    }
+    function swapPool(n){pool=ANA_THINK[n];pi=0;showThink();}
+    showThink();
+    var thinkId=setInterval(showThink,2600);
+    anaTimers.push(thinkId);
+    /* 进度条：28s 缓动至 88%，完成补满 */
+    var bar=document.getElementById('anaBar');
+    (function crawl(){
+      var p=Math.min(1,(Date.now()-t0)/28000);
+      bar.style.width=((1-Math.pow(1-p,3))*88)+'%';
+      if(p<1)anaRaf=requestAnimationFrame(crawl);
+    })();
+    /* 阶段推进（卡片保持骨架，不提前吐字段） */
+    anaTimers.push(setTimeout(function(){stgDone(2);document.getElementById('stg3').classList.add('active');swapPool(3);},12000));
+    anaTimers.push(setTimeout(function(){stgDone(3);document.getElementById('stg4').classList.add('active');swapPool(4);},21000));
+    anaTimers.push(setTimeout(function(){        /* 模拟接口一次性返回 */
+      clearInterval(thinkId);stgDone(4);
+      var cards=document.querySelectorAll('#anaFields .af-card');
+      [].forEach.call(cards,function(c,i){c.innerHTML=anaOriginals[i];c.classList.add('reveal');});
+      bar.style.width='100%';
+      anaTimers.push(setTimeout(function(){
+        wb.classList.add('collapse');
+        anaTimers.push(setTimeout(function(){
+          wb.style.display='none';
+          document.getElementById('anaFb').style.display='flex';
+          document.getElementById('anaConfirm').style.display='block';
+        },460));
+      },260));
+    },ANA_RETURN_MS));
+    /* 超时安抚（真实接入后生效） */
+    anaTimers.push(setTimeout(function(){
+      if(document.getElementById('anaWait').style.display!=='none')document.getElementById('anaCalm').style.display='block';
+    },ANA_P95_MS));
+  }
+  /* 关闭抽屉 */
+  function closeAnaSheet(){
+    anaClear();
+    anaSheet.classList.remove('show');anaMask.classList.remove('show');
+    afbSheet.classList.remove('show');
+  }
+  anaMask.addEventListener('click',closeAnaSheet);
+  document.getElementById('anaClose').addEventListener('click',closeAnaSheet);
+  /* 赞 / 踩 / 意见反馈 */
+  var anaLikeOn=false,anaDislikeOn=false,afbRequireText=false;
+  document.getElementById('anaLike').addEventListener('click',function(){
+    anaLikeOn=!anaLikeOn;
+    if(anaLikeOn&&anaDislikeOn){anaDislikeOn=false;document.getElementById('anaDislike').classList.remove('on-dislike');}
+    this.classList.toggle('on-like',anaLikeOn);
+    showToast(anaLikeOn?'感谢您的认可':'已取消点赞');
+  });
+  document.getElementById('anaDislike').addEventListener('click',function(){
+    anaDislikeOn=!anaDislikeOn;
+    if(anaDislikeOn&&anaLikeOn){anaLikeOn=false;document.getElementById('anaLike').classList.remove('on-like');}
+    this.classList.toggle('on-dislike',anaDislikeOn);
+    if(anaDislikeOn){openAfb(true,'问题反馈');}else{showToast('已取消点踩');}
+  });
+  function openAfb(showTags,title){
+    afbRequireText=!showTags;
+    document.getElementById('afbTags').style.display=showTags?'flex':'none';
+    document.getElementById('afbTitle').textContent=title||(showTags?'问题反馈':'意见反馈');
+    document.getElementById('afbText').placeholder=showTags?'请详细描述您遇到的问题或建议（选填）':'请填写您的反馈内容（必填）';
+    afbSheet.classList.add('show');
+  }
+  document.getElementById('anaFbEntry').addEventListener('click',function(){openAfb(false,'意见反馈');});
+  document.getElementById('afbClose').addEventListener('click',function(){afbSheet.classList.remove('show');});
+  [].forEach.call(document.querySelectorAll('.afb-tag'),function(t){
+    t.addEventListener('click',function(){t.classList.toggle('on');});
+  });
+  document.getElementById('afbSubmit').addEventListener('click',function(){
+    var tags=document.querySelectorAll('.afb-tag.on').length,
+        text=document.getElementById('afbText').value.trim();
+    if(afbRequireText&&!text){showToast('请填写反馈内容');return;}
+    if(!tags&&!text){showToast('请选择问题类型或填写描述');return;}
+    afbSheet.classList.remove('show');
+    document.getElementById('afbText').value='';
+    [].forEach.call(document.querySelectorAll('.afb-tag.on'),function(t){t.classList.remove('on');});
+    showToast('反馈已提交，感谢您的建议');
+  });
+  /* 确认填入 */
+  document.getElementById('anaConfirm').addEventListener('click',function(){
+    showToast('已确认填入隐患信息');
+    closeAnaSheet();
+  });
+
+  /* 隐患描述字数 */
+  descInput.addEventListener('input',function(){descCount.textContent=descInput.value.length;});
+
+  /* 单选组（示意） */
+  [].forEach.call(document.querySelectorAll('.radio-row'),function(row){
+    row.addEventListener('click',function(){
+      [].forEach.call(document.querySelectorAll('.radio-row'),function(r){r.classList.remove('on');});
+      row.classList.add('on');
+    });
+  });
+})();
+</script>
+</body>
+</html>
