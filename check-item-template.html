@@ -527,6 +527,35 @@
   .rev-type-tag.new { background: #e6f7ec; color: #1e7a3c; }
   .op-change-item { padding: 3px 0; line-height: 1.7; }
   .op-change-item + .op-change-item { border-top: 1px dashed #f0f2f5; }
+  /* 变更内容折叠：默认收起最多5行，支持展开/收起 */
+  .op-change-body {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
+  }
+  .op-change-wrap.expanded .op-change-body {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+  .op-change-toggle {
+    display: none;
+    margin-top: 4px;
+    color: #1e4f91;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .op-change-toggle:hover { text-decoration: underline; }
+  .op-change-toggle .arr {
+    display: inline-block;
+    font-size: 10px;
+    margin-left: 2px;
+    transition: transform .15s;
+  }
+  .op-change-wrap.expanded .op-change-toggle .arr { transform: rotate(180deg); }
   .op-field-name { color: #555; font-weight: 500; }
   .rev-before { color: #b03535; }
   .rev-after { color: #1e7a3c; }
@@ -932,9 +961,9 @@
                 <tr>
                   <th style="width:56px">序号</th>
                   <th style="width:80px">操作类型</th>
-                  <th>变更内容</th>
-                  <th style="width:172px">操作人</th>
                   <th style="width:160px">操作时间</th>
+                  <th style="width:172px">操作人</th>
+                  <th>变更内容</th>
                 </tr>
               </thead>
               <tbody id="revisionBody"></tbody>
@@ -1236,12 +1265,31 @@
       tr.innerHTML =
         '<td>' + (i + 1) + '</td>' +
         '<td><span class="rev-type-tag' + (rv.type === '新建' ? ' new' : '') + '">' + rv.type + '</span></td>' +
-        '<td>' + changeHtml + '</td>' +
+        '<td>' + rv.time + '</td>' +
         '<td>' + rv.user + '</td>' +
-        '<td>' + rv.time + '</td>';
+        '<td><div class="op-change-wrap">' +
+          '<div class="op-change-body">' + changeHtml + '</div>' +
+          '<span class="op-change-toggle">展开<span class="arr">▼</span></span>' +
+        '</div></td>';
       tbody.appendChild(tr);
     });
+    // 内容超过5行时显示"展开"，否则隐藏切换链接
+    tbody.querySelectorAll('.op-change-wrap').forEach(function(wrap) {
+      var body = wrap.querySelector('.op-change-body');
+      if (body.scrollHeight > body.clientHeight + 2) {
+        wrap.querySelector('.op-change-toggle').style.display = 'inline-block';
+      }
+    });
   }
+
+  // 展开/收起（事件委托）
+  document.getElementById('revisionBody').addEventListener('click', function(e) {
+    var toggle = e.target.closest('.op-change-toggle');
+    if (!toggle) return;
+    var wrap = toggle.closest('.op-change-wrap');
+    var expanded = wrap.classList.toggle('expanded');
+    toggle.innerHTML = (expanded ? '收起' : '展开') + '<span class="arr">▼</span>';
+  });
 
   // 初始化修订字段筛选下拉
   function initFieldFilter() {
@@ -1267,8 +1315,8 @@
     document.getElementById('vBasis').textContent = r.basis;
     document.getElementById('vMethod').textContent = r.method;
     document.getElementById('revFieldFilter').value = '';
+    showView('detail'); // 先显示视图，确保折叠检测能取到真实高度
     renderRevisions();
-    showView('detail');
   }
 
   function openForm(i) {
