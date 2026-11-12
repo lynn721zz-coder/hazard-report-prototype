@@ -429,7 +429,9 @@
   .dpr-sec-head:hover{background:var(--gray-50)}
   .dpr-sec-no{flex-shrink:0;width:26px;height:26px;border-radius:var(--radius-md);background:var(--primary-50);color:var(--primary-800);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
   .dpr-h2{font-size:16px;font-weight:600;color:var(--text-primary);flex:1;min-width:0}
-  .dpr-sec-sum{font-size:11.5px;color:var(--text-secondary);white-space:nowrap}
+  .dpr-sec-sum{display:inline-flex;align-items:center;gap:6px;max-width:62%;font-size:11.5px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0}
+  .dpr-sec-sum .src-lb{flex-shrink:0;font-size:10px;line-height:18px;padding:0 8px;border:1px solid var(--border-primary);border-radius:var(--radius-full);color:var(--sys-primary);background:var(--primary-50)}
+  .dpr-sec-sum .src-val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .dpr-sec-chev{width:16px;height:16px;flex-shrink:0;color:var(--text-secondary);transition:transform .2s}
   .dpr-section[data-open="true"] .dpr-sec-chev{transform:rotate(180deg)}
   .dpr-sec-body{padding:2px 20px 20px;border-top:1px solid var(--border);animation:dprFadeIn .2s ease}
@@ -1234,6 +1236,15 @@ const dprReports=[
 let dprPeriod='month',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
 const DPR_PAGE_SIZE=5;
 /* 报告详情模板数据：按《中国中化双重预防机制运行分析报告》结构（周报/月报/年报三套口径） */
+/* 各章节数据来源：按报告模板中标注的业务系统归属；前三章模板未单独标注，按数据归属取智慧HSE管理系统 */
+const DPR_SECTION_SRC={
+ '一、公司动态风险概况':['中国中化智慧HSE管理系统'],
+ '二、风险再辨识情况':['中国中化智慧HSE管理系统'],
+ '三、隐患管理情况':['中国中化智慧HSE管理系统'],
+ '四、报警管理':['中国中化重大危险源管理系统'],
+ '五、联锁投用情况':['中国中化重大危险源管理系统'],
+ '六、固有风险情况':['中国中化重大危险源管理系统','中国中化智慧HSE管理系统']
+};
 const DPR_DETAIL={
 month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',kpi:{new:'45,797',newHint:'已整改 39,045 项',rate:'85.26%',rateHint:'本年累计 513,595 / 529,083 项',major:'36',majorHint:'整改中 57 项 · 待验收 90 项',lock:'98.65%',lockHint:'环比下降 0.18%'},
  sections:[
@@ -1682,7 +1693,7 @@ function showDprDetail(id){
   const D=DPR_DETAIL[r.period]||DPR_DETAIL.month;
   document.getElementById('dpr-d-title').textContent='中国中化双重预防机制运行分析报告';
   document.getElementById('dpr-d-sub').textContent=D.tag+'（'+D.range+'）';
-  document.getElementById('dpr-d-meta').innerHTML=`<span>生成时间 ${r.time}</span><span>所属单位 ${r.org}</span><span>报告周期 ${r.range}</span><span>分析模型 FORUS 化工安全大模型</span>`;
+  document.getElementById('dpr-d-meta').innerHTML=`<span>生成时间 ${r.time}</span><span>所属单位 ${r.org}</span><span>报告周期 ${r.range}</span>`;
   document.getElementById('dpr-kpi-new').innerHTML=D.kpi.new+'<span class="unit">项</span>';
   document.getElementById('dpr-kpi-new-hint').textContent=D.kpi.newHint;
   document.getElementById('dpr-kpi-rate').textContent=D.kpi.rate;
@@ -1692,14 +1703,15 @@ function showDprDetail(id){
   document.getElementById('dpr-kpi-lock').textContent=D.kpi.lock;
   document.getElementById('dpr-kpi-lock-hint').textContent=D.kpi.lockHint;
   document.getElementById('dpr-d-body').innerHTML=D.sections.map((s,i)=>{
-    const tb=s.blocks.filter(b=>b.tb).length,ch=s.blocks.filter(b=>b.chart).length;
-    const sum=[tb?`${tb} 张表`:'',ch?`${ch} 个图表`:''].filter(Boolean).join(' · ')||'文字说明';
+    const srcs=DPR_SECTION_SRC[s.t]||['中国中化智慧HSE管理系统'];
+    const srcFull='数据来源：'+srcs.join('、');
+    const srcShort=srcs.length>1?srcs.map(x=>x.replace('中国中化','')).join(' / '):srcs[0];
     return `
     <section class="dpr-section" data-open="true">
-      <header class="dpr-sec-head" role="button" tabindex="0" aria-expanded="true" aria-label="${s.t}，点击收起或展开本章">
+      <header class="dpr-sec-head" role="button" tabindex="0" aria-expanded="true" aria-label="${s.t}，${srcFull}，点击收起或展开本章">
         <span class="dpr-sec-no">${String(i+1).padStart(2,'0')}</span>
         <h2 class="dpr-h2">${s.t}</h2>
-        <span class="dpr-sec-sum">${sum}</span>
+        <span class="dpr-sec-sum" title="${srcFull}"><span class="src-lb">数据来源</span><span class="src-val">${srcShort}</span></span>
         <svg class="dpr-sec-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </header>
       <div class="dpr-sec-body">${s.blocks.map(b=>dprBlockHTML(b,r.period)).join('')}</div>
