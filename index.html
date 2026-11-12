@@ -834,6 +834,7 @@ const MENU=[
     {id:'hazard-list',name:'隐患清单'},
     {id:'hazard-urge',name:'隐患督办'},
     {id:'hazard-stat',name:'隐患统计分析',children:[{id:'stat-trend',name:'隐患趋势分析'},{id:'stat-dist',name:'隐患分布分析'}]},
+    {id:'dpr-report',name:'双重预防运行报告'},
     {id:'hazard-report',name:'隐患分析报告',report:true},
     {id:'fb-dashboard',name:'反馈统计看板'},
     {id:'duty-report',name:'履职任务报表'}]},
@@ -1161,11 +1162,255 @@ function bindHazardList(){
   });
 }
 
+/* ================= 双重预防运行报告 ================= */
+/* 双重预防（风险分级管控 + 隐患排查治理）双体系综合运行评价报告；
+   报告详情内容待模板接入，当前详情页为占位展示 */
+const DPR_DESC='风险分级管控与隐患排查治理双体系综合运行评价';
+const dprReports=[
+  {id:'DPR-2025-M10',type:'scheduled',status:'ready',title:'【中国中化】双重预防运行报告（2025年10月1日至2025年10月31日）',time:'2025-11-01 00:00',range:'2025-10-01 ~ 2025-10-31',count:5620,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2025-W45',type:'scheduled',status:'ready',title:'【中国昊华】双重预防运行报告（2025年11月3日至2025年11月9日）',time:'2025-11-10 00:00',range:'2025-11-03 ~ 2025-11-09',count:1286,desc:DPR_DESC,org:'中国昊华',owner:'李敏'},
+  {id:'DPR-2025-W44',type:'scheduled',status:'ready',title:'【中国中化】双重预防运行报告（2025年10月27日至2025年11月2日）',time:'2025-11-03 00:00',range:'2025-10-27 ~ 2025-11-02',count:1194,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2025-M09',type:'scheduled',status:'ready',title:'【中化蓝天】双重预防运行报告（2025年9月1日至2025年9月30日）',time:'2025-10-01 00:00',range:'2025-09-01 ~ 2025-09-30',count:5318,desc:DPR_DESC,org:'中化蓝天',owner:'王强'},
+  {id:'DPR-2025-W43',type:'scheduled',status:'ready',title:'【蓝天氟材料】双重预防运行报告（2025年10月20日至2025年10月26日）',time:'2025-10-27 00:00',range:'2025-10-20 ~ 2025-10-26',count:1102,desc:DPR_DESC,org:'蓝天氟材料',owner:'张伟'}
+];
+let dprFilter='all',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
+const DPR_PAGE_SIZE=5;
+function dprVisible(){return dprRole==='admin'?dprReports:dprReports.filter(r=>(r.owner||CUR_USER_NAME)===CUR_USER_NAME);}
+function dprHTML(){
+  return `
+  <section id="dpr-list-view" class="rpt-list-view">
+    <div class="rpt-head-row">
+      <div class="rpt-list-head">
+        <h1>双重预防运行报告</h1>
+        <div class="sub" id="dpr-list-sub">查看您名下的报告：AI 按周期对风险分级管控与隐患排查治理双体系运行情况进行综合分析生成</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
+        <select id="dpr-role" class="fi-select" style="appearance:auto;padding-right:10px" aria-label="切换用户角色视角">
+          <option value="user">业务用户视角（仅我的报告）</option>
+          <option value="admin">管理用户视角（查看全部报告）</option>
+        </select>
+      </div>
+    </div>
+    <div class="rpt-query" role="search" aria-label="运行报告查询">
+      <div class="rq-field"><label for="dpr-from">生成时间</label><input type="date" id="dpr-from"></div>
+      <span class="rq-sep">至</span>
+      <div class="rq-field"><label for="dpr-to">&nbsp;</label><input type="date" id="dpr-to"></div>
+      <div class="rq-field"><label for="dpr-org">所属单位</label><span class="rq-input-wrap"><input type="text" id="dpr-org" list="dpr-org-list" placeholder="输入单位名称，支持模糊" style="width:170px"><button type="button" class="rq-clear" data-target="dpr-org" title="清除所选单位" aria-label="清除所属单位输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="dpr-org-list"><option value="中国中化"></option><option value="中国昊华"></option><option value="中化蓝天"></option><option value="蓝天氟材料"></option><option value="中化新材料"></option><option value="中化装备"></option></datalist></div>
+      <span class="rq-spacer"></span>
+      <button class="rq-btn primary" id="dpr-start-btn"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>开始分析</button>
+      <button class="rq-btn" id="dpr-reset">重置</button>
+    </div>
+    <div class="rpt-filter-tabs" role="tablist" aria-label="报告类型筛选">
+      <button class="on" data-dfilter="all" role="tab" aria-selected="true">全部</button>
+      <button data-dfilter="scheduled" role="tab" aria-selected="false">周期定时报告</button>
+      <button data-dfilter="ai" role="tab" aria-selected="false">AI 辅助分析报告</button>
+    </div>
+    <div id="dpr-list"></div>
+  </section>
+  <section id="dpr-detail-view" class="rpt-detail-view" hidden>
+    <span class="rpt-back" id="dpr-back" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>返回报告列表</span>
+    <header class="report-header" role="banner">
+      <div class="top">
+        <div>
+          <h1 id="dpr-d-title">双重预防运行报告</h1>
+          <div class="subtitle" id="dpr-d-sub"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+          <button class="btn-rpt-cfg" id="dpr-d-excel" title="下载当前报告覆盖的双体系运行原始数据"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M4 3h16v18H4zM4 9h16M9 9v12M4 15h16" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>下载原始数据</button>
+          <button class="btn-rpt-cfg" id="dpr-d-export" title="以 Word 文档导出当前报告"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>导出报告（Word）</button>
+        </div>
+      </div>
+      <div class="meta" id="dpr-d-meta"></div>
+    </header>
+    <section class="metrics" aria-label="运行报告统计概览">
+      <div class="metric"><div class="label">运行数据总量</div><div class="value" id="dpr-d-count">0<span class="unit">条</span></div><div class="hint" id="dpr-d-count-hint"></div></div>
+      <div class="metric accent"><div class="label">评价维度</div><div class="value">5<span class="unit">项</span></div><div class="hint">风险管控 + 隐患治理双体系</div></div>
+      <div class="metric warn"><div class="label">分析模型</div><div class="value" style="font-size:15px;line-height:38px">FORUS 化工安全大模型</div><div class="hint">双体系综合运行评价</div></div>
+      <div class="metric danger"><div class="label">报告周期</div><div class="value" id="dpr-d-days">0<span class="unit">天</span></div><div class="hint" id="dpr-d-range"></div></div>
+    </section>
+    <div id="dpr-d-placeholder" style="border:1px dashed var(--border);border-radius:12px;background:var(--gray-50);padding:56px 24px;text-align:center;margin-top:16px">
+      <svg viewBox="0 0 24 24" fill="none" style="width:40px;height:40px;color:var(--text-tertiary)"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.5 9.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div style="font-size:14px;font-weight:600;color:var(--text-secondary);margin-top:12px">报告详情内容模板待接入</div>
+      <div style="font-size:12.5px;color:var(--text-tertiary);margin-top:6px">将按「风险分级管控 + 隐患排查治理」双体系综合运行评价模板渲染分析结论，模板确认后开放</div>
+    </div>
+  </section>`;
+}
+function renderDprList(filter){
+  const wrap=document.getElementById('dpr-list');
+  if(filter&&filter!==dprFilter){dprFilter=filter;dprPage=1;}
+  let list=dprVisible();
+  const sub=document.getElementById('dpr-list-sub');
+  if(sub)sub.textContent=dprRole==='admin'
+    ?'管理用户视角：可查看全部单位的双重预防运行报告'
+    :'查看您名下的报告：AI 按周期对风险分级管控与隐患排查治理双体系运行情况进行综合分析生成';
+  if(dprFilter!=='all')list=list.filter(r=>r.type===dprFilter);
+  const qFrom=document.getElementById('dpr-from'),qTo=document.getElementById('dpr-to'),qOrg=document.getElementById('dpr-org');
+  if(qFrom&&qFrom.value){const from=qFrom.value;list=list.filter(r=>!r.time||r.time.slice(0,10)>=from);}
+  if(qTo&&qTo.value){const to=qTo.value;list=list.filter(r=>!r.time||r.time.slice(0,10)<=to);}
+  if(qOrg&&qOrg.value.trim()){const kw=qOrg.value.trim().toLowerCase();list=list.filter(r=>(r.org||'').toLowerCase().includes(kw));}
+  if(!list.length){dprPage=1;wrap.innerHTML='<div class="rpt-empty">暂无符合条件的运行报告，请调整查询条件</div>';return;}
+  const total=list.length,pages=Math.max(1,Math.ceil(total/DPR_PAGE_SIZE));
+  dprPage=Math.min(Math.max(1,dprPage),pages);
+  wrap.innerHTML=list.slice((dprPage-1)*DPR_PAGE_SIZE,dprPage*DPR_PAGE_SIZE).map(r=>{
+    const isAI=r.type==='ai';
+    const isGen=r.status==='generating';
+    const isFail=r.status==='failed';
+    const ico='<path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>';
+    const tag=isAI?'<span class="rpt-tag ai">AI 辅助分析</span>':'<span class="rpt-tag sc">周期定时</span>';
+    const genTag=isGen?' <span class="rpt-tag gen"><span class="gen-spin"></span>生成中</span>'+(r.retries>0?` <span class="rpt-tag gen">已自动重试 ${r.retries}/3</span>`:''):'';
+    const failTag=isFail?' <span class="rpt-tag fail">生成失败</span> <span class="rpt-tag gen">已自动重试 3/3</span>':'';
+    const org=r.org||'—';
+    const ownerStr=dprRole==='admin'?`<span class="dot"></span><span>归属：${r.owner||CUR_USER_NAME}</span>`:'';
+    const chips=isGen
+      ?`<span class="rpt-desc">AI 正在对 ${r.count.toLocaleString()} 条双体系运行数据进行综合分析…</span>`
+      :(isFail
+        ?`<span class="rpt-desc">AI 分析任务失败：自动重试 3 次仍未成功，请点击「重新发起」重新提交任务</span>`
+        :`<span class="rpt-desc">${r.desc}</span>`);
+    const genBar=isGen?`<div class="gen-think">
+      <div class="gen-steps">
+        <span class="gen-step cur" ><span class="gen-step-txt">排队中</span></span>
+        <span class="gen-step"><span class="gen-step-arrow">→</span><span class="gen-step-txt">AI 分析</span></span>
+        <span class="gen-step"><span class="gen-step-arrow">→</span><span class="gen-step-txt">报告组装</span></span>
+      </div>
+      <div class="gen-thought"><span class="think-dot"><i></i><i></i><i></i></span><span class="gen-thought-txt">正在等待分析资源就绪，任务已进入生成队列</span></div>
+    </div>`:'';
+    return `<div class="rpt-card ${r.type}" data-drid="${r.id}" ${isGen?'data-gen="1"':''} ${isFail?'data-fail="1"':''} role="button" tabindex="0">
+      <div class="rpt-ico"><svg viewBox="0 0 24 24">${ico}</svg></div>
+      <div class="rpt-body">
+        <div class="rpt-title">${r.title}${tag}${genTag}${failTag}</div>
+        <div class="rpt-types">${chips}</div>
+        ${genBar}
+        <div class="rpt-meta">${(isGen||isFail)?'':`<span>${r.time}</span><span class="dot"></span>`}<span>${org}</span><span class="dot"></span><span>${r.range}</span><span class="dot"></span><span>运行数据 ${r.count.toLocaleString()} 条</span>${ownerStr}</div>
+      </div>
+      <div class="rpt-side">
+        ${isGen
+          ?'<span class="rpt-go" style="color:var(--text-tertiary)">AI 分析中…</span>'
+          :(isFail
+            ?`<button class="fb-btn" title="重新发起 AI 分析任务" onclick="dprRetry('${r.id}',event)">↻ 重新发起</button>`
+            :'<span class="rpt-go">查看详情 ›</span>')}
+      </div>
+    </div>`;
+  }).join('')+pagerHTML(dprPage,total,DPR_PAGE_SIZE);
+  bindPager(wrap,p=>{dprPage=p;renderDprList();});
+  wrap.querySelectorAll('.rpt-card').forEach(c=>{
+    const rid=c.dataset.drid;
+    const go=()=>showDprDetail(rid);
+    c.onclick=c.dataset.gen?()=>showToast('报告生成中（预计 5-10 分钟），完成后将通知您'):(c.dataset.fail?()=>showToast('任务生成失败，请点击右侧「重新发起」重新提交'):go);
+    c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.onclick();}};
+  });
+}
+/* 发起分析：三阶段生成演示（Shift+点击 或 12% 随机失败，自动重试 3 次） */
+function dprStart(ev){
+  const r={id:'DPR-AI-'+(++dprSeq),type:'ai',status:'generating',retries:0,
+    title:'【中国中化】双重预防运行报告（生成中）',time:'',range:'2025-11-01 ~ 2025-11-30',count:1236,
+    desc:DPR_DESC,org:'中国中化',owner:CUR_USER_NAME,dur:12000};
+  r.forceFail=!!(ev&&ev.shiftKey)||Math.random()<0.12;
+  dprReports.unshift(r);
+  dprFilter='all';dprPage=1;
+  renderDprList();
+  dprRunGen(r);
+  showToast('已发起双重预防运行分析，任务进入生成队列');
+}
+function dprRetry(id,ev){
+  ev&&ev.stopPropagation();
+  const r=dprReports.find(x=>x.id===id);
+  if(!r)return;
+  r.status='generating';r.retries=0;r.forceFail=!!(ev&&ev.shiftKey)||Math.random()<0.12;r.dur=12000;
+  renderDprList();
+  dprRunGen(r);
+}
+function dprRunGen(r){
+  requestAnimationFrame(()=>{
+    const card=document.querySelector(`.rpt-card[data-drid="${r.id}"]`);
+    if(!card)return;
+    const steps=card.querySelectorAll('.gen-step');
+    const txt=card.querySelector('.gen-thought-txt');
+    const msgs=['正在等待分析资源就绪，任务已进入生成队列','FORUS 化工安全大模型正在分析双体系运行数据','正在组装运行报告结构与评价结论'];
+    const t0=Date.now(),dur=r.dur;
+    let si=0;
+    const timer=setInterval(()=>{
+      const el=Date.now()-t0;
+      if(el>=dur){
+        clearInterval(timer);
+        if(r.forceFail){
+          r.retries=(r.retries||0)+1;
+          if(r.retries<3){
+            r.dur=3000;
+            renderDprList();dprRunGen(r);
+          }else{
+            r.status='failed';
+            renderDprList();
+            showToast('运行报告分析任务失败，已通知消息中心');
+          }
+        }else{
+          r.status='ready';
+          r.time=(()=>{const d=new Date();const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;})();
+          r.title=`【${r.org}】双重预防运行报告（2025年11月1日至2025年11月30日）`;
+          renderDprList();
+          showToast('双重预防运行报告生成完成');
+        }
+        return;
+      }
+      const idx=Math.min(2,Math.floor(el/(dur/3)));
+      if(idx!==si){si=idx;steps.forEach((s,i)=>s.classList.toggle('cur',i<=si));}
+      if(txt)txt.textContent=msgs[si];
+    },400);
+  });
+}
+function showDprDetail(id){
+  const r=dprReports.find(x=>x.id===id);
+  if(!r)return;
+  dprCurrent=id;
+  document.getElementById('dpr-list-view').hidden=true;
+  const dv=document.getElementById('dpr-detail-view');
+  dv.hidden=false;
+  document.getElementById('dpr-d-title').textContent=r.title;
+  document.getElementById('dpr-d-sub').textContent='风险分级管控 + 隐患排查治理 · 双体系综合运行评价';
+  document.getElementById('dpr-d-meta').innerHTML=`<span>生成时间 ${r.time}</span><span>所属单位 ${r.org}</span><span>报告周期 ${r.range}</span>`;
+  document.getElementById('dpr-d-count').innerHTML=r.count.toLocaleString()+'<span class="unit">条</span>';
+  document.getElementById('dpr-d-count-hint').textContent='排查任务、风险管控措施、隐患整改等运行记录';
+  const days=Math.round((new Date(r.range.split(' ~ ')[1])-new Date(r.range.split(' ~ ')[0]))/86400000)+1;
+  document.getElementById('dpr-d-days').innerHTML=days+'<span class="unit">天</span>';
+  document.getElementById('dpr-d-range').textContent=r.range;
+  document.getElementById('content').scrollTop=0;
+}
+function bindDprReport(){
+  renderDprList();
+  const role=document.getElementById('dpr-role');
+  role.addEventListener('change',()=>{dprRole=role.value;dprPage=1;renderDprList();});
+  document.querySelectorAll('[data-dfilter]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('[data-dfilter]').forEach(x=>x.classList.toggle('on',x===b));
+      renderDprList(b.dataset.dfilter);
+    });
+  });
+  document.getElementById('dpr-start-btn').addEventListener('click',dprStart);
+  document.getElementById('dpr-reset').addEventListener('click',()=>{
+    document.getElementById('dpr-from').value='';
+    document.getElementById('dpr-to').value='';
+    document.getElementById('dpr-org').value='';
+    dprPage=1;renderDprList();
+  });
+  const applyQ=()=>{dprPage=1;renderDprList();};
+  document.querySelector('#page-dpr-report .rpt-query').addEventListener('change',applyQ);
+  document.querySelectorAll('.rq-clear[data-target^="dpr-"]').forEach(b=>b.addEventListener('click',()=>{document.getElementById(b.dataset.target).value='';applyQ();}));
+  document.getElementById('dpr-back').onclick=()=>{
+    document.getElementById('dpr-detail-view').hidden=true;
+    document.getElementById('dpr-list-view').hidden=false;
+    renderDprList();
+  };
+  document.getElementById('dpr-back').onkeydown=e=>{if(e.key==='Enter'){document.getElementById('dpr-back').onclick();}};
+  const tip=()=>showToast('报告详情内容模板待接入，导出能力将随模板一并开放');
+  document.getElementById('dpr-d-excel').addEventListener('click',tip);
+  document.getElementById('dpr-d-export').addEventListener('click',tip);
+}
+
 function getPage(id){
   if(pageCache[id])return pageCache[id];
   const div=document.createElement('div');
   div.className='page';div.id='page-'+id;
   if(id==='hazard-report'){div.classList.add('report-page');div.innerHTML=reportHTML();}
+  else if(id==='dpr-report'){div.classList.add('report-page');div.innerHTML=dprHTML();}
   else if(id==='hazard-list'){div.innerHTML=hazardListHTML();}
   else if(id==='fb-dashboard'){div.innerHTML=fbDashboardHTML();}
   else{
@@ -1179,6 +1424,7 @@ function getPage(id){
   document.getElementById('content').appendChild(div);
   pageCache[id]=div;
   if(id==='hazard-report'){bindReport();}
+  if(id==='dpr-report'){bindDprReport();}
   if(id==='hazard-list'){bindHazardList();}
   if(id==='fb-dashboard'){bindFbDashboard();}
   return div;
