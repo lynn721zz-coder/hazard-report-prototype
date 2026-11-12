@@ -457,6 +457,7 @@
   .dpr-legend{display:flex;flex-wrap:wrap;gap:14px;padding:2px 16px 10px;font-size:11.5px;color:var(--text-secondary)}
   .dpr-legend .lg{display:inline-flex;align-items:center;gap:6px}
   .dpr-legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px}
+  .dpr-legend .total{font-weight:600;color:var(--text-primary)}
   .dpr-fig-note{font-size:11.5px;color:var(--text-secondary);padding:0 16px 10px}
   .dpr-fig-data{border-top:1px solid var(--border);padding:0 16px}
   .dpr-fig-data summary{cursor:pointer;list-style:none;font-size:11.5px;color:var(--sys-primary);padding:8px 0}
@@ -1267,9 +1268,11 @@ month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',k
    {p:'【本月】，新增重大事故隐患共【36】项（中化化肥-中化长山 8 项、中国昊华-黎明院 7 项、沧州大化-大化聚海 4 项、中国昊华-中昊晨光（富顺厂区）3 项等）。'},
    {p:'持续跟踪重大事故隐患排查整改：2025 年未完成整改遗留的 11 项重大事故隐患已整改 10 项，剩余 1 项按计划整改中；2026 年累计发现重大事故隐患 301 项。截止 2026 年 10 月 20 日，累计【57】个整改中重大事故隐患，【90】个已整改待验收隐患。'},
    {chart:'隐患危害分类分析图'},
-   {chart:'人的不安全行为 / 物的不安全状态细分饼图'},
+   {chart:'人的不安全行为细分饼图'},
+   {chart:'物的不安全状态细分饼图'},
    {chart:'隐患要素分析图'},
-   {chart:'人均安全隐患统计与排查数趋势'}
+   {chart:'人均安全隐患统计'},
+   {chart:'人均安全隐患排查数趋势'}
   ]},
   {t:'四、报警管理',blocks:[
    {p:'【本月】，中国中化报警总数【984】个，点位平均报警次数【0.00097】次。'},
@@ -1313,7 +1316,7 @@ week:{tag:'【2026年第43周报】',range:'2026年10月13日-2026年10月19日'
    {p:'【本周期】，新增隐患【386】项，已整改【341】项，整改率【88.34%】。'},
    {tb:{h:['二级公司','新增隐患数','本周整改数','整改率'],r:[['鲁西集团','96','89','92.7%'],['中国金茂','64','58','90.6%'],['化工事业部','52','47','90.4%'],['中化能源','48','44','91.7%'],['中国昊华','41','36','87.8%']]}},
    {p:'重大事故隐患：本周期新增【2】项，均已明确整改责任与计划；整改中重大事故隐患累计【57】项。'},
-   {chart:'本周隐患危害分类分布'}
+   {chart:'隐患危害分类分析图'}
   ]},
   {t:'四、报警管理',blocks:[
    {p:'【本周期】，报警总数【212】个，点位平均报警次数【0.00021】次；GDS / SIS / 关键安全参数消警率均为 100%。'},
@@ -1340,8 +1343,8 @@ year:{tag:'【2025年年报】',range:'2025年01月01日-2025年12月31日',kpi:
    {p:'【2025 年】，累计新增隐患【512,340】项，已整改【501,875】项，整改率【97.95%】。'},
    {tb:{h:['二级公司','新增隐患数','累计整改率','一般A级整改率'],r:[['鲁西集团','102,480','99.31%','88.20%'],['中化能源','88,750','99.72%','60.15%'],['中国金茂','61,930','98.40%','100.00%'],['化工事业部','61,205','97.55%','100.00%'],['中国昊华','50,110','92.80%','97.31%']]}},
    {p:'重大事故隐患：全年新增【301】项，已整改【295】项；遗留 6 项已全部纳入 2026 年整改计划。'},
-   {chart:'全年隐患危害分类分析'},
-   {chart:'月度人均隐患排查数趋势'}
+   {chart:'隐患危害分类分析图'},
+   {chart:'人均安全隐患排查数趋势'}
   ]},
   {t:'四、报警管理',blocks:[
    {p:'【2025 年】，报警总数【11,860】个，点位平均报警次数【0.00110】次；各类消警率全年均值 99.6% 以上。'},
@@ -1359,16 +1362,19 @@ year:{tag:'【2025年年报】',range:'2025年01月01日-2025年12月31日',kpi:
 /* 图表数据：原型示意数据，仅用于展示图表形态；接入真实业务数据后替换本映射即可 */
 const DPR_CHART_COLORS=['var(--sys-primary)','var(--primary-400)','var(--warning-600)','var(--success-800)','var(--danger-600)','var(--gray-600)'];
 const DPR_CHART_DATA={
- '隐患危害分类分析图':{type:'bar',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[18246,12508,7312,4201,3530]},
- '人的不安全行为 / 物的不安全状态细分饼图':{type:'donut',unit:'项',names:['未按规定佩戴劳保','违章操作','设备防护缺失','设施老化缺陷','作业环境不良','其他'],vals:[6120,5430,4860,3980,3264,7100]},
- '隐患要素分析图':{type:'hbar',unit:'项',names:['设备设施','作业活动','人员行为','管理体系','应急管理','职业健康'],vals:[13620,10840,9250,5870,3760,2457]},
- '人均安全隐患统计与排查数趋势':{type:'line',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月'],ymax:5,series:[
-   {name:'人均隐患数（项/人）',vals:[0.82,0.88,0.91,0.96,1.02,1.08,1.09,1.14,1.21,1.18]},
+ /* 月报：按模板 6 张图 */
+ '隐患危害分类分析图':{type:'pie',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[18246,12508,7312,4201,3530]},
+ '人的不安全行为细分饼图':{type:'pie',unit:'项',names:['未按规定佩戴劳保用品','违章操作','违反劳动纪律','未执行作业许可','其他'],vals:[5120,4380,3260,2880,2606]},
+ '物的不安全状态细分饼图':{type:'pie',unit:'项',names:['设备设施缺陷','防护装置缺失','作业环境不良','警示标识缺失','其他'],vals:[4120,3080,2240,1680,1388]},
+ '隐患要素分析图':{type:'pie',unit:'项',names:['设备设施','作业活动','人员行为','管理体系','应急管理','职业健康'],vals:[13620,10840,9250,5870,3760,2457]},
+ '人均安全隐患统计':{type:'bar',unit:'项/人',xLabel:'所属单位',yLabel:'数量（项/人）',names:['鲁西集团','化工事业部','中化能源','中国昊华','蓝星公司','氯碱事业部','先正达','中国金茂'],vals:[0.82,0.54,0.44,0.28,0.90,0.64,0.21,0.29]},
+ '人均安全隐患排查数趋势':{type:'line',xLabel:'月份',yLabel:'数量（次/人）',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月'],ymax:5,series:[
    {name:'人均排查数（次/人）',vals:[3.2,3.4,3.5,3.7,3.9,4.1,4.0,4.3,4.5,4.4]}]},
- '本周隐患危害分类分布':{type:'bar',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[154,105,62,38,27]},
- '全年隐患危害分类分析':{type:'bar',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[204110,139870,81690,46980,39690]},
- '月度人均隐患排查数趋势':{type:'line',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],ymax:5,series:[
-   {name:'人均隐患排查数（次/人）',vals:[3.1,3.0,3.3,3.5,3.4,3.7,3.9,3.8,4.0,4.2,4.1,4.4]}]}
+ /* 周报 / 年报：同名图表按周期切换数据 */
+ 'week|隐患危害分类分析图':{type:'pie',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[154,105,62,38,27]},
+ 'year|隐患危害分类分析图':{type:'pie',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[204110,139870,81690,46980,39690]},
+ 'year|人均安全隐患排查数趋势':{type:'line',xLabel:'月份',yLabel:'数量（次/人）',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],ymax:5,series:[
+   {name:'人均排查数（次/人）',vals:[3.1,3.0,3.3,3.5,3.4,3.7,3.9,3.8,4.0,4.2,4.1,4.4]}]}
 };
 function dprNiceMax(v){
   const raw=v*1.12,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;
@@ -1378,11 +1384,12 @@ function dprNiceMax(v){
 function dprSvgBar(D){
   const W=680,H=230,L=52,R=18,T=20,B=48,pw=W-L-R,ph=H-T-B;
   const max=dprNiceMax(Math.max(...D.vals)),step=pw/D.vals.length,bw=Math.min(58,step*.58);
-  let g='';
+  const axisLab=v=>max<10?v.toFixed(1):Math.round(v).toLocaleString();
+  let g=`<text x="${L}" y="12" font-size="10.5" fill="var(--text-secondary)">${D.yLabel||'数量'}</text>`;
   for(let i=0;i<=5;i++){
     const y=T+ph*i/5,v=max*(1-i/5);
     g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`;
-    g+=`<text x="${L-8}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">${Math.round(v).toLocaleString()}</text>`;
+    g+=`<text x="${L-8}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">${axisLab(v)}</text>`;
   }
   D.vals.forEach((v,i)=>{
     const x=L+step*i+(step-bw)/2,h=ph*v/max,y=T+ph-h,c=DPR_CHART_COLORS[i%6];
@@ -1390,41 +1397,30 @@ function dprSvgBar(D){
     g+=`<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()}</text>`;
     g+=`<text x="${L+step*i+step/2}" y="${T+ph+22}" text-anchor="middle" font-size="11" fill="var(--text-secondary)">${D.names[i]}</text>`;
   });
+  g+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)">${D.xLabel||'分类'}</text>`;
   return g;
 }
-function dprSvgHBar(D){
-  const W=680,L=110,R=80,T=14,B=14,rowH=(230-T-B)/D.vals.length,pw=W-L-R;
-  const max=Math.max(...D.vals)*1.12;
-  let g='';
-  D.vals.forEach((v,i)=>{
-    const y=T+rowH*i+(rowH-16)/2,w=pw*v/max,c=DPR_CHART_COLORS[i%6];
-    g+=`<text x="${L-10}" y="${y+13}" text-anchor="end" font-size="11.5" fill="var(--text-secondary)">${D.names[i]}</text>`;
-    g+=`<rect x="${L}" y="${y}" width="${pw}" height="16" rx="4" fill="var(--gray-50)"/>`;
-    g+=`<rect class="dpr-bar" x="${L}" y="${y}" width="${w}" height="16" rx="4" fill="${c}"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}</title></rect>`;
-    g+=`<text x="${L+w+8}" y="${y+13}" font-size="11" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()}</text>`;
-  });
-  return g;
-}
-function dprSvgDonut(D){
-  const cx=188,cy=115,r=76,sw=34,C=2*Math.PI*r;
+function dprSvgPie(D){
+  const cx=168,cy=115,r=84;
   const total=D.vals.reduce((a,b)=>a+b,0);
-  let off=0,g=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--gray-100)" stroke-width="${sw}"/>`;
+  let ang=-Math.PI/2,g='';
   D.vals.forEach((v,i)=>{
-    const len=C*v/total,c=DPR_CHART_COLORS[i%6],ly=38+i*32;
-    g+=`<circle class="dpr-bar" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}（${(v/total*100).toFixed(1)}%）</title></circle>`;
-    g+=`<rect x="330" y="${ly-11}" width="11" height="11" rx="2" fill="${c}"/>`;
-    g+=`<text x="350" y="${ly}" font-size="11.5" fill="var(--text-secondary)">${D.names[i]}</text>`;
-    g+=`<text x="662" y="${ly}" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()} · ${(v/total*100).toFixed(1)}%</text>`;
-    off+=len;
+    const sweep=2*Math.PI*v/total,a2=ang+sweep,large=sweep>Math.PI?1:0,c=DPR_CHART_COLORS[i%6];
+    const x1=cx+r*Math.cos(ang),y1=cy+r*Math.sin(ang),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+    const pct=(v/total*100).toFixed(1);
+    g+=`<path class="dpr-bar" d="M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${c}" stroke="var(--bg-card)" stroke-width="1.5"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}（${pct}%）</title></path>`;
+    const ly=32+i*32;
+    g+=`<rect x="300" y="${ly-11}" width="11" height="11" rx="2" fill="${c}"/>`;
+    g+=`<text x="318" y="${ly}" font-size="11.5" fill="var(--text-secondary)">${D.names[i]}</text>`;
+    g+=`<text x="662" y="${ly}" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()} ${D.unit} · ${pct}%</text>`;
+    ang=a2;
   });
-  g+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="12" fill="var(--text-secondary)">合计</text>`;
-  g+=`<text x="${cx}" y="${cy+20}" text-anchor="middle" font-size="20" font-weight="700" fill="var(--text-primary)">${total.toLocaleString()}</text>`;
   return g;
 }
 function dprSvgLine(D){
-  const W=680,H=230,L=44,R=18,T=18,B=40,pw=W-L-R,ph=H-T-B,ymax=D.ymax||5,n=D.names.length;
+  const W=680,H=230,L=44,R=18,T=18,B=46,pw=W-L-R,ph=H-T-B,ymax=D.ymax||5,n=D.names.length;
   const X=i=>L+(n===1?0:pw*i/(n-1)),Y=v=>T+ph*(1-v/ymax);
-  let g='';
+  let g=`<text x="${L}" y="12" font-size="10.5" fill="var(--text-secondary)">${D.yLabel||'数量'}</text>`;
   for(let i=0;i<=5;i++){
     const y=T+ph*i/5,v=ymax*(1-i/5);
     g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`;
@@ -1438,21 +1434,26 @@ function dprSvgLine(D){
     const last=s.vals.length-1;
     g+=`<text x="${X(last)-6}" y="${Y(s.vals[last])-10}" text-anchor="end" font-size="11" font-weight="600" fill="${c}">${s.vals[last]}</text>`;
   });
+  g+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)">${D.xLabel||'月份'}</text>`;
   return g;
 }
-function dprChartHTML(title){
-  const D=DPR_CHART_DATA[title]||DPR_CHART_DATA['隐患危害分类分析图'];
-  const drawer={bar:dprSvgBar,hbar:dprSvgHBar,donut:dprSvgDonut,line:dprSvgLine}[D.type];
+function dprChartHTML(title,period){
+  const D=DPR_CHART_DATA[(period||'month')+'|'+title]||DPR_CHART_DATA[title]||DPR_CHART_DATA['隐患危害分类分析图'];
+  const drawer={bar:dprSvgBar,pie:dprSvgPie,line:dprSvgLine}[D.type];
   const svg=drawer(D);
   const total=D.vals?D.vals.reduce((a,b)=>a+b,0):0;
   let legend='',rows='';
   if(D.type==='line'){
-    legend=`<div class="dpr-legend">${D.series.map((s,i)=>`<span class="lg"><i class="sw" style="background:${DPR_CHART_COLORS[i%6]}"></i>${s.name}</span>`).join('')}</div>`;
-    rows=`<table><thead><tr><th>周期</th>${D.series.map(s=>`<th>${s.name}</th>`).join('')}</tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td>${D.series.map(s=>`<td>${s.vals[i]}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    legend=`<div class="dpr-legend">${D.series.map((s,i)=>`<span class="lg"><i class="sw" style="background:${DPR_CHART_COLORS[i%6]}"></i>${s.name}</span>`).join('')}<span class="lg">横轴：${D.xLabel} · 纵轴：${D.yLabel}</span></div>`;
+    rows=`<table><thead><tr><th>${D.xLabel}</th>${D.series.map(s=>`<th>${s.name}</th>`).join('')}</tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td>${D.series.map(s=>`<td>${s.vals[i]}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }else if(D.type==='pie'){
+    legend=`<div class="dpr-legend"><span class="lg total">合计 ${total.toLocaleString()} ${D.unit}</span><span class="lg">每项均展示数量与占比</span></div>`;
+    rows=`<table><thead><tr><th>分类</th><th>数量（${D.unit}）</th><th>占比</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td>${D.vals[i].toLocaleString()}</td><td>${(D.vals[i]/total*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
   }else{
-    rows=`<table><thead><tr><th>分类</th><th>数值（${D.unit}）</th><th>占比</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td>${D.vals[i].toLocaleString()}</td><td>${(D.vals[i]/total*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
+    legend=`<div class="dpr-legend"><span class="lg">横轴：${D.xLabel} · 纵轴：${D.yLabel}</span></div>`;
+    rows=`<table><thead><tr><th>${D.xLabel}</th><th>${D.yLabel}</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td>${D.vals[i]}</td></tr>`).join('')}</tbody></table>`;
   }
-  const desc=D.type==='line'?`${D.names.length} 个周期、${D.series.length} 项指标`:`${D.names.length} 个分类，合计 ${total.toLocaleString()} ${D.unit}`;
+  const desc=D.type==='line'?`横轴 ${D.xLabel}、纵轴 ${D.yLabel}，${D.names.length} 个周期`:D.type==='bar'?`横轴 ${D.xLabel}、纵轴 ${D.yLabel}，${D.names.length} 个所属单位`:`${D.names.length} 个分类，合计 ${total.toLocaleString()} ${D.unit}，含数量与占比`;
   return `<figure class="dpr-chart">
     <figcaption class="dpr-fig-cap"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${title}</figcaption>
     <div class="dpr-fig-body"><svg class="dpr-fig-svg" viewBox="0 0 680 230" role="img" aria-label="${title}，${desc}"><title>${title}</title><desc>${desc}；原型示意数据。</desc>${svg}</svg></div>
@@ -1461,8 +1462,8 @@ function dprChartHTML(title){
     <details class="dpr-fig-data"><summary>查看图表数据</summary>${rows}</details>
   </figure>`;
 }
-function dprBlockHTML(b){
-  if(b.chart)return dprChartHTML(b.chart);
+function dprBlockHTML(b,period){
+  if(b.chart)return dprChartHTML(b.chart,period);
   if(b.tb)return `<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${b.tb.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.tb.r.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const p=b.p||'';
   let cls='dpr-p';
@@ -1701,7 +1702,7 @@ function showDprDetail(id){
         <span class="dpr-sec-sum">${sum}</span>
         <svg class="dpr-sec-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </header>
-      <div class="dpr-sec-body">${s.blocks.map(dprBlockHTML).join('')}</div>
+      <div class="dpr-sec-body">${s.blocks.map(b=>dprBlockHTML(b,r.period)).join('')}</div>
     </section>`;
   }).join('');
   dprSyncToolbar();
