@@ -14,6 +14,8 @@
     --danger-50:#FCEBEB;--danger-400:#E24B4A;--danger-600:#A32D2D;--danger-800:#791F1F;
     --success-50:#EAF3DE;--success-400:#639922;--success-800:#27500A;
     --warning-50:#FAEEDA;--warning-400:#EF9F27;--warning-600:#854F0B;
+    /* 图表色板：明亮但不刺眼，相邻色相拉开；配白色描边与数据标签保证可辨 */
+    --chart-1:#3B82F6;--chart-2:#2FB49A;--chart-3:#E9A23B;--chart-4:#E8705C;--chart-5:#8B78DC;--chart-6:#3EA9D2;
     --gray-50:#F7F8FA;--gray-100:#EDEFF3;--gray-200:#D9DDE4;--gray-400:#8A9099;--gray-600:#5C6470;--gray-800:#3D434D;--gray-900:#262B33;
     --bg-page:#E9EEF6;--bg-card:#FFFFFF;--bg-tertiary:#F5F7FA;
     --text-primary:#262B33;--text-secondary:#5C6470;--text-tertiary:#8A9099;
@@ -451,6 +453,10 @@
   .dpr-table td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text-primary)}
   .dpr-table tbody tr:last-child td{border-bottom:none}
   .dpr-table tbody tr:hover td{background:var(--gray-50)}
+  /* 列间分割线用最浅的中性色；数值列与对应表头居中、数字等宽对齐 */
+  .dpr-table th,.dpr-table td{border-right:1px solid var(--gray-100)}
+  .dpr-table th:last-child,.dpr-table td:last-child{border-right:none}
+  .dpr-table .num,.dpr-fig-data .num{text-align:center;font-variant-numeric:tabular-nums}
   .dpr-chart{margin:12px 0 16px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg-card);overflow:hidden}
   .dpr-fig-cap{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--text-primary);background:var(--bg-tertiary);border-bottom:1px solid var(--border)}
   .dpr-fig-cap .ic{width:14px;height:14px;flex-shrink:0;color:var(--sys-primary)}
@@ -467,7 +473,7 @@
   .dpr-fig-data summary::before{content:"▸ "}
   .dpr-fig-data[open] summary::before{content:"▾ "}
   .dpr-fig-data table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:10px}
-  .dpr-fig-data th,.dpr-fig-data td{border:1px solid var(--border);padding:4px 8px;text-align:left}
+  .dpr-fig-data th,.dpr-fig-data td{border:1px solid var(--gray-100);padding:4px 8px;text-align:left}
   .dpr-fig-data th{background:var(--gray-50);color:var(--text-secondary)}
   .dpr-bar{transition:opacity .2s}
   .dpr-bar:hover{opacity:.72}
@@ -647,12 +653,19 @@
         <div class="field-label">所属单位 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400">（周期报告分析的数据单位范围）</span></div>
         <select id="cfg-org" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);color:var(--text-primary)">
           <option value="中国中化" selected>中国中化</option>
+          <!-- 二级单位示例：按组织架构顺序，与 ORGS、统计图表横轴保持一致 -->
+          <option value="中化能源">中化能源</option>
+          <option value="先正达">先正达</option>
+          <option value="中化化肥">中化化肥</option>
+          <option value="化工事业部">化工事业部</option>
+          <option value="蓝星公司">蓝星公司</option>
           <option value="中国昊华">中国昊华</option>
-          <option value="蓝天氟材料">蓝天氟材料</option>
-          <option value="中化蓝天">中化蓝天</option>
-          <option value="中化新材料">中化新材料</option>
-          <option value="中化环境">中化环境</option>
+          <option value="鲁西集团">鲁西集团</option>
+          <option value="沧州大化">沧州大化</option>
+          <option value="氯碱事业部">氯碱事业部</option>
+          <option value="橡胶公司">橡胶公司</option>
           <option value="中化装备">中化装备</option>
+          <option value="中化环境">中化环境</option>
         </select>
       </div>
       <div style="margin-bottom:16px">
@@ -870,7 +883,8 @@ const FB_TIP_SAMPLES={
   ENV_POLLUTE:['场地孔洞类隐患建议补充临边防护要求','杂乱问题建议与 6S 管理联动分析']
 };
 const TAGS=['分析不准确','漏报','分类错误','部位定位不准','风险分析不对','整改建议不可行','其他'];
-const ORGS=['中国昊华','蓝天氟材料','中化蓝天','中化新材料','中化环境','中化装备'];
+/* 所属单位示例：按组织架构顺序，供报告示例、导出清单、统计图表横轴共用 */
+const ORGS=['中化能源','先正达','中化化肥','化工事业部','蓝星公司','中国昊华','鲁西集团','沧州大化','氯碱事业部','橡胶公司','中化装备','中化环境'];
 const state={}; TYPES.forEach(t=>state[t.code]={type:null,tags:new Set(),comment:'',submitted:false});
 
 /* ================= 菜单 ================= */
@@ -1017,7 +1031,7 @@ function hazardListHTML(){
             ${HZ_ROWS.map((r,i)=>`
             <tr${r.danger?' class="danger-row"':''} data-hz="${1000+i}">
               <td>${i+1}</td>
-              <td>蓝天氟材料</td>
+              <td>${ORGS[0]}</td>
               <td>中国昊华</td>
               <td><span class="hz-name">${HZ_NAME}</span></td>
               <td${r.lv==='major'?' class="hz-level-major"':''}>${r.level}</td>
@@ -1099,7 +1113,7 @@ function bindHazardList(){
     const dates=inputs.filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v));
     const timeDim=dates.length>=2?dates[0]+' ~ '+dates[1]:'2025-12-01 ~ 2025-12-31';
     const sels=listPage?[...listPage.querySelectorAll('.fi-select')].filter(el=>!el.closest('.pager')).map(s=>s.value.trim()):[];
-    const orgDim=sels.find(v=>v)||'蓝天氟材料';
+    const orgDim=sels.find(v=>v)||ORGS[0];
     closeAIModal();
     const now=new Date(),pad=n=>String(n).padStart(2,'0');
     const time=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
@@ -1371,14 +1385,14 @@ year:{tag:'【2025年年报】',range:'2025年01月01日-2025年12月31日',kpi:
  ]}
 };
 /* 图表数据：原型示意数据，仅用于展示图表形态；接入真实业务数据后替换本映射即可 */
-const DPR_CHART_COLORS=['var(--sys-primary)','var(--primary-400)','var(--warning-600)','var(--success-800)','var(--danger-600)','var(--gray-600)'];
+const DPR_CHART_COLORS=['var(--chart-1)','var(--chart-2)','var(--chart-3)','var(--chart-4)','var(--chart-5)','var(--chart-6)'];
 const DPR_CHART_DATA={
  /* 月报：按模板 6 张图 */
  '隐患危害分类分析图':{type:'pie',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[18246,12508,7312,4201,3530]},
  '人的不安全行为细分饼图':{type:'pie',unit:'项',names:['未按规定佩戴劳保用品','违章操作','违反劳动纪律','未执行作业许可','其他'],vals:[5120,4380,3260,2880,2606]},
  '物的不安全状态细分饼图':{type:'pie',unit:'项',names:['设备设施缺陷','防护装置缺失','作业环境不良','警示标识缺失','其他'],vals:[4120,3080,2240,1680,1388]},
  '隐患要素分析图':{type:'pie',unit:'项',names:['设备设施','作业活动','人员行为','管理体系','应急管理','职业健康'],vals:[13620,10840,9250,5870,3760,2457]},
- '人均安全隐患统计':{type:'bar',unit:'项/人',xLabel:'所属单位',yLabel:'数量（项/人）',names:['鲁西集团','化工事业部','中化能源','中国昊华','蓝星公司','氯碱事业部','先正达','中国金茂'],vals:[0.82,0.54,0.44,0.28,0.90,0.64,0.21,0.29]},
+ '人均安全隐患统计':{type:'bar',unit:'项/人',xLabel:'所属单位',yLabel:'数量（项/人）',names:ORGS,vals:[0.44,0.21,0.53,0.54,0.90,0.28,0.82,0.57,0.64,0.38,0.31,0.26]},
  '人均安全隐患排查数趋势':{type:'line',xLabel:'月份',yLabel:'数量（次/人）',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月'],ymax:5,series:[
    {name:'人均排查数（次/人）',vals:[3.2,3.4,3.5,3.7,3.9,4.1,4.0,4.3,4.5,4.4]}]},
  /* 周报 / 年报：同名图表按周期切换数据 */
@@ -1393,7 +1407,8 @@ function dprNiceMax(v){
   return nice*mag;
 }
 function dprSvgBar(D){
-  const W=680,H=230,L=52,R=18,T=20,B=48,pw=W-L-R,ph=H-T-B;
+  const rot=D.names.length>9; /* 单位较多时横轴标签倾斜，避免相邻文字重叠 */
+  const W=680,H=rot?268:230,L=52,R=18,T=20,B=rot?86:48,pw=W-L-R,ph=H-T-B;
   const max=dprNiceMax(Math.max(...D.vals)),step=pw/D.vals.length,bw=Math.min(58,step*.58);
   const axisLab=v=>max<10?v.toFixed(1):Math.round(v).toLocaleString();
   let g=`<text x="${L}" y="12" font-size="10.5" fill="var(--text-secondary)">${D.yLabel||'数量'}</text>`;
@@ -1406,9 +1421,12 @@ function dprSvgBar(D){
     const x=L+step*i+(step-bw)/2,h=ph*v/max,y=T+ph-h,c=DPR_CHART_COLORS[i%6];
     g+=`<rect class="dpr-bar" x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${c}"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}</title></rect>`;
     g+=`<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()}</text>`;
-    g+=`<text x="${L+step*i+step/2}" y="${T+ph+22}" text-anchor="middle" font-size="11" fill="var(--text-secondary)">${D.names[i]}</text>`;
+    const lx=L+step*i+step/2+3,ly=T+ph+16;
+    g+=rot
+      ?`<text x="${lx}" y="${ly}" transform="rotate(-38 ${lx} ${ly})" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">${D.names[i]}</text>`
+      :`<text x="${L+step*i+step/2}" y="${T+ph+22}" text-anchor="middle" font-size="11" fill="var(--text-secondary)">${D.names[i]}</text>`;
   });
-  g+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)">${D.xLabel||'分类'}</text>`;
+  g+=`<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)">${D.xLabel||'分类'}</text>`;
   return g;
 }
 function dprSvgPie(D){
@@ -1456,26 +1474,38 @@ function dprChartHTML(title,period){
   let legend='',rows='';
   if(D.type==='line'){
     legend=`<div class="dpr-legend">${D.series.map((s,i)=>`<span class="lg"><i class="sw" style="background:${DPR_CHART_COLORS[i%6]}"></i>${s.name}</span>`).join('')}<span class="lg">横轴：${D.xLabel} · 纵轴：${D.yLabel}</span></div>`;
-    rows=`<table><thead><tr><th>${D.xLabel}</th>${D.series.map(s=>`<th>${s.name}</th>`).join('')}</tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td>${D.series.map(s=>`<td>${s.vals[i]}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    rows=`<table><thead><tr><th>${D.xLabel}</th>${D.series.map(s=>`<th class="num">${s.name}</th>`).join('')}</tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td>${D.series.map(s=>`<td class="num">${s.vals[i]}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   }else if(D.type==='pie'){
     legend=`<div class="dpr-legend"><span class="lg total">合计 ${total.toLocaleString()} ${D.unit}</span><span class="lg">每项均展示数量与占比</span></div>`;
-    rows=`<table><thead><tr><th>分类</th><th>数量（${D.unit}）</th><th>占比</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td>${D.vals[i].toLocaleString()}</td><td>${(D.vals[i]/total*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
+    rows=`<table><thead><tr><th>分类</th><th class="num">数量（${D.unit}）</th><th class="num">占比</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td class="num">${D.vals[i].toLocaleString()}</td><td class="num">${(D.vals[i]/total*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
   }else{
     legend=`<div class="dpr-legend"><span class="lg">横轴：${D.xLabel} · 纵轴：${D.yLabel}</span></div>`;
-    rows=`<table><thead><tr><th>${D.xLabel}</th><th>${D.yLabel}</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td>${D.vals[i]}</td></tr>`).join('')}</tbody></table>`;
+    rows=`<table><thead><tr><th>${D.xLabel}</th><th class="num">${D.yLabel}</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td class="num">${D.vals[i]}</td></tr>`).join('')}</tbody></table>`;
   }
   const desc=D.type==='line'?`横轴 ${D.xLabel}、纵轴 ${D.yLabel}，${D.names.length} 个周期`:D.type==='bar'?`横轴 ${D.xLabel}、纵轴 ${D.yLabel}，${D.names.length} 个所属单位`:`${D.names.length} 个分类，合计 ${total.toLocaleString()} ${D.unit}，含数量与占比`;
+  const vh=(D.type==='bar'&&D.names.length>9)?268:230;
   return `<figure class="dpr-chart">
     <figcaption class="dpr-fig-cap"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${title}</figcaption>
-    <div class="dpr-fig-body"><svg class="dpr-fig-svg" viewBox="0 0 680 230" role="img" aria-label="${title}，${desc}"><title>${title}</title><desc>${desc}；原型示意数据。</desc>${svg}</svg></div>
+    <div class="dpr-fig-body"><svg class="dpr-fig-svg" viewBox="0 0 680 ${vh}" role="img" aria-label="${title}，${desc}"><title>${title}</title><desc>${desc}；原型示意数据。</desc>${svg}</svg></div>
     ${legend}
     <div class="dpr-fig-note">示意数据（原型用于展示图表形态），实际数据以业务系统为准</div>
     <details class="dpr-fig-data"><summary>查看图表数据</summary>${rows}</details>
   </figure>`;
 }
+/* 数值型单元格识别：数字、千分位、百分比、比率、增减号与「—」占位 */
+function dprIsNum(v){
+  const s=String(v).trim();
+  return /^[—~～-]$/.test(s)||(/^[+\-]?[\d,./%+\-\s]*$/.test(s)&&/\d/.test(s));
+}
+function dprTableHTML(tb){
+  const cols=tb.h.map((_,ci)=>tb.r.length>0&&tb.r.every(row=>dprIsNum(row[ci])));
+  const head=tb.h.map((h,i)=>`<th${cols[i]?' class="num"':''}>${h}</th>`).join('');
+  const body=tb.r.map(row=>`<tr>${row.map(c=>`<td${dprIsNum(c)?' class="num"':''}>${c}</td>`).join('')}</tr>`).join('');
+  return `<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
 function dprBlockHTML(b,period){
   if(b.chart)return dprChartHTML(b.chart,period);
-  if(b.tb)return `<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${b.tb.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.tb.r.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  if(b.tb)return dprTableHTML(b.tb);
   const p=b.p||'';
   let cls='dpr-p';
   if(/^数据来源[:：]/.test(p))cls='dpr-src';
