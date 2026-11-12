@@ -445,9 +445,14 @@
   .dpr-sub::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--primary-400);flex-shrink:0}
   .dpr-p{font-size:13px;line-height:1.8;color:var(--text-primary);margin:8px 0}
   .dpr-num{font-size:13px;line-height:1.8;color:var(--text-primary);margin:10px 0;padding-left:10px;border-left:2px solid var(--border-primary)}
-  /* 区域下方：完整保留模板文案「数据来源：xxx」，仅用浅蓝竖线做视觉引导 */
-  .dpr-src{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-secondary);margin:6px 0 14px}
-  .dpr-src::before{content:"";width:3px;height:12px;border-radius:2px;background:var(--primary-400);flex-shrink:0}
+  /* 内容与数据来源绑定为一个区块：来源栏紧贴内容底边，作为该区块的底部脚注条 */
+  .dpr-area{margin:0 0 16px}
+  .dpr-area.boxed>.dpr-tb-wrap,.dpr-area.boxed>.dpr-chart{margin-bottom:0;border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0}
+  .dpr-area>.dpr-p,.dpr-area>.dpr-num,.dpr-area>.dpr-sub{margin-bottom:0}
+  .dpr-src{display:flex;align-items:center;gap:9px;padding:7px 12px;font-size:11.5px;line-height:1.5;color:var(--primary-800);background:var(--primary-50);border:1px solid var(--border);border-radius:0 0 8px 8px;margin:0}
+  .dpr-area:not(.boxed)>.dpr-src{margin-top:6px;border:1px solid var(--border-primary);border-radius:var(--radius-md)}
+  .dpr-src-tag{flex-shrink:0;display:inline-flex;align-items:center;font-size:10px;font-weight:600;line-height:18px;padding:0 8px;border-radius:var(--radius-full);background:var(--sys-primary);color:#fff}
+  .dpr-src-txt{font-size:11.5px}
   .dpr-tb-wrap{overflow-x:auto;margin:8px 0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card)}
   .dpr-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
   .dpr-table th{background:var(--gray-50);color:var(--text-secondary);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0}
@@ -1272,7 +1277,12 @@ function dprSectionSrcs(s){
   if(!out.length)out.push(dprBlockSrc({},s.t));
   return out;
 }
-function dprSrcHTML(src){return `<div class="dpr-src">数据来源：${src}</div>`;}
+/* 来源栏明确标出归属对象（本表 / 本图 / 本节），并保留模板完整文案 */
+function dprSrcHTML(src,kind){
+  const tag=kind==='table'?'本表':kind==='chart'?'本图':'本节';
+  const scope=kind==='table'?'表格':kind==='chart'?'图表':'文字内容';
+  return `<div class="dpr-src" data-scope="${tag}" aria-label="以上${scope}的数据来源：${src}"><span class="dpr-src-tag">↑ ${tag}</span><span class="dpr-src-txt">数据来源：${src}</span></div>`;
+}
 const DPR_DETAIL={
 month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',kpi:{new:'45,797',newHint:'已整改 39,045 项',rate:'85.26%',rateHint:'本年累计 513,595 / 529,083 项',major:'36',majorHint:'整改中 57 项 · 待验收 90 项',lock:'98.65%',lockHint:'环比下降 0.18%'},
  sections:[
@@ -1521,15 +1531,16 @@ function dprBlockHTML(b,period,sec,need){
   else{
     const p=b.p||'';
     let cls='dpr-p';
-    if(/^数据来源[:：]/.test(p))cls='dpr-src';
-    else if(/^（[一二三四五六七八九十]+）/.test(p))cls='dpr-num';
+    if(/^（[一二三四五六七八九十]+）/.test(p))cls='dpr-num';
     else if(/[:：]$/.test(p)&&!(p.length>28&&/【/.test(p)))cls='dpr-sub';
     else if(p.length<=16&&!/[。；，、【】]/.test(p))cls='dpr-h3';
     const tag=cls==='dpr-h3'?'h3':cls==='dpr-sub'?'h4':'p';
     html=`<${tag} class="${cls}">${p}</${tag}>`;
   }
-  /* 每个区域（表格 / 图表 / 编号小节 / 章节结论）下方按模板原文标注数据来源 */
-  return html+(need?dprSrcHTML(dprBlockSrc(b,sec)):'');
+  /* 每个区域与它的来源栏包成同一区块，来源栏成为该区域可见的底部脚注 */
+  if(!need)return html;
+  const boxed=!!(b.tb||b.chart),kind=b.tb?'table':b.chart?'chart':'text';
+  return `<div class="dpr-area${boxed?' boxed':''}">${html}${dprSrcHTML(dprBlockSrc(b,sec),kind)}</div>`;
 }
 function dprSyncToolbar(){
   const btn=document.getElementById('dpr-toggle-all'),cnt=document.getElementById('dpr-sec-count');
