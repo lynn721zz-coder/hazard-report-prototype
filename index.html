@@ -413,6 +413,18 @@
   .rpt-type-chip{font-size:11px;line-height:1.5;color:var(--sys-primary);background:rgba(10,77,162,.06);border:1px solid rgba(10,77,162,.16);border-radius:4px;padding:1px 7px;white-space:nowrap}
   .rpt-type-chip.more{color:var(--text-secondary);background:var(--gray-50);border-color:var(--border);cursor:help}
   .rpt-go:hover{text-decoration:underline}
+
+  /* ---- 双重预防运行报告详情正文 ---- */
+  .dpr-h2{font-family:var(--ff-heading);font-size:16px;font-weight:600;color:var(--text-primary);border-left:4px solid var(--sys-primary);padding-left:10px;margin:26px 0 12px}
+  .dpr-p{font-size:13px;line-height:1.8;color:var(--text-primary);margin:8px 0}
+  .dpr-tb-wrap{overflow-x:auto;margin:10px 0 14px;border:1px solid var(--border);border-radius:8px}
+  .dpr-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+  .dpr-table th{background:var(--gray-50);color:var(--text-secondary);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0}
+  .dpr-table td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text-primary)}
+  .dpr-table tbody tr:last-child td{border-bottom:none}
+  .dpr-table tbody tr:hover td{background:var(--gray-50)}
+  .dpr-chart{border:1px dashed var(--border);border-radius:8px;background:var(--gray-50);padding:26px 16px;text-align:center;font-size:13px;color:var(--text-secondary);font-weight:500;margin:12px 0 16px}
+  .dpr-chart-note{font-size:11.5px;color:var(--text-tertiary);font-weight:400;margin-left:4px}
   .rpt-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;align-self:center}
   .rpt-fb{display:flex;gap:6px}
   .rpt-fb .fb-btn{padding:4px 10px;font-size:11.5px;gap:4px}
@@ -1163,18 +1175,142 @@ function bindHazardList(){
 }
 
 /* ================= 双重预防运行报告 ================= */
-/* 双重预防（风险分级管控 + 隐患排查治理）双体系综合运行评价报告；
-   报告详情内容待模板接入，当前详情页为占位展示 */
-const DPR_DESC='风险分级管控与隐患排查治理双体系综合运行评价';
+/* 双重预防（风险分级管控 + 隐患排查治理）双体系运行分析报告；
+   报告详情按《中国中化双重预防机制运行分析报告》模板呈现，全部为周期性报告（周报/月报/年报） */
+const DPR_DESC='风险分级管控与隐患排查治理双体系综合运行分析';
 const dprReports=[
-  {id:'DPR-2025-M10',type:'scheduled',status:'ready',title:'【中国中化】双重预防运行报告（2025年10月1日至2025年10月31日）',time:'2025-11-01 00:00',range:'2025-10-01 ~ 2025-10-31',count:5620,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
-  {id:'DPR-2025-W45',type:'scheduled',status:'ready',title:'【中国昊华】双重预防运行报告（2025年11月3日至2025年11月9日）',time:'2025-11-10 00:00',range:'2025-11-03 ~ 2025-11-09',count:1286,desc:DPR_DESC,org:'中国昊华',owner:'李敏'},
-  {id:'DPR-2025-W44',type:'scheduled',status:'ready',title:'【中国中化】双重预防运行报告（2025年10月27日至2025年11月2日）',time:'2025-11-03 00:00',range:'2025-10-27 ~ 2025-11-02',count:1194,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
-  {id:'DPR-2025-M09',type:'scheduled',status:'ready',title:'【中化蓝天】双重预防运行报告（2025年9月1日至2025年9月30日）',time:'2025-10-01 00:00',range:'2025-09-01 ~ 2025-09-30',count:5318,desc:DPR_DESC,org:'中化蓝天',owner:'王强'},
-  {id:'DPR-2025-W43',type:'scheduled',status:'ready',title:'【蓝天氟材料】双重预防运行报告（2025年10月20日至2025年10月26日）',time:'2025-10-27 00:00',range:'2025-10-20 ~ 2025-10-26',count:1102,desc:DPR_DESC,org:'蓝天氟材料',owner:'张伟'}
+  {id:'DPR-2026-W43',period:'week',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年10月13日至2026年10月19日）',time:'2026-10-20 00:00',range:'2026-10-13 ~ 2026-10-19',count:386,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2026-W42',period:'week',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年10月6日至2026年10月12日）',time:'2026-10-13 00:00',range:'2026-10-06 ~ 2026-10-12',count:402,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2026-M10',period:'month',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年09月21日至2026年10月20日）',time:'2026-10-21 00:00',range:'2026-09-21 ~ 2026-10-20',count:45797,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2026-M09',period:'month',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年08月21日至2026年09月20日）',time:'2026-09-21 00:00',range:'2026-08-21 ~ 2026-09-20',count:43120,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2025-Y',period:'year',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2025年01月01日至2025年12月31日）',time:'2026-01-01 00:00',range:'2025-01-01 ~ 2025-12-31',count:514206,desc:DPR_DESC,org:'中国中化',owner:'张伟'}
 ];
-let dprFilter='all',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
+let dprPeriod='month',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
 const DPR_PAGE_SIZE=5;
+/* 报告详情模板数据：按《中国中化双重预防机制运行分析报告》结构（周报/月报/年报三套口径） */
+const DPR_DETAIL={
+month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',kpi:{new:'45,797',newHint:'已整改 39,045 项',rate:'85.26%',rateHint:'本年累计 513,595 / 529,083 项',major:'36',majorHint:'整改中 57 项 · 待验收 90 项',lock:'98.65%',lockHint:'环比下降 0.18%'},
+ sections:[
+  {t:'一、公司动态风险概况',blocks:[
+   {p:'双重预防机制运行情况'},
+   {tb:{h:['二级公司','双重预防机制运行企业','优','良','中','差'],r:[['沧州大化','1','1','0','0','0'],['化工事业部','19','17','2','0','0'],['鲁西集团','15','15','0','0','0'],['氯碱事业部','7','5','1','0','1'],['沈阳院','1','0','0','1','0'],['先正达','8','4','3','0','1'],['中化化肥','5','3','0','1','1'],['中国昊华','23','16','4','1','2'],['蓝星公司','5','1','2','0','2'],['中化能源','20','18','1','0','1'],['中蓝晨光院','1','0','0','1','0']]}},
+   {p:'机制运行情况优良率最差 TOP3 清单：'},
+   {tb:{h:['二级公司','原因分析结果'],r:[['中国昊华','排查完成率低，隐患过量'],['蓝星公司','存在超期未整改隐患'],['先正达','隐患过少，未全部完成排查']]}},
+   {p:'企业风险情况'},
+   {p:'【本月】，中国中化整体安全风险处于【一般风险】状态；【446】家企业动态风险状况如下：重大风险【17】家，较大风险【97】家，一般风险【316】家。'},
+   {tb:{h:['二级公司','重大风险企业数'],r:[['中化能源','2'],['中国昊华','2'],['鲁西集团','5'],['氯碱事业部','3'],['先正达','1'],['中化化肥','0'],['蓝星公司','1'],['沧州大化','0'],['化工事业部','0'],['沈阳院','1'],['橡胶公司','1'],['中国金茂','1'],['中化装备','0'],['中化环境','0'],['中化资产','0']]}},
+   {p:'应接未接重大危险源企业列表：'},
+   {tb:{h:['二级公司名称','单位名称'],r:[['中化能源','天津石油唐官屯油库']]}}
+  ]},
+  {t:'二、风险再辨识情况',blocks:[
+   {p:'【本月】，中国中化开展风险再辨识二级单位有【20】家，占比为【100%】；累计风险【187,948】项，本月再辨识风险【112,033】项，占比为【59.61%】。'},
+   {p:'残余一级风险【0】项，无残余一级风险清单。'},
+   {p:'异常风险（残余风险高于固有风险）【1】项，异常风险清单：'},
+   {tb:{h:['二级公司','企业名称','异常风险项'],r:[['中化能源','中化珠海','1']]}}
+  ]},
+  {t:'三、隐患管理情况',blocks:[
+   {p:'隐患新增情况'},
+   {p:'【本月】，中国中化新增隐患【45,797】项，已整改隐患【39,045】项，整改率【85.26%】；本年累计全部隐患【529,083】项，累计已整改隐患【513,595】项。'},
+   {tb:{h:['二级公司','单位数量','企业人数','新增隐患数','累计整改率','一般A级/累计整改率','累计奖励金额(万元)'],r:[['化工事业部','32','9,955','5,379','49,637/97.24%','5/100.00%','141.05'],['橡胶公司','7','9,855','2,256','29,450/96.48%','762/96.98%','12.65'],['中化能源','459','10,102','4,410','73,467/99.88%','66/54.55%','206.64'],['中国昊华','48','15,796','4,346','42,467/92.06%','170/97.06%','118.19'],['中化装备','10','2,804','751','4,946/95.45%','44/70.45%','10.42'],['蓝星公司','12','4,186','3,769','59,943/91.20%','27/92.59%','72.09'],['氯碱事业部','11','6,739','4,281','41,072/96.37%','258/113.18%','70.31'],['先正达','44','10,256','2,128','27,439/99.27%','1,707/99.94%','48.73'],['中化化肥','14','3,112','1,635','15,750/97.69%','13/100.00%','22.41'],['鲁西集团','36','13,335','10,892','107,685/99.39%','337/86.65%','195.83'],['沧州大化','4','1,870','1,059','4,701/99.96%','14/85.71%','10.91'],['中国金茂','214','17,750','5,169','63,253/98.26%','0/100.00%','61.71']]}},
+   {p:'26 年隐患超期未整改 TOP3 二级公司及企业清单：'},
+   {tb:{h:['二级公司','企业名称','超期未整改隐患数'],r:[['蓝星公司','哈石化','418'],['中国金茂','南京·金茂樾满云川','119'],['先正达','现代农业','81']]}},
+   {p:'25 年遗留未整改完成 TOP3 二级公司及企业清单：'},
+   {tb:{h:['二级公司','企业名称','遗留未整改隐患数'],r:[['氯碱事业部','山纳公司','33'],['中国金茂','成都·金茂璞逸锦江','22'],['蓝星公司','南京安迪苏','21']]}},
+   {p:'隐患不符合要求清单（如隐患级别、隐患类型为空等）TOP3：'},
+   {tb:{h:['二级公司','企业名称','隐患不符隐患数'],r:[['中化能源','泉州石化','34,284'],['先正达','现代农业','19,872'],['中化化肥','中化涪陵','7,139']]}},
+   {p:'重大事故隐患新增情况'},
+   {p:'【本月】，新增重大事故隐患共【36】项（中化化肥-中化长山 8 项、中国昊华-黎明院 7 项、沧州大化-大化聚海 4 项、中国昊华-中昊晨光（富顺厂区）3 项等）。'},
+   {p:'持续跟踪重大事故隐患排查整改：2025 年未完成整改遗留的 11 项重大事故隐患已整改 10 项，剩余 1 项按计划整改中；2026 年累计发现重大事故隐患 301 项。截止 2026 年 10 月 20 日，累计【57】个整改中重大事故隐患，【90】个已整改待验收隐患。'},
+   {chart:'隐患危害分类分析图'},
+   {chart:'人的不安全行为 / 物的不安全状态细分饼图'},
+   {chart:'隐患要素分析图'},
+   {chart:'人均安全隐患统计与排查数趋势'}
+  ]},
+  {t:'四、报警管理',blocks:[
+   {p:'【本月】，中国中化报警总数【984】个，点位平均报警次数【0.00097】次。'},
+   {tb:{h:['二级公司','下属企业数','报警总数','点位平均报警次数','重复报警点位数','GDS消警率','SIS消警率','关键安全参数消警率','周消警率','平均报警时长'],r:[['中化能源','25','395','0.00063','28','100%','100%','100%','100%','6.2532'],['先正达','11','20','0.00241','3','100%','100%','100%','100%','0.75'],['中化化肥','4','12','0.01345','1','100%','100%','100%','100%','12.833'],['化工事业部','14','67','0.00328','8','100%','100%','100%','100%','9.7313'],['蓝星公司','3','173','0.00532','21','100%','100%','100%','100%','3.9422'],['中国昊华','18','85','0.00141','9','100%','100%','100%','100%','3.4118'],['鲁西集团','14','147','0.00168','8','100%','100%','95.6%','99.6%','16.34'],['沧州大化','1','75','0.02212','11','100%','100%','100%','100%','63.067'],['氯碱事业部','7','10','0.00102','2','100%','100%','100%','100%','37.6']]}},
+   {p:'数据来源：中国中化重大危险源管理系统'},
+   {p:'平均报警时长最佳 TOP3：'},
+   {tb:{h:['二级公司','下属企业名称','平均报警时长（min）'],r:[['先正达','全部','0.75'],['中国昊华','全部','3.4118'],['蓝星公司','全部','3.9422']]}},
+   {p:'平均报警时长最差 TOP3：'},
+   {tb:{h:['二级公司','下属企业名称','平均报警时长（min）','环比上月增长'],r:[['沧州大化','大化聚海','63.067','-64.17%'],['氯碱事业部','沈阳化工','37.6','+2585.71%'],['鲁西集团','骏化发展','16.34','-92.00%']]}}
+  ]},
+  {t:'五、联锁投用情况',blocks:[
+   {p:'【本月】中国中化联锁投用率为：【98.65%】，环比下降【0.18%】，同比下降【0.16%】。'},
+   {tb:{h:['二级公司','填报企业数','联锁投用率','环比上周增长','25年同比增长'],r:[['中化能源','12','99.86%','-0.06%','0.74%'],['先正达','7','99.99%','0.16%','-0.01%'],['化工事业部','3','98.97%','-0.8%','—'],['蓝星公司','1','88.57%','-6.39%','—'],['中国昊华','5','99.98%','—','-0.01%'],['鲁西集团','10','81.9%','-0.85%','-9.04%'],['氯碱事业部','7','99.64%','-0.36%','-0.36%']]}},
+   {p:'投用率最高：中化能源-江苏、先正达-优士、中化化肥-中化；投用率最低：中化能源-泉州、先正达-安道麦、化工事业部-南通。'},
+   {p:'数据来源：中国中化重大危险源管理系统'}
+  ]},
+  {t:'六、固有风险情况',blocks:[
+   {p:'（一）【本月】，中国中化新增重大危险源企业【0】家，新增重大危险源【1】个（四级【1】个）。截止 10 月 20 日，累计重大危险源企业【93】家，累计重大危险源【620】个：一级【201】个、二级【68】个、三级【201】个、四级【150】个。'},
+   {tb:{h:['二级公司','重大危险源企业','重大危险源数量','一级','二级','三级','四级'],r:[['中化能源','23','186','99','20','47','20'],['先正达','7','71','3','6','29','33'],['化工事业部','15','90','22','11','31','26'],['中国昊华','18','90','29','9','28','24'],['鲁西集团','15','77','23','12','29','13'],['蓝星公司','3','39','9','2','12','16'],['氯碱事业部','7','41','7','6','17','11'],['沧州大化','1','17','6','2','4','5'],['中化化肥','4','9','3','0','4','2']]}},
+   {p:'（二）【本月】，中国中化新增重点监管化工工艺企业【0】家，新增工艺种类【7】种，新增工艺装置【21】个（先正达-优创植保：氯化、硝化、氟化、加氢、氧化、胺基化、烷基化工艺）。'},
+   {p:'（三）【本月】，中国中化新增重点监管化学品企业【0】家，新增化学品【14】种（氰化钠、氯、氨、甲醇等）；本年累计重点监管化学品企业【127】家。'},
+   {p:'（四）【本月】，中国中化新增涉及易制毒化学品企业【0】家；本年累计涉及企业【94】家。'},
+   {p:'（五）【本月】，中国中化新增易制爆化学品企业【0】家；本年累计涉及企业【72】家。'},
+   {p:'数据来源：中国中化智慧HSE管理系统'}
+  ]}
+ ]},
+week:{tag:'【2026年第43周报】',range:'2026年10月13日-2026年10月19日',kpi:{new:'386',newHint:'已整改 341 项',rate:'88.34%',rateHint:'已整改 / 本期新增',major:'2',majorHint:'整改中 5 项 · 待验收 3 项',lock:'98.71%',lockHint:'环比上升 0.06%'},
+ sections:[
+  {t:'一、公司动态风险概况',blocks:[
+   {p:'双重预防机制运行情况'},
+   {tb:{h:['二级公司','双重预防机制运行企业','优','良','中','差'],r:[['化工事业部','19','17','2','0','0'],['鲁西集团','15','15','0','0','0'],['中国昊华','23','16','4','1','2'],['中化能源','20','18','1','0','1'],['氯碱事业部','7','5','1','0','1']]}},
+   {p:'机制运行情况优良率最差 TOP3 清单：'},
+   {tb:{h:['二级公司','原因分析结果'],r:[['中国昊华','排查完成率低'],['蓝星公司','存在超期未整改隐患'],['沈阳院','企业未开展自评']]}},
+   {p:'【本周期】，中国中化整体安全风险处于【一般风险】状态；重大风险企业【17】家、较大风险【97】家、一般风险【316】家，与上期持平。'}
+  ]},
+  {t:'二、风险再辨识情况',blocks:[
+   {p:'【本周期】，开展风险再辨识二级单位【20】家，占比【100%】；本期再辨识风险【8,412】项，累计风险【187,948】项。'},
+   {p:'残余一级风险【0】项；异常风险（残余风险高于固有风险）【1】项（中化能源-中化珠海），已反馈整改。'}
+  ]},
+  {t:'三、隐患管理情况',blocks:[
+   {p:'【本周期】，新增隐患【386】项，已整改【341】项，整改率【88.34%】。'},
+   {tb:{h:['二级公司','新增隐患数','本周整改数','整改率'],r:[['鲁西集团','96','89','92.7%'],['中国金茂','64','58','90.6%'],['化工事业部','52','47','90.4%'],['中化能源','48','44','91.7%'],['中国昊华','41','36','87.8%']]}},
+   {p:'重大事故隐患：本周期新增【2】项，均已明确整改责任与计划；整改中重大事故隐患累计【57】项。'},
+   {chart:'本周隐患危害分类分布'}
+  ]},
+  {t:'四、报警管理',blocks:[
+   {p:'【本周期】，报警总数【212】个，点位平均报警次数【0.00021】次；GDS / SIS / 关键安全参数消警率均为 100%。'},
+   {tb:{h:['二级公司','报警总数','重复报警点位数','平均报警时长（min）'],r:[['中化能源','82','9','5.87'],['蓝星公司','41','6','4.02'],['沧州大化','28','5','48.33'],['氯碱事业部','16','2','36.50']]}}
+  ]},
+  {t:'五、联锁投用情况',blocks:[
+   {p:'【本周期】联锁投用率【98.71%】，环比上升【0.06%】；投用率最低单位已挂牌督办。'}
+  ]},
+  {t:'六、固有风险情况',blocks:[
+   {p:'【本周期】，无新增重大危险源企业及重大危险源；累计重大危险源企业【93】家、重大危险源【620】个。无新增重点监管化工工艺、重点监管化学品、易制毒/易制爆化学品。'}
+  ]}
+ ]},
+year:{tag:'【2025年年报】',range:'2025年01月01日-2025年12月31日',kpi:{new:'512,340',newHint:'已整改 501,875 项',rate:'97.95%',rateHint:'全年累计整改情况',major:'301',majorHint:'全年新增 · 已整改 295 项',lock:'98.83%',lockHint:'较 2024 年上升 0.42%'},
+ sections:[
+  {t:'一、公司动态风险概况',blocks:[
+   {p:'双重预防机制运行情况'},
+   {tb:{h:['二级公司','双重预防机制运行企业','优','良','中','差'],r:[['中国昊华','23','20','2','1','0'],['中化能源','20','18','1','0','1'],['化工事业部','19','17','2','0','0'],['鲁西集团','15','15','0','0','0'],['先正达','8','6','1','0','1'],['氯碱事业部','7','6','0','0','1'],['中国金茂','14','12','1','1','0'],['蓝星公司','5','4','1','0','0']]}},
+   {p:'【2025 年】，中国中化整体安全风险处于【一般风险】状态；全年动态风险评价覆盖企业【446】家，重大风险企业全年均值【15】家。'}
+  ]},
+  {t:'二、风险再辨识情况',blocks:[
+   {p:'【2025 年】，累计开展风险再辨识二级单位【20】家，覆盖率【100%】；全年再辨识风险【436,820】项，累计风险【512,406】项；残余一级风险【0】项，异常风险全年累计【7】项并全部闭环。'}
+  ]},
+  {t:'三、隐患管理情况',blocks:[
+   {p:'【2025 年】，累计新增隐患【512,340】项，已整改【501,875】项，整改率【97.95%】。'},
+   {tb:{h:['二级公司','新增隐患数','累计整改率','一般A级整改率'],r:[['鲁西集团','102,480','99.31%','88.20%'],['中化能源','88,750','99.72%','60.15%'],['中国金茂','61,930','98.40%','100.00%'],['化工事业部','61,205','97.55%','100.00%'],['中国昊华','50,110','92.80%','97.31%']]}},
+   {p:'重大事故隐患：全年新增【301】项，已整改【295】项；遗留 6 项已全部纳入 2026 年整改计划。'},
+   {chart:'全年隐患危害分类分析'},
+   {chart:'月度人均隐患排查数趋势'}
+  ]},
+  {t:'四、报警管理',blocks:[
+   {p:'【2025 年】，报警总数【11,860】个，点位平均报警次数【0.00110】次；各类消警率全年均值 99.6% 以上。'},
+   {tb:{h:['二级公司','报警总数','平均报警时长（min）','较2024年'],r:[['中化能源','4,530','6.02','-12.4%'],['蓝星公司','1,980','4.15','-8.6%'],['沧州大化','860','55.40','+6.2%']]}}
+  ]},
+  {t:'五、联锁投用情况',blocks:[
+   {p:'【2025 年】联锁投用率均值【98.83%】，较 2024 年上升【0.42%】；年末全部二级单位投用率均不低于 95%。'}
+  ]},
+  {t:'六、固有风险情况',blocks:[
+   {p:'【2025 年】，新增重大危险源企业【3】家、重大危险源【12】个；年末累计重大危险源企业【93】家、重大危险源【619】个（一级【201】、二级【68】、三级【200】、四级【150】）。'},
+   {p:'新增重点监管化工工艺【31】种、重点监管化学品【86】种；累计重点监管化学品企业【127】家、易制毒化学品企业【94】家、易制爆化学品企业【72】家。'}
+  ]}
+ ]}
+};
 function dprVisible(){return dprRole==='admin'?dprReports:dprReports.filter(r=>(r.owner||CUR_USER_NAME)===CUR_USER_NAME);}
 function dprHTML(){
   return `
@@ -1200,10 +1336,10 @@ function dprHTML(){
       <button class="rq-btn primary" id="dpr-start-btn"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>开始分析</button>
       <button class="rq-btn" id="dpr-reset">重置</button>
     </div>
-    <div class="rpt-filter-tabs" role="tablist" aria-label="报告类型筛选">
-      <button class="on" data-dfilter="all" role="tab" aria-selected="true">全部</button>
-      <button data-dfilter="scheduled" role="tab" aria-selected="false">周期定时报告</button>
-      <button data-dfilter="ai" role="tab" aria-selected="false">AI 辅助分析报告</button>
+    <div class="rpt-filter-tabs" role="tablist" aria-label="报告周期筛选">
+      <button data-dperiod="week" role="tab" aria-selected="false">周报</button>
+      <button class="on" data-dperiod="month" role="tab" aria-selected="true">月报</button>
+      <button data-dperiod="year" role="tab" aria-selected="false">年报</button>
     </div>
     <div id="dpr-list"></div>
   </section>
@@ -1222,28 +1358,24 @@ function dprHTML(){
       </div>
       <div class="meta" id="dpr-d-meta"></div>
     </header>
-    <section class="metrics" aria-label="运行报告统计概览">
-      <div class="metric"><div class="label">运行数据总量</div><div class="value" id="dpr-d-count">0<span class="unit">条</span></div><div class="hint" id="dpr-d-count-hint"></div></div>
-      <div class="metric accent"><div class="label">评价维度</div><div class="value">5<span class="unit">项</span></div><div class="hint">风险管控 + 隐患治理双体系</div></div>
-      <div class="metric warn"><div class="label">分析模型</div><div class="value" style="font-size:15px;line-height:38px">FORUS 化工安全大模型</div><div class="hint">双体系综合运行评价</div></div>
-      <div class="metric danger"><div class="label">报告周期</div><div class="value" id="dpr-d-days">0<span class="unit">天</span></div><div class="hint" id="dpr-d-range"></div></div>
+    <section class="metrics" aria-label="运行报告核心指标">
+      <div class="metric"><div class="label">本期新增隐患</div><div class="value" id="dpr-kpi-new">—<span class="unit">项</span></div><div class="hint" id="dpr-kpi-new-hint"></div></div>
+      <div class="metric accent"><div class="label">隐患整改率</div><div class="value" id="dpr-kpi-rate">—</div><div class="hint" id="dpr-kpi-rate-hint">已整改 / 本期新增</div></div>
+      <div class="metric warn"><div class="label">新增重大事故隐患</div><div class="value" id="dpr-kpi-major">—<span class="unit">项</span></div><div class="hint" id="dpr-kpi-major-hint"></div></div>
+      <div class="metric danger"><div class="label">联锁投用率</div><div class="value" id="dpr-kpi-lock">—</div><div class="hint" id="dpr-kpi-lock-hint">数据来源：重大危险源管理系统</div></div>
     </section>
-    <div id="dpr-d-placeholder" style="border:1px dashed var(--border);border-radius:12px;background:var(--gray-50);padding:56px 24px;text-align:center;margin-top:16px">
-      <svg viewBox="0 0 24 24" fill="none" style="width:40px;height:40px;color:var(--text-tertiary)"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.5 9.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <div style="font-size:14px;font-weight:600;color:var(--text-secondary);margin-top:12px">报告详情内容模板待接入</div>
-      <div style="font-size:12.5px;color:var(--text-tertiary);margin-top:6px">将按「风险分级管控 + 隐患排查治理」双体系综合运行评价模板渲染分析结论，模板确认后开放</div>
-    </div>
+    <div id="dpr-d-body"></div>
   </section>`;
 }
 function renderDprList(filter){
   const wrap=document.getElementById('dpr-list');
-  if(filter&&filter!==dprFilter){dprFilter=filter;dprPage=1;}
+  if(filter&&filter!==dprPeriod){dprPeriod=filter;dprPage=1;}
   let list=dprVisible();
   const sub=document.getElementById('dpr-list-sub');
   if(sub)sub.textContent=dprRole==='admin'
-    ?'管理用户视角：可查看全部单位的双重预防运行报告'
+    ?'管理用户视角：可查看全部单位的双重预防机制运行分析报告（周报 / 月报 / 年报）'
     :'查看您名下的报告：AI 按周期对风险分级管控与隐患排查治理双体系运行情况进行综合分析生成';
-  if(dprFilter!=='all')list=list.filter(r=>r.type===dprFilter);
+  list=list.filter(r=>r.period===dprPeriod);
   const qFrom=document.getElementById('dpr-from'),qTo=document.getElementById('dpr-to'),qOrg=document.getElementById('dpr-org');
   if(qFrom&&qFrom.value){const from=qFrom.value;list=list.filter(r=>!r.time||r.time.slice(0,10)>=from);}
   if(qTo&&qTo.value){const to=qTo.value;list=list.filter(r=>!r.time||r.time.slice(0,10)<=to);}
@@ -1252,11 +1384,11 @@ function renderDprList(filter){
   const total=list.length,pages=Math.max(1,Math.ceil(total/DPR_PAGE_SIZE));
   dprPage=Math.min(Math.max(1,dprPage),pages);
   wrap.innerHTML=list.slice((dprPage-1)*DPR_PAGE_SIZE,dprPage*DPR_PAGE_SIZE).map(r=>{
-    const isAI=r.type==='ai';
     const isGen=r.status==='generating';
     const isFail=r.status==='failed';
+    const perName={week:'周报',month:'月报',year:'年报'}[r.period]||'周期报告';
     const ico='<path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>';
-    const tag=isAI?'<span class="rpt-tag ai">AI 辅助分析</span>':'<span class="rpt-tag sc">周期定时</span>';
+    const tag=`<span class="rpt-tag sc">${perName}</span>`;
     const genTag=isGen?' <span class="rpt-tag gen"><span class="gen-spin"></span>生成中</span>'+(r.retries>0?` <span class="rpt-tag gen">已自动重试 ${r.retries}/3</span>`:''):'';
     const failTag=isFail?' <span class="rpt-tag fail">生成失败</span> <span class="rpt-tag gen">已自动重试 3/3</span>':'';
     const org=r.org||'—';
@@ -1274,7 +1406,7 @@ function renderDprList(filter){
       </div>
       <div class="gen-thought"><span class="think-dot"><i></i><i></i><i></i></span><span class="gen-thought-txt">正在等待分析资源就绪，任务已进入生成队列</span></div>
     </div>`:'';
-    return `<div class="rpt-card ${r.type}" data-drid="${r.id}" ${isGen?'data-gen="1"':''} ${isFail?'data-fail="1"':''} role="button" tabindex="0">
+    return `<div class="rpt-card scheduled" data-drid="${r.id}" ${isGen?'data-gen="1"':''} ${isFail?'data-fail="1"':''} role="button" tabindex="0">
       <div class="rpt-ico"><svg viewBox="0 0 24 24">${ico}</svg></div>
       <div class="rpt-body">
         <div class="rpt-title">${r.title}${tag}${genTag}${failTag}</div>
@@ -1299,17 +1431,22 @@ function renderDprList(filter){
     c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.onclick();}};
   });
 }
-/* 发起分析：三阶段生成演示（Shift+点击 或 12% 随机失败，自动重试 3 次） */
+/* 发起分析：按当前所选周期生成对应报告（Shift+点击 或 12% 随机失败，自动重试 3 次） */
+const DPR_PERIOD_TITLE={week:'周报',month:'月报',year:'年报'};
+const DPR_PERIOD_RANGE={week:'2026年10月26日至2026年11月01日',month:'2026年10月21日至2026年11月20日',year:'2026年01月01日至2026年12月31日'};
+const DPR_PERIOD_RANGE_EN={week:'2026-10-26 ~ 2026-11-01',month:'2026-10-21 ~ 2026-11-20',year:'2026-01-01 ~ 2026-12-31'};
+const DPR_PERIOD_COUNT={week:391,month:44310,year:518200};
 function dprStart(ev){
-  const r={id:'DPR-AI-'+(++dprSeq),type:'ai',status:'generating',retries:0,
-    title:'【中国中化】双重预防运行报告（生成中）',time:'',range:'2025-11-01 ~ 2025-11-30',count:1236,
+  const per=dprPeriod;
+  const r={id:'DPR-AI-'+(++dprSeq),period:per,status:'generating',retries:0,
+    title:`【中国中化】双重预防机制运行分析报告（生成中）`,time:'',range:DPR_PERIOD_RANGE_EN[per],count:DPR_PERIOD_COUNT[per],
     desc:DPR_DESC,org:'中国中化',owner:CUR_USER_NAME,dur:12000};
   r.forceFail=!!(ev&&ev.shiftKey)||Math.random()<0.12;
   dprReports.unshift(r);
-  dprFilter='all';dprPage=1;
+  dprPage=1;
   renderDprList();
   dprRunGen(r);
-  showToast('已发起双重预防运行分析，任务进入生成队列');
+  showToast('已发起双重预防机制运行分析，任务进入生成队列');
 }
 function dprRetry(id,ev){
   ev&&ev.stopPropagation();
@@ -1345,7 +1482,7 @@ function dprRunGen(r){
         }else{
           r.status='ready';
           r.time=(()=>{const d=new Date();const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;})();
-          r.title=`【${r.org}】双重预防运行报告（2025年11月1日至2025年11月30日）`;
+          r.title=`【${r.org}】双重预防机制运行分析报告（${DPR_PERIOD_RANGE[r.period]}）`;
           renderDprList();
           showToast('双重预防运行报告生成完成');
         }
@@ -1364,24 +1501,37 @@ function showDprDetail(id){
   document.getElementById('dpr-list-view').hidden=true;
   const dv=document.getElementById('dpr-detail-view');
   dv.hidden=false;
-  document.getElementById('dpr-d-title').textContent=r.title;
-  document.getElementById('dpr-d-sub').textContent='风险分级管控 + 隐患排查治理 · 双体系综合运行评价';
-  document.getElementById('dpr-d-meta').innerHTML=`<span>生成时间 ${r.time}</span><span>所属单位 ${r.org}</span><span>报告周期 ${r.range}</span>`;
-  document.getElementById('dpr-d-count').innerHTML=r.count.toLocaleString()+'<span class="unit">条</span>';
-  document.getElementById('dpr-d-count-hint').textContent='排查任务、风险管控措施、隐患整改等运行记录';
-  const days=Math.round((new Date(r.range.split(' ~ ')[1])-new Date(r.range.split(' ~ ')[0]))/86400000)+1;
-  document.getElementById('dpr-d-days').innerHTML=days+'<span class="unit">天</span>';
-  document.getElementById('dpr-d-range').textContent=r.range;
+  const D=DPR_DETAIL[r.period]||DPR_DETAIL.month;
+  document.getElementById('dpr-d-title').textContent='中国中化双重预防机制运行分析报告';
+  document.getElementById('dpr-d-sub').textContent=D.tag+'（'+D.range+'）';
+  document.getElementById('dpr-d-meta').innerHTML=`<span>生成时间 ${r.time}</span><span>所属单位 ${r.org}</span><span>报告周期 ${r.range}</span><span>分析模型 FORUS 化工安全大模型</span>`;
+  document.getElementById('dpr-kpi-new').innerHTML=D.kpi.new+'<span class="unit">项</span>';
+  document.getElementById('dpr-kpi-new-hint').textContent=D.kpi.newHint;
+  document.getElementById('dpr-kpi-rate').textContent=D.kpi.rate;
+  document.getElementById('dpr-kpi-rate-hint').textContent=D.kpi.rateHint;
+  document.getElementById('dpr-kpi-major').innerHTML=D.kpi.major+'<span class="unit">项</span>';
+  document.getElementById('dpr-kpi-major-hint').textContent=D.kpi.majorHint;
+  document.getElementById('dpr-kpi-lock').textContent=D.kpi.lock;
+  document.getElementById('dpr-kpi-lock-hint').textContent=D.kpi.lockHint;
+  document.getElementById('dpr-d-body').innerHTML=D.sections.map(s=>`
+    <h2 class="dpr-h2">${s.t}</h2>
+    ${s.blocks.map(b=>b.p
+      ?`<p class="dpr-p">${b.p}</p>`
+      :b.chart
+        ?`<div class="dpr-chart"><svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;vertical-align:-4px;margin-right:6px"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${b.chart}<span class="dpr-chart-note">（图表区域）</span></div>`
+        :`<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${b.tb.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.tb.r.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
+    ).join('')}
+  `).join('');
   document.getElementById('content').scrollTop=0;
 }
 function bindDprReport(){
   renderDprList();
   const role=document.getElementById('dpr-role');
   role.addEventListener('change',()=>{dprRole=role.value;dprPage=1;renderDprList();});
-  document.querySelectorAll('[data-dfilter]').forEach(b=>{
+  document.querySelectorAll('[data-dperiod]').forEach(b=>{
     b.addEventListener('click',()=>{
-      document.querySelectorAll('[data-dfilter]').forEach(x=>x.classList.toggle('on',x===b));
-      renderDprList(b.dataset.dfilter);
+      document.querySelectorAll('[data-dperiod]').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-selected',x===b?'true':'false');});
+      renderDprList(b.dataset.dperiod);
     });
   });
   document.getElementById('dpr-start-btn').addEventListener('click',dprStart);
