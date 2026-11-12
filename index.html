@@ -415,9 +415,11 @@
   .rpt-go:hover{text-decoration:underline}
 
   /* ---- 双重预防运行报告详情正文 ---- */
-  .dpr-h2{font-family:var(--ff-heading);font-size:16px;font-weight:600;color:var(--text-primary);border-left:4px solid var(--sys-primary);padding-left:10px;margin:26px 0 12px}
+  #dpr-d-body{display:flex;flex-direction:column;gap:14px;padding-bottom:24px}
+  .dpr-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:16px 20px 20px}
+  .dpr-h2{font-family:var(--ff-heading);font-size:16px;font-weight:600;color:var(--text-primary);border-left:4px solid var(--sys-primary);padding:0 0 12px 10px;margin:0 0 12px;border-bottom:1px solid var(--border)}
   .dpr-p{font-size:13px;line-height:1.8;color:var(--text-primary);margin:8px 0}
-  .dpr-tb-wrap{overflow-x:auto;margin:10px 0 14px;border:1px solid var(--border);border-radius:8px}
+  .dpr-tb-wrap{overflow-x:auto;margin:10px 0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card)}
   .dpr-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
   .dpr-table th{background:var(--gray-50);color:var(--text-secondary);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0}
   .dpr-table td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text-primary)}
@@ -1514,6 +1516,7 @@ function showDprDetail(id){
   document.getElementById('dpr-kpi-lock').textContent=D.kpi.lock;
   document.getElementById('dpr-kpi-lock-hint').textContent=D.kpi.lockHint;
   document.getElementById('dpr-d-body').innerHTML=D.sections.map(s=>`
+    <section class="dpr-section">
     <h2 class="dpr-h2">${s.t}</h2>
     ${s.blocks.map(b=>b.p
       ?`<p class="dpr-p">${b.p}</p>`
@@ -1521,6 +1524,7 @@ function showDprDetail(id){
         ?`<div class="dpr-chart"><svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;vertical-align:-4px;margin-right:6px"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${b.chart}<span class="dpr-chart-note">（图表区域）</span></div>`
         :`<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${b.tb.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.tb.r.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
     ).join('')}
+    </section>
   `).join('');
   document.getElementById('content').scrollTop=0;
 }
