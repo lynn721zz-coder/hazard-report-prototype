@@ -449,10 +449,8 @@
   .dpr-area{margin:0 0 16px}
   .dpr-area.boxed>.dpr-tb-wrap,.dpr-area.boxed>.dpr-chart{margin-bottom:0;border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0}
   .dpr-area>.dpr-p,.dpr-area>.dpr-num,.dpr-area>.dpr-sub{margin-bottom:0}
-  .dpr-src{display:flex;align-items:center;gap:9px;padding:7px 12px;font-size:11.5px;line-height:1.5;color:var(--primary-800);background:var(--primary-50);border:1px solid var(--border);border-radius:0 0 8px 8px;margin:0}
+  .dpr-src{display:flex;align-items:center;padding:7px 12px;font-size:11.5px;line-height:1.5;color:var(--primary-800);background:var(--primary-50);border:1px solid var(--border);border-radius:0 0 8px 8px;margin:0}
   .dpr-area:not(.boxed)>.dpr-src{margin-top:6px;border:1px solid var(--border-primary);border-radius:var(--radius-md)}
-  .dpr-src-tag{flex-shrink:0;display:inline-flex;align-items:center;font-size:10px;font-weight:600;line-height:18px;padding:0 8px;border-radius:var(--radius-full);background:var(--sys-primary);color:#fff}
-  .dpr-src-txt{font-size:11.5px}
   .dpr-tb-wrap{overflow-x:auto;margin:8px 0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card)}
   .dpr-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
   .dpr-table th{background:var(--gray-50);color:var(--text-secondary);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0}
@@ -1256,33 +1254,26 @@ const dprReports=[
 let dprPeriod='month',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
 const DPR_PAGE_SIZE=5;
 /* 报告详情模板数据：按《中国中化双重预防机制运行分析报告》结构（周报/月报/年报三套口径） */
-/* 数据来源口径（模板原文）：各表格/区域下方逐条标注，章节右上角汇总去重展示
-   模板 11 处标注：四、报警管理 3 处 + 五、联锁投用 2 处 + 六、固有风险 6 处
-   其中六章（一）重大危险源相关为重大危险源管理系统，（二）~（五）监管工艺/化学品/易制毒/易制爆为智慧HSE管理系统
-   前三章模板未单独标注，按数据归属统一取智慧HSE管理系统 */
-const DPR_SRC_MAJOR='中国中化重大危险源管理系统',DPR_SRC_HSE='中国中化智慧HSE管理系统';
-function dprBlockSrc(b,sec){
-  if(/^六、/.test(sec))return /^（[二三四五]）/.test(b.p||'')?DPR_SRC_HSE:DPR_SRC_MAJOR;
-  if(/^[一二三]、/.test(sec))return DPR_SRC_HSE;
-  return DPR_SRC_MAJOR;
-}
-/* 需要标注来源的「区域」：表格、图表、独立的编号小节段落、章节末尾的文字结论
-   编号段落若紧跟着表格（如六章（一）），按模板只在表格下方标注一次，不重复 */
-const dprNeedSrc=(b,i,arr)=>!!(b.tb||b.chart||(/^（[一二三四五]）/.test(b.p||'')&&!arr[i+1]?.tb)||(i===arr.length-1&&b.p));
+/* 数据来源严格照抄 Word 模板，不做任何推断或补充。
+   模板全文共 11 处「数据来源」段落，全部紧跟在表格下方：
+     四、报警管理 3 处（报警大表 / 平均报警时长最佳TOP3 / 最差TOP3）→ 中国中化重大危险源管理系统
+     五、联锁投用情况 2 处（联锁投用率表 / 投用率最低TOP3表）→ 中国中化重大危险源管理系统
+     六、固有风险情况 6 处（新增重大危险源表 / 危险源变更表 / 累计重大危险源表 → 重大危险源管理系统；
+         累计重点监管化学品企业表 / 涉及易制毒化学品企业表 / 涉及易制爆化学品企业表 → 中国中化智慧HSE管理系统）
+   前三章（含全部图表）、六章（二）重点监管工艺表、六章（三）新增化学品表，模板均未标注 → 一律不标注。
+   原型把部分模板表格做了简化合并，只在与模板标注位置对应的 block 上显式挂 src 字段；
+   未挂 src 的区域永远不会出现来源，章节右上角也只汇总本章实际存在的模板标注。 */
+const DPR_SRC={
+  MAJOR:'中国中化重大危险源管理系统',
+  HSE:'中国中化智慧HSE管理系统'
+};
 function dprSectionSrcs(s){
   const out=[];
-  s.blocks.forEach((b,i)=>{
-    if(dprNeedSrc(b,i,s.blocks)){const x=dprBlockSrc(b,s.t);if(!out.includes(x))out.push(x);}
-  });
-  if(!out.length)out.push(dprBlockSrc({},s.t));
+  s.blocks.forEach(b=>{if(b.src&&!out.includes(DPR_SRC[b.src]))out.push(DPR_SRC[b.src]);});
   return out;
 }
-/* 来源栏明确标出归属对象（本表 / 本图 / 本节），并保留模板完整文案 */
-function dprSrcHTML(src,kind){
-  const tag=kind==='table'?'本表':kind==='chart'?'本图':'本节';
-  const scope=kind==='table'?'表格':kind==='chart'?'图表':'文字内容';
-  return `<div class="dpr-src" data-scope="${tag}" aria-label="以上${scope}的数据来源：${src}"><span class="dpr-src-tag">↑ ${tag}</span><span class="dpr-src-txt">数据来源：${src}</span></div>`;
-}
+/* 来源栏保留模板逐字文案，仅以底部贴合的浅蓝条表明它归属于上方区域 */
+function dprSrcHTML(src){return `<div class="dpr-src" aria-label="数据来源：${src}">数据来源：${src}</div>`;}
 const DPR_DETAIL={
 month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',kpi:{new:'45,797',newHint:'已整改 39,045 项',rate:'85.26%',rateHint:'本年累计 513,595 / 529,083 项',major:'36',majorHint:'整改中 57 项 · 待验收 90 项',lock:'98.65%',lockHint:'环比下降 0.18%'},
  sections:[
@@ -1325,24 +1316,24 @@ month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',k
   ]},
   {t:'四、报警管理',blocks:[
    {p:'【本月】，中国中化报警总数【984】个，点位平均报警次数【0.00097】次。'},
-   {tb:{h:['二级公司','下属企业数','报警总数','点位平均报警次数','重复报警点位数','GDS消警率','SIS消警率','关键安全参数消警率','周消警率','平均报警时长'],r:[['中化能源','25','395','0.00063','28','100%','100%','100%','100%','6.2532'],['先正达','11','20','0.00241','3','100%','100%','100%','100%','0.75'],['中化化肥','4','12','0.01345','1','100%','100%','100%','100%','12.833'],['化工事业部','14','67','0.00328','8','100%','100%','100%','100%','9.7313'],['蓝星公司','3','173','0.00532','21','100%','100%','100%','100%','3.9422'],['中国昊华','18','85','0.00141','9','100%','100%','100%','100%','3.4118'],['鲁西集团','14','147','0.00168','8','100%','100%','95.6%','99.6%','16.34'],['沧州大化','1','75','0.02212','11','100%','100%','100%','100%','63.067'],['氯碱事业部','7','10','0.00102','2','100%','100%','100%','100%','37.6']]}},
+   {src:'MAJOR',tb:{h:['二级公司','下属企业数','报警总数','点位平均报警次数','重复报警点位数','GDS消警率','SIS消警率','关键安全参数消警率','周消警率','平均报警时长'],r:[['中化能源','25','395','0.00063','28','100%','100%','100%','100%','6.2532'],['先正达','11','20','0.00241','3','100%','100%','100%','100%','0.75'],['中化化肥','4','12','0.01345','1','100%','100%','100%','100%','12.833'],['化工事业部','14','67','0.00328','8','100%','100%','100%','100%','9.7313'],['蓝星公司','3','173','0.00532','21','100%','100%','100%','100%','3.9422'],['中国昊华','18','85','0.00141','9','100%','100%','100%','100%','3.4118'],['鲁西集团','14','147','0.00168','8','100%','100%','95.6%','99.6%','16.34'],['沧州大化','1','75','0.02212','11','100%','100%','100%','100%','63.067'],['氯碱事业部','7','10','0.00102','2','100%','100%','100%','100%','37.6']]}},
    {p:'平均报警时长最佳 TOP3：'},
-   {tb:{h:['二级公司','下属企业名称','平均报警时长（min）'],r:[['先正达','全部','0.75'],['中国昊华','全部','3.4118'],['蓝星公司','全部','3.9422']]}},
+   {src:'MAJOR',tb:{h:['二级公司','下属企业名称','平均报警时长（min）'],r:[['先正达','全部','0.75'],['中国昊华','全部','3.4118'],['蓝星公司','全部','3.9422']]}},
    {p:'平均报警时长最差 TOP3：'},
-   {tb:{h:['二级公司','下属企业名称','平均报警时长（min）','环比上月增长'],r:[['沧州大化','大化聚海','63.067','-64.17%'],['氯碱事业部','沈阳化工','37.6','+2585.71%'],['鲁西集团','骏化发展','16.34','-92.00%']]}}
+   {src:'MAJOR',tb:{h:['二级公司','下属企业名称','平均报警时长（min）','环比上月增长'],r:[['沧州大化','大化聚海','63.067','-64.17%'],['氯碱事业部','沈阳化工','37.6','+2585.71%'],['鲁西集团','骏化发展','16.34','-92.00%']]}}
   ]},
   {t:'五、联锁投用情况',blocks:[
    {p:'【本月】中国中化联锁投用率为：【98.65%】，环比下降【0.18%】，同比下降【0.16%】。'},
-   {tb:{h:['二级公司','填报企业数','联锁投用率','环比上周增长','25年同比增长'],r:[['中化能源','12','99.86%','-0.06%','0.74%'],['先正达','7','99.99%','0.16%','-0.01%'],['化工事业部','3','98.97%','-0.8%','—'],['蓝星公司','1','88.57%','-6.39%','—'],['中国昊华','5','99.98%','—','-0.01%'],['鲁西集团','10','81.9%','-0.85%','-9.04%'],['氯碱事业部','7','99.64%','-0.36%','-0.36%']]}},
-   {p:'投用率最高：中化能源-江苏、先正达-优士、中化化肥-中化；投用率最低：中化能源-泉州、先正达-安道麦、化工事业部-南通。'}
+   {src:'MAJOR',tb:{h:['二级公司','填报企业数','联锁投用率','环比上周增长','25年同比增长'],r:[['中化能源','12','99.86%','-0.06%','0.74%'],['先正达','7','99.99%','0.16%','-0.01%'],['化工事业部','3','98.97%','-0.8%','—'],['蓝星公司','1','88.57%','-6.39%','—'],['中国昊华','5','99.98%','—','-0.01%'],['鲁西集团','10','81.9%','-0.85%','-9.04%'],['氯碱事业部','7','99.64%','-0.36%','-0.36%']]}},
+   {src:'MAJOR',p:'投用率最高：中化能源-江苏、先正达-优士、中化化肥-中化；投用率最低：中化能源-泉州、先正达-安道麦、化工事业部-南通。'}
   ]},
   {t:'六、固有风险情况',blocks:[
    {p:'（一）【本月】，中国中化新增重大危险源企业【0】家，新增重大危险源【1】个（四级【1】个）。截止 10 月 20 日，累计重大危险源企业【93】家，累计重大危险源【620】个：一级【201】个、二级【68】个、三级【201】个、四级【150】个。'},
-   {tb:{h:['二级公司','重大危险源企业','重大危险源数量','一级','二级','三级','四级'],r:[['中化能源','23','186','99','20','47','20'],['先正达','7','71','3','6','29','33'],['化工事业部','15','90','22','11','31','26'],['中国昊华','18','90','29','9','28','24'],['鲁西集团','15','77','23','12','29','13'],['蓝星公司','3','39','9','2','12','16'],['氯碱事业部','7','41','7','6','17','11'],['沧州大化','1','17','6','2','4','5'],['中化化肥','4','9','3','0','4','2']]}},
+   {src:'MAJOR',tb:{h:['二级公司','重大危险源企业','重大危险源数量','一级','二级','三级','四级'],r:[['中化能源','23','186','99','20','47','20'],['先正达','7','71','3','6','29','33'],['化工事业部','15','90','22','11','31','26'],['中国昊华','18','90','29','9','28','24'],['鲁西集团','15','77','23','12','29','13'],['蓝星公司','3','39','9','2','12','16'],['氯碱事业部','7','41','7','6','17','11'],['沧州大化','1','17','6','2','4','5'],['中化化肥','4','9','3','0','4','2']]}},
    {p:'（二）【本月】，中国中化新增重点监管化工工艺企业【0】家，新增工艺种类【7】种，新增工艺装置【21】个（先正达-优创植保：氯化、硝化、氟化、加氢、氧化、胺基化、烷基化工艺）。'},
-   {p:'（三）【本月】，中国中化新增重点监管化学品企业【0】家，新增化学品【14】种（氰化钠、氯、氨、甲醇等）；本年累计重点监管化学品企业【127】家。'},
-   {p:'（四）【本月】，中国中化新增涉及易制毒化学品企业【0】家；本年累计涉及企业【94】家。'},
-   {p:'（五）【本月】，中国中化新增易制爆化学品企业【0】家；本年累计涉及企业【72】家。'}
+   {src:'HSE',p:'（三）【本月】，中国中化新增重点监管化学品企业【0】家，新增化学品【14】种（氰化钠、氯、氨、甲醇等）；本年累计重点监管化学品企业【127】家。'},
+   {src:'HSE',p:'（四）【本月】，中国中化新增涉及易制毒化学品企业【0】家；本年累计涉及企业【94】家。'},
+   {src:'HSE',p:'（五）【本月】，中国中化新增易制爆化学品企业【0】家；本年累计涉及企业【72】家。'}
   ]}
  ]},
 week:{tag:'【2026年第43周报】',range:'2026年10月13日-2026年10月19日',kpi:{new:'386',newHint:'已整改 341 项',rate:'88.34%',rateHint:'已整改 / 本期新增',major:'2',majorHint:'整改中 5 项 · 待验收 3 项',lock:'98.71%',lockHint:'环比上升 0.06%'},
@@ -1366,7 +1357,7 @@ week:{tag:'【2026年第43周报】',range:'2026年10月13日-2026年10月19日'
   ]},
   {t:'四、报警管理',blocks:[
    {p:'【本周期】，报警总数【212】个，点位平均报警次数【0.00021】次；GDS / SIS / 关键安全参数消警率均为 100%。'},
-   {tb:{h:['二级公司','报警总数','重复报警点位数','平均报警时长（min）'],r:[['中化能源','82','9','5.87'],['蓝星公司','41','6','4.02'],['沧州大化','28','5','48.33'],['氯碱事业部','16','2','36.50']]}}
+   {src:'MAJOR',tb:{h:['二级公司','报警总数','重复报警点位数','平均报警时长（min）'],r:[['中化能源','82','9','5.87'],['蓝星公司','41','6','4.02'],['沧州大化','28','5','48.33'],['氯碱事业部','16','2','36.50']]}}
   ]},
   {t:'五、联锁投用情况',blocks:[
    {p:'【本周期】联锁投用率【98.71%】，环比上升【0.06%】；投用率最低单位已挂牌督办。'}
@@ -1394,7 +1385,7 @@ year:{tag:'【2025年年报】',range:'2025年01月01日-2025年12月31日',kpi:
   ]},
   {t:'四、报警管理',blocks:[
    {p:'【2025 年】，报警总数【11,860】个，点位平均报警次数【0.00110】次；各类消警率全年均值 99.6% 以上。'},
-   {tb:{h:['二级公司','报警总数','平均报警时长（min）','较2024年'],r:[['中化能源','4,530','6.02','-12.4%'],['蓝星公司','1,980','4.15','-8.6%'],['沧州大化','860','55.40','+6.2%']]}}
+   {src:'MAJOR',tb:{h:['二级公司','报警总数','平均报警时长（min）','较2024年'],r:[['中化能源','4,530','6.02','-12.4%'],['蓝星公司','1,980','4.15','-8.6%'],['沧州大化','860','55.40','+6.2%']]}}
   ]},
   {t:'五、联锁投用情况',blocks:[
    {p:'【2025 年】联锁投用率均值【98.83%】，较 2024 年上升【0.42%】；年末全部二级单位投用率均不低于 95%。'}
@@ -1524,7 +1515,7 @@ function dprTableHTML(tb){
   const body=tb.r.map(row=>`<tr>${row.map(c=>`<td${dprIsNum(c)?' class="num"':''}>${c}</td>`).join('')}</tr>`).join('');
   return `<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
-function dprBlockHTML(b,period,sec,need){
+function dprBlockHTML(b,period){
   let html;
   if(b.chart)html=dprChartHTML(b.chart,period);
   else if(b.tb)html=dprTableHTML(b.tb);
@@ -1537,10 +1528,10 @@ function dprBlockHTML(b,period,sec,need){
     const tag=cls==='dpr-h3'?'h3':cls==='dpr-sub'?'h4':'p';
     html=`<${tag} class="${cls}">${p}</${tag}>`;
   }
-  /* 每个区域与它的来源栏包成同一区块，来源栏成为该区域可见的底部脚注 */
-  if(!need)return html;
-  const boxed=!!(b.tb||b.chart),kind=b.tb?'table':b.chart?'chart':'text';
-  return `<div class="dpr-area${boxed?' boxed':''}">${html}${dprSrcHTML(dprBlockSrc(b,sec),kind)}</div>`;
+  /* 仅模板明确标注了来源的区域才渲染来源栏；与内容包成同一区块，作为底部脚注 */
+  if(!b.src)return html;
+  const boxed=!!(b.tb||b.chart);
+  return `<div class="dpr-area${boxed?' boxed':''}">${html}${dprSrcHTML(DPR_SRC[b.src])}</div>`;
 }
 function dprSyncToolbar(){
   const btn=document.getElementById('dpr-toggle-all'),cnt=document.getElementById('dpr-sec-count');
@@ -1760,18 +1751,19 @@ function showDprDetail(id){
   document.getElementById('dpr-kpi-lock').textContent=D.kpi.lock;
   document.getElementById('dpr-kpi-lock-hint').textContent=D.kpi.lockHint;
   document.getElementById('dpr-d-body').innerHTML=D.sections.map((s,i)=>{
-    const srcs=dprSectionSrcs(s); /* 汇总本章各区域下方实际标注的来源，去重后展示在右上角 */
-    const srcFull='数据来源：'+srcs.join('、');
-    const srcShort=srcs.length>1?srcs.map(x=>x.replace('中国中化','')).join(' / '):srcs[0];
+    const srcs=dprSectionSrcs(s); /* 只汇总本章模板中真实存在的来源；模板未标注的章节不显示 */
+    const srcFull=srcs.length?'数据来源：'+srcs.join('、'):'';
+    const srcShort=srcs.length>1?srcs.map(x=>x.replace('中国中化','')).join(' / '):srcs[0]||'';
+    const srcBadge=srcs.length?`<span class="dpr-sec-sum" title="${srcFull}"><span class="src-lb">数据来源</span><span class="src-val">${srcShort}</span></span>`:'';
     return `
     <section class="dpr-section" data-open="true">
-      <header class="dpr-sec-head" role="button" tabindex="0" aria-expanded="true" aria-label="${s.t}，${srcFull}，点击收起或展开本章">
+      <header class="dpr-sec-head" role="button" tabindex="0" aria-expanded="true" aria-label="${s.t}${srcFull?'，'+srcFull:''}，点击收起或展开本章">
         <span class="dpr-sec-no">${String(i+1).padStart(2,'0')}</span>
         <h2 class="dpr-h2">${s.t}</h2>
-        <span class="dpr-sec-sum" title="${srcFull}"><span class="src-lb">数据来源</span><span class="src-val">${srcShort}</span></span>
+        ${srcBadge}
         <svg class="dpr-sec-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </header>
-      <div class="dpr-sec-body">${s.blocks.map((b,j)=>dprBlockHTML(b,r.period,s.t,dprNeedSrc(b,j,s.blocks))).join('')}</div>
+      <div class="dpr-sec-body">${s.blocks.map(b=>dprBlockHTML(b,r.period)).join('')}</div>
     </section>`;
   }).join('');
   dprSyncToolbar();
