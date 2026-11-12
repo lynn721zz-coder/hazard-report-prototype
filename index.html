@@ -415,18 +415,61 @@
   .rpt-go:hover{text-decoration:underline}
 
   /* ---- 双重预防运行报告详情正文 ---- */
+  .dpr-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+  .dpr-toolbar .tb-label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-primary)}
+  .dpr-toolbar .tb-label::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--sys-primary)}
+  .dpr-toolbar .tb-count{font-size:12px;color:var(--text-secondary)}
+  .dpr-toolbar .tb-actions{margin-left:auto;display:flex;gap:8px}
+  .dpr-tb-btn{height:28px;padding:0 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-secondary);font-size:12px;font-weight:500;transition:background .15s,border-color .15s,color .15s}
+  .dpr-tb-btn:hover{background:var(--primary-50);border-color:var(--border-primary);color:var(--sys-primary)}
+  .dpr-tb-btn:focus-visible,.dpr-sec-head:focus-visible{outline:2px solid var(--sys-primary);outline-offset:2px}
   #dpr-d-body{display:flex;flex-direction:column;gap:14px;padding-bottom:24px}
-  .dpr-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:16px 20px 20px}
-  .dpr-h2{font-family:var(--ff-heading);font-size:16px;font-weight:600;color:var(--text-primary);border-left:4px solid var(--sys-primary);padding:0 0 12px 10px;margin:0 0 12px;border-bottom:1px solid var(--border)}
+  .dpr-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+  .dpr-sec-head{display:flex;align-items:center;gap:10px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .15s}
+  .dpr-sec-head:hover{background:var(--gray-50)}
+  .dpr-sec-no{flex-shrink:0;width:26px;height:26px;border-radius:var(--radius-md);background:var(--primary-50);color:var(--primary-800);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+  .dpr-h2{font-size:16px;font-weight:600;color:var(--text-primary);flex:1;min-width:0}
+  .dpr-sec-sum{font-size:11.5px;color:var(--text-secondary);white-space:nowrap}
+  .dpr-sec-chev{width:16px;height:16px;flex-shrink:0;color:var(--text-secondary);transition:transform .2s}
+  .dpr-section[data-open="true"] .dpr-sec-chev{transform:rotate(180deg)}
+  .dpr-sec-body{padding:2px 20px 20px;border-top:1px solid var(--border);animation:dprFadeIn .2s ease}
+  .dpr-section[data-open="false"] .dpr-sec-body{display:none}
+  @keyframes dprFadeIn{from{opacity:0}to{opacity:1}}
+  .dpr-h3{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--primary-800);background:var(--sys-primary-bg-light);border-left:3px solid var(--sys-primary);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:7px 12px;margin:18px 0 10px}
+  .dpr-sec-body>.dpr-h3:first-child{margin-top:6px}
+  .dpr-sub{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text-primary);margin:14px 0 6px}
+  .dpr-sub::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--primary-400);flex-shrink:0}
   .dpr-p{font-size:13px;line-height:1.8;color:var(--text-primary);margin:8px 0}
-  .dpr-tb-wrap{overflow-x:auto;margin:10px 0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card)}
+  .dpr-num{font-size:13px;line-height:1.8;color:var(--text-primary);margin:10px 0;padding-left:10px;border-left:2px solid var(--border-primary)}
+  .dpr-src{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-secondary);margin:10px 0 2px}
+  .dpr-src::before{content:"来源";font-size:10px;padding:1px 6px;border:1px solid var(--border);border-radius:var(--radius-full)}
+  .dpr-tb-wrap{overflow-x:auto;margin:8px 0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card)}
   .dpr-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
   .dpr-table th{background:var(--gray-50);color:var(--text-secondary);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0}
   .dpr-table td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text-primary)}
   .dpr-table tbody tr:last-child td{border-bottom:none}
   .dpr-table tbody tr:hover td{background:var(--gray-50)}
-  .dpr-chart{border:1px dashed var(--border);border-radius:8px;background:var(--gray-50);padding:26px 16px;text-align:center;font-size:13px;color:var(--text-secondary);font-weight:500;margin:12px 0 16px}
+  .dpr-chart{margin:12px 0 16px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg-card);overflow:hidden}
+  .dpr-fig-cap{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--text-primary);background:var(--bg-tertiary);border-bottom:1px solid var(--border)}
+  .dpr-fig-cap .ic{width:14px;height:14px;flex-shrink:0;color:var(--sys-primary)}
+  .dpr-fig-body{padding:14px 16px 4px}
+  .dpr-fig-svg{display:block;width:100%;height:auto}
+  .dpr-legend{display:flex;flex-wrap:wrap;gap:14px;padding:2px 16px 10px;font-size:11.5px;color:var(--text-secondary)}
+  .dpr-legend .lg{display:inline-flex;align-items:center;gap:6px}
+  .dpr-legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px}
+  .dpr-fig-note{font-size:11.5px;color:var(--text-secondary);padding:0 16px 10px}
+  .dpr-fig-data{border-top:1px solid var(--border);padding:0 16px}
+  .dpr-fig-data summary{cursor:pointer;list-style:none;font-size:11.5px;color:var(--sys-primary);padding:8px 0}
+  .dpr-fig-data summary::-webkit-details-marker{display:none}
+  .dpr-fig-data summary::before{content:"▸ "}
+  .dpr-fig-data[open] summary::before{content:"▾ "}
+  .dpr-fig-data table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:10px}
+  .dpr-fig-data th,.dpr-fig-data td{border:1px solid var(--border);padding:4px 8px;text-align:left}
+  .dpr-fig-data th{background:var(--gray-50);color:var(--text-secondary)}
+  .dpr-bar{transition:opacity .2s}
+  .dpr-bar:hover{opacity:.72}
   .dpr-chart-note{font-size:11.5px;color:var(--text-tertiary);font-weight:400;margin-left:4px}
+  @media(max-width:768px){.dpr-sec-sum{display:none}.dpr-sec-head{padding:12px 14px}.dpr-sec-body{padding:2px 14px 16px}.dpr-toolbar{padding:10px 12px}}
   .rpt-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;align-self:center}
   .rpt-fb{display:flex;gap:6px}
   .rpt-fb .fb-btn{padding:4px 10px;font-size:11.5px;gap:4px}
@@ -1313,6 +1356,133 @@ year:{tag:'【2025年年报】',range:'2025年01月01日-2025年12月31日',kpi:
   ]}
  ]}
 };
+/* 图表数据：原型示意数据，仅用于展示图表形态；接入真实业务数据后替换本映射即可 */
+const DPR_CHART_COLORS=['var(--sys-primary)','var(--primary-400)','var(--warning-600)','var(--success-800)','var(--danger-600)','var(--gray-600)'];
+const DPR_CHART_DATA={
+ '隐患危害分类分析图':{type:'bar',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[18246,12508,7312,4201,3530]},
+ '人的不安全行为 / 物的不安全状态细分饼图':{type:'donut',unit:'项',names:['未按规定佩戴劳保','违章操作','设备防护缺失','设施老化缺陷','作业环境不良','其他'],vals:[6120,5430,4860,3980,3264,7100]},
+ '隐患要素分析图':{type:'hbar',unit:'项',names:['设备设施','作业活动','人员行为','管理体系','应急管理','职业健康'],vals:[13620,10840,9250,5870,3760,2457]},
+ '人均安全隐患统计与排查数趋势':{type:'line',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月'],ymax:5,series:[
+   {name:'人均隐患数（项/人）',vals:[0.82,0.88,0.91,0.96,1.02,1.08,1.09,1.14,1.21,1.18]},
+   {name:'人均排查数（次/人）',vals:[3.2,3.4,3.5,3.7,3.9,4.1,4.0,4.3,4.5,4.4]}]},
+ '本周隐患危害分类分布':{type:'bar',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[154,105,62,38,27]},
+ '全年隐患危害分类分析':{type:'bar',unit:'项',names:['人的不安全行为','物的不安全状态','管理缺陷','环境因素','其他'],vals:[204110,139870,81690,46980,39690]},
+ '月度人均隐患排查数趋势':{type:'line',names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],ymax:5,series:[
+   {name:'人均隐患排查数（次/人）',vals:[3.1,3.0,3.3,3.5,3.4,3.7,3.9,3.8,4.0,4.2,4.1,4.4]}]}
+};
+function dprNiceMax(v){
+  const raw=v*1.12,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;
+  const nice=n<=1?1:n<=1.5?1.5:n<=2?2:n<=2.5?2.5:n<=3?3:n<=4?4:n<=5?5:n<=6?6:n<=8?8:10;
+  return nice*mag;
+}
+function dprSvgBar(D){
+  const W=680,H=230,L=52,R=18,T=20,B=48,pw=W-L-R,ph=H-T-B;
+  const max=dprNiceMax(Math.max(...D.vals)),step=pw/D.vals.length,bw=Math.min(58,step*.58);
+  let g='';
+  for(let i=0;i<=5;i++){
+    const y=T+ph*i/5,v=max*(1-i/5);
+    g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`;
+    g+=`<text x="${L-8}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">${Math.round(v).toLocaleString()}</text>`;
+  }
+  D.vals.forEach((v,i)=>{
+    const x=L+step*i+(step-bw)/2,h=ph*v/max,y=T+ph-h,c=DPR_CHART_COLORS[i%6];
+    g+=`<rect class="dpr-bar" x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${c}"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}</title></rect>`;
+    g+=`<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()}</text>`;
+    g+=`<text x="${L+step*i+step/2}" y="${T+ph+22}" text-anchor="middle" font-size="11" fill="var(--text-secondary)">${D.names[i]}</text>`;
+  });
+  return g;
+}
+function dprSvgHBar(D){
+  const W=680,L=110,R=80,T=14,B=14,rowH=(230-T-B)/D.vals.length,pw=W-L-R;
+  const max=Math.max(...D.vals)*1.12;
+  let g='';
+  D.vals.forEach((v,i)=>{
+    const y=T+rowH*i+(rowH-16)/2,w=pw*v/max,c=DPR_CHART_COLORS[i%6];
+    g+=`<text x="${L-10}" y="${y+13}" text-anchor="end" font-size="11.5" fill="var(--text-secondary)">${D.names[i]}</text>`;
+    g+=`<rect x="${L}" y="${y}" width="${pw}" height="16" rx="4" fill="var(--gray-50)"/>`;
+    g+=`<rect class="dpr-bar" x="${L}" y="${y}" width="${w}" height="16" rx="4" fill="${c}"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}</title></rect>`;
+    g+=`<text x="${L+w+8}" y="${y+13}" font-size="11" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()}</text>`;
+  });
+  return g;
+}
+function dprSvgDonut(D){
+  const cx=188,cy=115,r=76,sw=34,C=2*Math.PI*r;
+  const total=D.vals.reduce((a,b)=>a+b,0);
+  let off=0,g=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--gray-100)" stroke-width="${sw}"/>`;
+  D.vals.forEach((v,i)=>{
+    const len=C*v/total,c=DPR_CHART_COLORS[i%6],ly=38+i*32;
+    g+=`<circle class="dpr-bar" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"><title>${D.names[i]}：${v.toLocaleString()} ${D.unit}（${(v/total*100).toFixed(1)}%）</title></circle>`;
+    g+=`<rect x="330" y="${ly-11}" width="11" height="11" rx="2" fill="${c}"/>`;
+    g+=`<text x="350" y="${ly}" font-size="11.5" fill="var(--text-secondary)">${D.names[i]}</text>`;
+    g+=`<text x="662" y="${ly}" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--text-primary)">${v.toLocaleString()} · ${(v/total*100).toFixed(1)}%</text>`;
+    off+=len;
+  });
+  g+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="12" fill="var(--text-secondary)">合计</text>`;
+  g+=`<text x="${cx}" y="${cy+20}" text-anchor="middle" font-size="20" font-weight="700" fill="var(--text-primary)">${total.toLocaleString()}</text>`;
+  return g;
+}
+function dprSvgLine(D){
+  const W=680,H=230,L=44,R=18,T=18,B=40,pw=W-L-R,ph=H-T-B,ymax=D.ymax||5,n=D.names.length;
+  const X=i=>L+(n===1?0:pw*i/(n-1)),Y=v=>T+ph*(1-v/ymax);
+  let g='';
+  for(let i=0;i<=5;i++){
+    const y=T+ph*i/5,v=ymax*(1-i/5);
+    g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`;
+    g+=`<text x="${L-8}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">${v.toFixed(1)}</text>`;
+  }
+  D.names.forEach((nm,i)=>{g+=`<text x="${X(i)}" y="${T+ph+22}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)">${nm}</text>`;});
+  D.series.forEach((s,si)=>{
+    const c=DPR_CHART_COLORS[si%6],pts=s.vals.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+    g+=`<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s.vals.forEach((v,i)=>{g+=`<circle class="dpr-bar" cx="${X(i)}" cy="${Y(v)}" r="3.6" fill="${c}" stroke="#fff" stroke-width="1.5"><title>${D.names[i]} ${s.name}：${v}</title></circle>`;});
+    const last=s.vals.length-1;
+    g+=`<text x="${X(last)-6}" y="${Y(s.vals[last])-10}" text-anchor="end" font-size="11" font-weight="600" fill="${c}">${s.vals[last]}</text>`;
+  });
+  return g;
+}
+function dprChartHTML(title){
+  const D=DPR_CHART_DATA[title]||DPR_CHART_DATA['隐患危害分类分析图'];
+  const drawer={bar:dprSvgBar,hbar:dprSvgHBar,donut:dprSvgDonut,line:dprSvgLine}[D.type];
+  const svg=drawer(D);
+  const total=D.vals?D.vals.reduce((a,b)=>a+b,0):0;
+  let legend='',rows='';
+  if(D.type==='line'){
+    legend=`<div class="dpr-legend">${D.series.map((s,i)=>`<span class="lg"><i class="sw" style="background:${DPR_CHART_COLORS[i%6]}"></i>${s.name}</span>`).join('')}</div>`;
+    rows=`<table><thead><tr><th>周期</th>${D.series.map(s=>`<th>${s.name}</th>`).join('')}</tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td>${D.series.map(s=>`<td>${s.vals[i]}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }else{
+    rows=`<table><thead><tr><th>分类</th><th>数值（${D.unit}）</th><th>占比</th></tr></thead><tbody>${D.names.map((nm,i)=>`<tr><td>${nm}</td><td>${D.vals[i].toLocaleString()}</td><td>${(D.vals[i]/total*100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
+  }
+  const desc=D.type==='line'?`${D.names.length} 个周期、${D.series.length} 项指标`:`${D.names.length} 个分类，合计 ${total.toLocaleString()} ${D.unit}`;
+  return `<figure class="dpr-chart">
+    <figcaption class="dpr-fig-cap"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${title}</figcaption>
+    <div class="dpr-fig-body"><svg class="dpr-fig-svg" viewBox="0 0 680 230" role="img" aria-label="${title}，${desc}"><title>${title}</title><desc>${desc}；原型示意数据。</desc>${svg}</svg></div>
+    ${legend}
+    <div class="dpr-fig-note">示意数据（原型用于展示图表形态），实际数据以业务系统为准</div>
+    <details class="dpr-fig-data"><summary>查看图表数据</summary>${rows}</details>
+  </figure>`;
+}
+function dprBlockHTML(b){
+  if(b.chart)return dprChartHTML(b.chart);
+  if(b.tb)return `<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${b.tb.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.tb.r.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const p=b.p||'';
+  let cls='dpr-p';
+  if(/^数据来源[:：]/.test(p))cls='dpr-src';
+  else if(/^（[一二三四五六七八九十]+）/.test(p))cls='dpr-num';
+  else if(/[:：]$/.test(p)&&!(p.length>28&&/【/.test(p)))cls='dpr-sub';
+  else if(p.length<=16&&!/[。；，、【】]/.test(p))cls='dpr-h3';
+  const tag=cls==='dpr-h3'?'h3':cls==='dpr-sub'?'h4':'p';
+  return `<${tag} class="${cls}">${p}</${tag}>`;
+}
+function dprSyncToolbar(){
+  const btn=document.getElementById('dpr-toggle-all'),cnt=document.getElementById('dpr-sec-count');
+  const secs=[...document.querySelectorAll('#dpr-d-body .dpr-section')];
+  if(!secs.length)return;
+  const opened=secs.filter(s=>s.dataset.open==='true').length;
+  const allOpen=opened===secs.length;
+  btn.textContent=allOpen?'全部收起':'全部展开';
+  btn.setAttribute('aria-expanded',allOpen?'true':'false');
+  cnt.textContent=`共 ${secs.length} 章 · 已展开 ${opened} 章`;
+}
 function dprVisible(){return dprRole==='admin'?dprReports:dprReports.filter(r=>(r.owner||CUR_USER_NAME)===CUR_USER_NAME);}
 function dprHTML(){
   return `
@@ -1366,6 +1536,11 @@ function dprHTML(){
       <div class="metric warn"><div class="label">新增重大事故隐患</div><div class="value" id="dpr-kpi-major">—<span class="unit">项</span></div><div class="hint" id="dpr-kpi-major-hint"></div></div>
       <div class="metric danger"><div class="label">联锁投用率</div><div class="value" id="dpr-kpi-lock">—</div><div class="hint" id="dpr-kpi-lock-hint">数据来源：重大危险源管理系统</div></div>
     </section>
+    <div class="dpr-toolbar" role="group" aria-label="报告正文控制">
+      <span class="tb-label">报告正文</span>
+      <span class="tb-count" id="dpr-sec-count"></span>
+      <div class="tb-actions"><button class="dpr-tb-btn" id="dpr-toggle-all" type="button">全部收起</button></div>
+    </div>
     <div id="dpr-d-body"></div>
   </section>`;
 }
@@ -1515,17 +1690,21 @@ function showDprDetail(id){
   document.getElementById('dpr-kpi-major-hint').textContent=D.kpi.majorHint;
   document.getElementById('dpr-kpi-lock').textContent=D.kpi.lock;
   document.getElementById('dpr-kpi-lock-hint').textContent=D.kpi.lockHint;
-  document.getElementById('dpr-d-body').innerHTML=D.sections.map(s=>`
-    <section class="dpr-section">
-    <h2 class="dpr-h2">${s.t}</h2>
-    ${s.blocks.map(b=>b.p
-      ?`<p class="dpr-p">${b.p}</p>`
-      :b.chart
-        ?`<div class="dpr-chart"><svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;vertical-align:-4px;margin-right:6px"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${b.chart}<span class="dpr-chart-note">（图表区域）</span></div>`
-        :`<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${b.tb.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.tb.r.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
-    ).join('')}
-    </section>
-  `).join('');
+  document.getElementById('dpr-d-body').innerHTML=D.sections.map((s,i)=>{
+    const tb=s.blocks.filter(b=>b.tb).length,ch=s.blocks.filter(b=>b.chart).length;
+    const sum=[tb?`${tb} 张表`:'',ch?`${ch} 个图表`:''].filter(Boolean).join(' · ')||'文字说明';
+    return `
+    <section class="dpr-section" data-open="true">
+      <header class="dpr-sec-head" role="button" tabindex="0" aria-expanded="true" aria-label="${s.t}，点击收起或展开本章">
+        <span class="dpr-sec-no">${String(i+1).padStart(2,'0')}</span>
+        <h2 class="dpr-h2">${s.t}</h2>
+        <span class="dpr-sec-sum">${sum}</span>
+        <svg class="dpr-sec-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </header>
+      <div class="dpr-sec-body">${s.blocks.map(dprBlockHTML).join('')}</div>
+    </section>`;
+  }).join('');
+  dprSyncToolbar();
   document.getElementById('content').scrollTop=0;
 }
 function bindDprReport(){
@@ -1554,6 +1733,33 @@ function bindDprReport(){
     renderDprList();
   };
   document.getElementById('dpr-back').onkeydown=e=>{if(e.key==='Enter'){document.getElementById('dpr-back').onclick();}};
+  const dprBody=document.getElementById('dpr-d-body');
+  const toggleSec=head=>{
+    const sec=head.closest('.dpr-section');
+    if(!sec)return;
+    const open=sec.dataset.open!=='true';
+    sec.dataset.open=open?'true':'false';
+    head.setAttribute('aria-expanded',open?'true':'false');
+    dprSyncToolbar();
+  };
+  dprBody.addEventListener('click',e=>{
+    const head=e.target.closest('.dpr-sec-head');
+    if(head)toggleSec(head);
+  });
+  dprBody.addEventListener('keydown',e=>{
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    const head=e.target.closest('.dpr-sec-head');
+    if(head&&e.target===head){e.preventDefault();toggleSec(head);}
+  });
+  document.getElementById('dpr-toggle-all').addEventListener('click',()=>{
+    const secs=[...document.querySelectorAll('#dpr-d-body .dpr-section')];
+    const allOpen=secs.length>0&&secs.every(s=>s.dataset.open==='true');
+    secs.forEach(s=>{
+      s.dataset.open=allOpen?'false':'true';
+      s.querySelector('.dpr-sec-head').setAttribute('aria-expanded',allOpen?'false':'true');
+    });
+    dprSyncToolbar();
+  });
   const tip=()=>showToast('报告详情内容模板待接入，导出能力将随模板一并开放');
   document.getElementById('dpr-d-excel').addEventListener('click',tip);
   document.getElementById('dpr-d-export').addEventListener('click',tip);
