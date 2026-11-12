@@ -445,6 +445,9 @@
   .dpr-sub::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--primary-400);flex-shrink:0}
   .dpr-p{font-size:13px;line-height:1.8;color:var(--text-primary);margin:8px 0}
   .dpr-num{font-size:13px;line-height:1.8;color:var(--text-primary);margin:10px 0;padding-left:10px;border-left:2px solid var(--border-primary)}
+  /* 区域下方：完整保留模板文案「数据来源：xxx」，仅用浅蓝竖线做视觉引导 */
+  .dpr-src{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-secondary);margin:6px 0 14px}
+  .dpr-src::before{content:"";width:3px;height:12px;border-radius:2px;background:var(--primary-400);flex-shrink:0}
   .dpr-tb-wrap{overflow-x:auto;margin:8px 0 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card)}
   .dpr-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
   .dpr-table th{background:var(--gray-50);color:var(--text-secondary);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0}
@@ -1248,15 +1251,28 @@ const dprReports=[
 let dprPeriod='month',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
 const DPR_PAGE_SIZE=5;
 /* 报告详情模板数据：按《中国中化双重预防机制运行分析报告》结构（周报/月报/年报三套口径） */
-/* 各章节数据来源：按报告模板中标注的业务系统归属；前三章模板未单独标注，按数据归属取智慧HSE管理系统 */
-const DPR_SECTION_SRC={
- '一、公司动态风险概况':['中国中化智慧HSE管理系统'],
- '二、风险再辨识情况':['中国中化智慧HSE管理系统'],
- '三、隐患管理情况':['中国中化智慧HSE管理系统'],
- '四、报警管理':['中国中化重大危险源管理系统'],
- '五、联锁投用情况':['中国中化重大危险源管理系统'],
- '六、固有风险情况':['中国中化重大危险源管理系统','中国中化智慧HSE管理系统']
-};
+/* 数据来源口径（模板原文）：各表格/区域下方逐条标注，章节右上角汇总去重展示
+   模板 11 处标注：四、报警管理 3 处 + 五、联锁投用 2 处 + 六、固有风险 6 处
+   其中六章（一）重大危险源相关为重大危险源管理系统，（二）~（五）监管工艺/化学品/易制毒/易制爆为智慧HSE管理系统
+   前三章模板未单独标注，按数据归属统一取智慧HSE管理系统 */
+const DPR_SRC_MAJOR='中国中化重大危险源管理系统',DPR_SRC_HSE='中国中化智慧HSE管理系统';
+function dprBlockSrc(b,sec){
+  if(/^六、/.test(sec))return /^（[二三四五]）/.test(b.p||'')?DPR_SRC_HSE:DPR_SRC_MAJOR;
+  if(/^[一二三]、/.test(sec))return DPR_SRC_HSE;
+  return DPR_SRC_MAJOR;
+}
+/* 需要标注来源的「区域」：表格、图表、独立的编号小节段落、章节末尾的文字结论
+   编号段落若紧跟着表格（如六章（一）），按模板只在表格下方标注一次，不重复 */
+const dprNeedSrc=(b,i,arr)=>!!(b.tb||b.chart||(/^（[一二三四五]）/.test(b.p||'')&&!arr[i+1]?.tb)||(i===arr.length-1&&b.p));
+function dprSectionSrcs(s){
+  const out=[];
+  s.blocks.forEach((b,i)=>{
+    if(dprNeedSrc(b,i,s.blocks)){const x=dprBlockSrc(b,s.t);if(!out.includes(x))out.push(x);}
+  });
+  if(!out.length)out.push(dprBlockSrc({},s.t));
+  return out;
+}
+function dprSrcHTML(src){return `<div class="dpr-src">数据来源：${src}</div>`;}
 const DPR_DETAIL={
 month:{tag:'【2026年10月报】',range:'2026年09月21日-2026年10月20日',kpi:{new:'45,797',newHint:'已整改 39,045 项',rate:'85.26%',rateHint:'本年累计 513,595 / 529,083 项',major:'36',majorHint:'整改中 57 项 · 待验收 90 项',lock:'98.65%',lockHint:'环比下降 0.18%'},
  sections:[
@@ -1498,17 +1514,22 @@ function dprTableHTML(tb){
   const body=tb.r.map(row=>`<tr>${row.map(c=>`<td${dprIsNum(c)?' class="num"':''}>${c}</td>`).join('')}</tr>`).join('');
   return `<div class="dpr-tb-wrap"><table class="dpr-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
-function dprBlockHTML(b,period){
-  if(b.chart)return dprChartHTML(b.chart,period);
-  if(b.tb)return dprTableHTML(b.tb);
-  const p=b.p||'';
-  if(/^数据来源[:：]/.test(p))return ''; /* 模块数据来源统一在章节右上角展示，正文不再重复 */
-  let cls='dpr-p';
-  if(/^（[一二三四五六七八九十]+）/.test(p))cls='dpr-num';
-  else if(/[:：]$/.test(p)&&!(p.length>28&&/【/.test(p)))cls='dpr-sub';
-  else if(p.length<=16&&!/[。；，、【】]/.test(p))cls='dpr-h3';
-  const tag=cls==='dpr-h3'?'h3':cls==='dpr-sub'?'h4':'p';
-  return `<${tag} class="${cls}">${p}</${tag}>`;
+function dprBlockHTML(b,period,sec,need){
+  let html;
+  if(b.chart)html=dprChartHTML(b.chart,period);
+  else if(b.tb)html=dprTableHTML(b.tb);
+  else{
+    const p=b.p||'';
+    let cls='dpr-p';
+    if(/^数据来源[:：]/.test(p))cls='dpr-src';
+    else if(/^（[一二三四五六七八九十]+）/.test(p))cls='dpr-num';
+    else if(/[:：]$/.test(p)&&!(p.length>28&&/【/.test(p)))cls='dpr-sub';
+    else if(p.length<=16&&!/[。；，、【】]/.test(p))cls='dpr-h3';
+    const tag=cls==='dpr-h3'?'h3':cls==='dpr-sub'?'h4':'p';
+    html=`<${tag} class="${cls}">${p}</${tag}>`;
+  }
+  /* 每个区域（表格 / 图表 / 编号小节 / 章节结论）下方按模板原文标注数据来源 */
+  return html+(need?dprSrcHTML(dprBlockSrc(b,sec)):'');
 }
 function dprSyncToolbar(){
   const btn=document.getElementById('dpr-toggle-all'),cnt=document.getElementById('dpr-sec-count');
@@ -1728,7 +1749,7 @@ function showDprDetail(id){
   document.getElementById('dpr-kpi-lock').textContent=D.kpi.lock;
   document.getElementById('dpr-kpi-lock-hint').textContent=D.kpi.lockHint;
   document.getElementById('dpr-d-body').innerHTML=D.sections.map((s,i)=>{
-    const srcs=DPR_SECTION_SRC[s.t]||['中国中化智慧HSE管理系统'];
+    const srcs=dprSectionSrcs(s); /* 汇总本章各区域下方实际标注的来源，去重后展示在右上角 */
     const srcFull='数据来源：'+srcs.join('、');
     const srcShort=srcs.length>1?srcs.map(x=>x.replace('中国中化','')).join(' / '):srcs[0];
     return `
@@ -1739,7 +1760,7 @@ function showDprDetail(id){
         <span class="dpr-sec-sum" title="${srcFull}"><span class="src-lb">数据来源</span><span class="src-val">${srcShort}</span></span>
         <svg class="dpr-sec-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </header>
-      <div class="dpr-sec-body">${s.blocks.map(b=>dprBlockHTML(b,r.period)).join('')}</div>
+      <div class="dpr-sec-body">${s.blocks.map((b,j)=>dprBlockHTML(b,r.period,s.t,dprNeedSrc(b,j,s.blocks))).join('')}</div>
     </section>`;
   }).join('');
   dprSyncToolbar();
