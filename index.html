@@ -456,10 +456,11 @@
   #dpr-detail-view.doc-mode>.metrics,
   #dpr-detail-view.doc-mode>.dpr-toolbar{display:none!important}
   #dpr-detail-view.doc-mode{padding-top:0}
-  #dpr-detail-view.doc-mode>.rpt-back{margin:12px 0 4px}
+  /* 返回按钮固定在内容区顶部，不随文档滚动；撑满宽度 + 背景遮住下方滚过的正文 */
+  #dpr-detail-view.doc-mode>.rpt-back{position:sticky;top:0;z-index:30;display:flex;align-items:center;box-sizing:border-box;width:100%;height:40px;margin:0;padding:0;background:var(--bg-page)}
   #dpr-d-body.doc-mode{display:block;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0}
   .word-view{position:relative}
-  .word-bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;height:46px;padding:0 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;box-shadow:var(--shadow-sm)}
+  .word-bar{position:sticky;top:40px;z-index:20;display:flex;align-items:center;gap:10px;height:46px;padding:0 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;box-shadow:var(--shadow-sm)}
   .word-bar .wb-name{font-size:13px;font-weight:600;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .word-bar .wb-tag{font-size:11px;color:var(--text-tertiary);background:var(--gray-50);border:1px solid var(--border);border-radius:10px;padding:2px 8px;white-space:nowrap}
   .word-bar .wb-sp{flex:1}
