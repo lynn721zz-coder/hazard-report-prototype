@@ -469,9 +469,9 @@
   .word-bar button:focus-visible{outline:2px solid var(--sys-primary);outline-offset:2px}
   .word-stage{background:#E9EDF3;border:1px solid var(--border);border-top:0;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:22px 12px 40px;overflow-x:auto}
   .word-zoom{transform-origin:top center;width:100%;transition:transform .2s ease}
-  .word-doc{width:794px;max-width:100%;margin:0 auto;background:#fff;box-shadow:0 2px 18px rgba(15,35,75,.14);padding:44px 52px 60px;color:#222}
-  /* Word 中用窄表格承载的长段文字：重建为通栏普通段落，消除右侧大片留白（仅展示层，文字不变） */
-  .word-doc p.dpr-text-para{margin:0 0 6px!important;text-align:justify!important;text-indent:2em;line-height:1.7!important;min-height:0!important;font-family:'Times New Roman',宋体,serif;font-size:10.5pt}
+  .word-doc{width:794px;max-width:100%;margin:0 auto;background:#fff;box-shadow:0 2px 18px rgba(15,35,75,.14);padding:92px 52px 76px;color:#222}
+  /* Word 中用窄表格承载的长段文字：重建为通栏普通段落（仅展示层，文字不变）；字号随公文正文统一 */
+  .word-doc p.dpr-text-para{margin:0 0 6px!important;text-align:justify!important;text-indent:2em;line-height:28pt!important;min-height:0!important;font-family:'仿宋_GB2312','仿宋','华文仿宋','FangSong',serif!important;font-size:16pt!important}
   .word-doc .docx-wrapper{background:#fff!important;padding:0!important;box-shadow:none!important}
   .word-doc section.docx{box-shadow:none!important;margin:0 0 24px!important;width:100%!important;background:#fff!important;padding:0!important}
   .word-doc section.docx:last-child{margin-bottom:0!important}
@@ -489,6 +489,29 @@
   .word-doc [style*="background-color:rgb(255, 255, 0)"]{background-color:transparent!important}
   .word-doc .dpr-svg-slot{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
   .word-doc .dpr-svg-slot svg{max-width:100%;max-height:100%}
+  /* ===== 公文格式（GB/T 9704）样式层：套用字体/字号/行距/缩进/标题层级，仅改展示不改 Word 数据与内容 ===== */
+  /* 大标题：方正小标宋简体 二号(22pt) 居中（系统缺字体时回退宋体-简） */
+  .word-doc.gov-doc article>p.docx_17{text-align:center!important;text-indent:0!important;line-height:1.6!important;margin:0 0 4pt!important}
+  .word-doc.gov-doc article>p.docx_17 span{font-family:'方正小标宋简体','方正小标宋','宋体-简','Songti SC',serif!important;font-size:22pt!important;font-weight:700!important;letter-spacing:.5px}
+  /* 副标题（报告期号与区间）：仿宋三号居中 */
+  .word-doc.gov-doc article>p.docx_17+p{text-align:center!important;text-indent:0!important;line-height:28pt!important;margin:0 0 16pt!important}
+  .word-doc.gov-doc article>p.docx_17+p span{font-family:'仿宋_GB2312','仿宋','华文仿宋','FangSong',serif!important;font-size:16pt!important;font-weight:700!important}
+  /* 一级标题（docx-num-2-0）：黑体三号(16pt) */
+  .word-doc.gov-doc article>p.docx-num-2-0{text-indent:0!important;margin:14pt 0 8pt!important;line-height:28pt!important}
+  .word-doc.gov-doc article>p.docx-num-2-0 span{font-family:'黑体','黑体-简','SimHei','Heiti SC',sans-serif!important;font-size:16pt!important;font-weight:700!important}
+  /* 二级标题（docx-num-3-0）：楷体三号(16pt) */
+  .word-doc.gov-doc article>p.docx-num-3-0{text-indent:0!important;margin:10pt 0 6pt!important;line-height:28pt!important}
+  .word-doc.gov-doc article>p.docx-num-3-0 span{font-family:'楷体_GB2312','楷体','楷体-简','KaiTi',serif!important;font-size:16pt!important;font-weight:700!important}
+  /* 三级标题（docx-num-4-0）：仿宋三号加粗 */
+  .word-doc.gov-doc article>p.docx-num-4-0{text-indent:0!important;margin:8pt 0 4pt!important;line-height:28pt!important}
+  .word-doc.gov-doc article>p.docx-num-4-0 span{font-family:'仿宋_GB2312','仿宋','华文仿宋','FangSong',serif!important;font-size:16pt!important;font-weight:700!important}
+  /* 正文段落：仿宋三号(16pt)、首行缩进2字符、行距28pt、两端对齐 */
+  .word-doc.gov-doc article>p.docx-num-0-0,
+  .word-doc.gov-doc article>p:not([class]){text-align:justify!important;text-indent:2em!important;line-height:28pt!important;margin:0 0 4pt!important}
+  .word-doc.gov-doc article>p.docx-num-0-0 span,
+  .word-doc.gov-doc article>p:not([class]) span{font-family:'仿宋_GB2312','仿宋','华文仿宋','FangSong',serif!important;font-size:16pt!important;font-weight:400!important}
+  /* 公文标题下方红色分隔线（仅大标题后） */
+  .word-doc.gov-doc article>p.docx_17::after{content:'';display:block;border-top:1.5px solid #C0181B;margin:8pt 8% 0}
   .dpr-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
   .dpr-sec-head{display:flex;align-items:center;gap:10px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .15s}
   .dpr-sec-head:hover{background:var(--gray-50)}
@@ -1980,7 +2003,7 @@ function dprWordRange(){
 function dprApplyWordMeta(){
   const nm=document.getElementById('dpr-word-name'),tg=document.getElementById('dpr-word-tag');
   if(nm)nm.textContent=dprDocTitle();
-  if(tg)tg.textContent=(DPR_PERIOD_TITLE[dprCurPeriod()]||'报告')+' · Word 原文预览';
+  if(tg)tg.textContent=(DPR_PERIOD_TITLE[dprCurPeriod()]||'报告')+' · 公文格式';
 }
 /* 标题行整行替换 + 正文周期措辞替换；仅改措辞，不改任何数值；年度累计（本年/2026年累计）保持原义 */
 function dprApplyWordTitle(){
@@ -2032,14 +2055,14 @@ function dprRenderWordDoc(){
   body.innerHTML=`<div class="word-view">
     <div class="word-bar">
       <span class="wb-name" id="dpr-word-name">2026年10月份中国中化双重预防机制运行分析报告</span>
-      <span class="wb-tag" id="dpr-word-tag">Word 原文预览</span>
+      <span class="wb-tag" id="dpr-word-tag">公文格式</span>
       <span class="wb-sp"></span>
       <button type="button" id="dpr-word-zout" aria-label="缩小文档">−</button>
       <button type="button" id="dpr-word-zoom-label" aria-label="当前缩放比例" style="min-width:46px;cursor:default">100%</button>
       <button type="button" id="dpr-word-zin" aria-label="放大文档">＋</button>
       <button type="button" id="dpr-word-dl">下载 Word</button>
     </div>
-    <div class="word-stage"><div class="word-zoom" id="dpr-word-zoom"><div class="word-doc" id="dpr-word-doc">
+    <div class="word-stage"><div class="word-zoom" id="dpr-word-zoom"><div class="word-doc gov-doc" id="dpr-word-doc">
       <div class="word-loading"><span class="sp"></span><span>正在加载 Word 原文…</span></div>
     </div></div></div>
   </div>`;
@@ -2047,10 +2070,20 @@ function dprRenderWordDoc(){
     document.getElementById('dpr-word-zin').onclick=()=>dprApplyWordZoom(Math.min(1.6,dprWordZoom+0.1));
     document.getElementById('dpr-word-zout').onclick=()=>dprApplyWordZoom(Math.max(0.6,dprWordZoom-0.1));
     document.getElementById('dpr-word-dl').onclick=()=>{
-      const bin=atob(window.__DPR_DOCX_B64),arr=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
-      const url=URL.createObjectURL(new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
-      const a=document.createElement('a');a.href=url;a.download=dprDocTitle()+".docx";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+      try{
+        const bin=atob(window.__DPR_DOCX_B64),arr=new Uint8Array(bin.length);
+        for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+        const url=URL.createObjectURL(new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
+        const a=document.createElement('a');
+        a.href=url;a.download=dprDocTitle()+'.docx';a.style.display='none';
+        /* 关键：临时 a 必须挂进文档树再点击，否则内嵌预览/部分浏览器会静默忽略下载 */
+        (document.body||document.documentElement).appendChild(a);
+        a.click();
+        setTimeout(()=>{if(a.parentNode)a.parentNode.removeChild(a);URL.revokeObjectURL(url);},6000);
+        if(typeof showToast==='function')showToast('报告 Word 已开始下载：'+a.download);
+      }catch(e){
+        if(typeof showToast==='function')showToast('下载失败：'+(e&&e.message?e.message:'未知错误'));
+      }
     };
   };
   bindZoom();
