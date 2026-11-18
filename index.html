@@ -416,6 +416,25 @@
   .rpt-type-chip.more{color:var(--text-secondary);background:var(--gray-50);border-color:var(--border);cursor:help}
   .rpt-go:hover{text-decoration:underline}
 
+  /* ---- 双重预防运行报告：生成日期配置 ---- */
+  .dpr-sched-sum{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;padding:9px 14px;font-size:12px;color:var(--text-secondary);background:var(--primary-50);border:1px solid var(--border-primary);border-radius:var(--radius-lg)}
+  .dpr-sched-sum::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--sys-primary);flex:none}
+  .dpr-sched-sum b{color:var(--sys-primary-deep);font-weight:600}
+  .dpr-sched-sum .sc-sep{color:var(--border-strong)}
+  .dpr-sched-tabs{display:flex;gap:6px;margin-bottom:16px;padding:3px;background:var(--gray-50);border-radius:var(--radius-md)}
+  .dpr-sched-tabs button{flex:1;height:32px;border:0;border-radius:var(--radius-sm);background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:500;cursor:pointer;transition:background .15s,color .15s}
+  .dpr-sched-tabs button:hover{color:var(--sys-primary)}
+  .dpr-sched-tabs button.on{background:var(--bg-card);color:var(--sys-primary);font-weight:600;box-shadow:var(--shadow-sm)}
+  .dpr-sched-tabs button:focus-visible{outline:2px solid var(--sys-primary);outline-offset:-2px}
+  .ds-field{margin-bottom:14px}
+  .ds-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ds-inline .ds-unit{font-size:12.5px;color:var(--text-secondary)}
+  .ds-select,.ds-time,.ds-num{height:34px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:0 10px;font-size:13px;color:var(--text-primary);background:var(--bg-card)}
+  .ds-select:focus,.ds-time:focus,.ds-num:focus{outline:2px solid var(--sys-primary);outline-offset:-1px;border-color:var(--sys-primary)}
+  .ds-week-picks{display:flex;gap:6px;flex-wrap:wrap}
+  .ds-week-picks .tag-pick{cursor:pointer}
+  .ds-hint{font-size:11.5px;color:var(--text-tertiary);margin-top:6px;line-height:1.6}
+
   /* ---- 双重预防运行报告详情正文 ---- */
   .dpr-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
   .dpr-toolbar .tb-label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-primary)}
@@ -1320,13 +1339,15 @@ function bindHazardList(){
 
 /* ================= 双重预防运行报告 ================= */
 /* 双重预防（风险分级管控 + 隐患排查治理）双体系运行分析报告；
-   报告详情按《中国中化双重预防机制运行分析报告》模板呈现，全部为周期性报告（周报/月报/年报） */
+   报告详情按《中国中化双重预防机制运行分析报告》模板呈现，全部为周期性报告（周报/月报/季报/年报） */
 const DPR_DESC='风险分级管控与隐患排查治理双体系综合运行分析';
 const dprReports=[
   {id:'DPR-2026-W43',period:'week',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年10月13日至2026年10月19日）',time:'2026-10-20 00:00',range:'2026-10-13 ~ 2026-10-19',count:386,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
   {id:'DPR-2026-W42',period:'week',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年10月6日至2026年10月12日）',time:'2026-10-13 00:00',range:'2026-10-06 ~ 2026-10-12',count:402,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
   {id:'DPR-2026-M10',period:'month',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年09月21日至2026年10月20日）',time:'2026-10-21 00:00',range:'2026-09-21 ~ 2026-10-20',count:45797,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
   {id:'DPR-2026-M09',period:'month',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年08月21日至2026年09月20日）',time:'2026-09-21 00:00',range:'2026-08-21 ~ 2026-09-20',count:43120,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2026-Q3',period:'quarter',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年07月01日至2026年09月30日）',time:'2026-10-01 00:00',range:'2026-07-01 ~ 2026-09-30',count:138420,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
+  {id:'DPR-2026-Q2',period:'quarter',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2026年04月01日至2026年06月30日）',time:'2026-07-01 00:00',range:'2026-04-01 ~ 2026-06-30',count:132650,desc:DPR_DESC,org:'中国中化',owner:'张伟'},
   {id:'DPR-2025-Y',period:'year',status:'ready',title:'【中国中化】双重预防机制运行分析报告（2025年01月01日至2025年12月31日）',time:'2026-01-01 00:00',range:'2025-01-01 ~ 2025-12-31',count:514206,desc:DPR_DESC,org:'中国中化',owner:'张伟'}
 ];
 let dprPeriod='month',dprPage=1,dprRole='user',dprSeq=0,dprCurrent=null;
@@ -1654,6 +1675,7 @@ function dprHTML(){
           <option value="user">业务用户视角（仅我的报告）</option>
           <option value="admin">管理用户视角（查看全部报告）</option>
         </select>
+        <button class="rq-btn" id="dpr-sched-btn" title="配置各周期报告的生成日期与时间" style="white-space:nowrap;flex:none"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>生成配置</button>
       </div>
     </div>
     <div class="rpt-query" role="search" aria-label="运行报告查询">
@@ -1665,9 +1687,11 @@ function dprHTML(){
       <button class="rq-btn primary" id="dpr-start-btn"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>开始分析</button>
       <button class="rq-btn" id="dpr-reset">重置</button>
     </div>
+    <div class="dpr-sched-sum" id="dpr-sched-sum" role="status" aria-live="polite"></div>
     <div class="rpt-filter-tabs" role="tablist" aria-label="报告周期筛选">
       <button data-dperiod="week" role="tab" aria-selected="false">周报</button>
       <button class="on" data-dperiod="month" role="tab" aria-selected="true">月报</button>
+      <button data-dperiod="quarter" role="tab" aria-selected="false">季报</button>
       <button data-dperiod="year" role="tab" aria-selected="false">年报</button>
     </div>
     <div id="dpr-list"></div>
@@ -1675,7 +1699,32 @@ function dprHTML(){
   <section id="dpr-detail-view" class="rpt-detail-view doc-mode" hidden>
     <span class="rpt-back" id="dpr-back" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>返回报告列表</span>
     <div id="dpr-d-body"></div>
-  </section>`;
+  </section>
+  <div class="modal-mask" id="dpr-sched-modal" role="dialog" aria-modal="true" aria-labelledby="dpr-sched-title" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="dpr-sched-title"><svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;color:var(--sys-primary)"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>报告生成配置</div>
+          <div class="modal-desc">分别设置周报、月报、季报、年报的生成日期与时间点；保存后按各自规则到点自动生成，并展示下次执行时间。</div>
+        </div>
+        <button class="modal-close" id="dpr-sched-close" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="dpr-sched-tabs" role="tablist" aria-label="选择报告周期">
+          <button type="button" class="on" role="tab" aria-selected="true" data-ds="week">周报</button>
+          <button type="button" role="tab" aria-selected="false" data-ds="month">月报</button>
+          <button type="button" role="tab" aria-selected="false" data-ds="quarter">季报</button>
+          <button type="button" role="tab" aria-selected="false" data-ds="year">年报</button>
+        </div>
+        <div id="dpr-sched-fields"></div>
+        <div class="cfg-preview" id="dpr-sched-preview"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" id="dpr-sched-cancel">取消</button>
+        <button class="btn-modal-go" id="dpr-sched-save">保存配置</button>
+      </div>
+    </div>
+  </div>`;
 }
 function renderDprList(filter){
   const wrap=document.getElementById('dpr-list');
@@ -1683,7 +1732,7 @@ function renderDprList(filter){
   let list=dprVisible();
   const sub=document.getElementById('dpr-list-sub');
   if(sub)sub.textContent=dprRole==='admin'
-    ?'管理用户视角：可查看全部单位的双重预防机制运行分析报告（周报 / 月报 / 年报）'
+    ?'管理用户视角：可查看全部单位的双重预防机制运行分析报告（周报 / 月报 / 季报 / 年报）'
     :'查看您名下的报告：AI 按周期对风险分级管控与隐患排查治理双体系运行情况进行综合分析生成';
   list=list.filter(r=>r.period===dprPeriod);
   const qFrom=document.getElementById('dpr-from'),qTo=document.getElementById('dpr-to'),qOrg=document.getElementById('dpr-org');
@@ -1696,7 +1745,7 @@ function renderDprList(filter){
   wrap.innerHTML=list.slice((dprPage-1)*DPR_PAGE_SIZE,dprPage*DPR_PAGE_SIZE).map(r=>{
     const isGen=r.status==='generating';
     const isFail=r.status==='failed';
-    const perName={week:'周报',month:'月报',year:'年报'}[r.period]||'周期报告';
+    const perName={week:'周报',month:'月报',quarter:'季报',year:'年报'}[r.period]||'周期报告';
     const ico='<path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>';
     const tag=`<span class="rpt-tag sc">${perName}</span>`;
     const genTag=isGen?' <span class="rpt-tag gen"><span class="gen-spin"></span>生成中</span>'+(r.retries>0?` <span class="rpt-tag gen">已自动重试 ${r.retries}/3</span>`:''):'';
@@ -1742,10 +1791,10 @@ function renderDprList(filter){
   });
 }
 /* 发起分析：按当前所选周期生成对应报告（Shift+点击 或 12% 随机失败，自动重试 3 次） */
-const DPR_PERIOD_TITLE={week:'周报',month:'月报',year:'年报'};
-const DPR_PERIOD_RANGE={week:'2026年10月26日至2026年11月01日',month:'2026年10月21日至2026年11月20日',year:'2026年01月01日至2026年12月31日'};
-const DPR_PERIOD_RANGE_EN={week:'2026-10-26 ~ 2026-11-01',month:'2026-10-21 ~ 2026-11-20',year:'2026-01-01 ~ 2026-12-31'};
-const DPR_PERIOD_COUNT={week:391,month:44310,year:518200};
+const DPR_PERIOD_TITLE={week:'周报',month:'月报',quarter:'季报',year:'年报'};
+const DPR_PERIOD_RANGE={week:'2026年10月26日至2026年11月01日',month:'2026年10月21日至2026年11月20日',quarter:'2026年07月01日至2026年09月30日',year:'2026年01月01日至2026年12月31日'};
+const DPR_PERIOD_RANGE_EN={week:'2026-10-26 ~ 2026-11-01',month:'2026-10-21 ~ 2026-11-20',quarter:'2026-07-01 ~ 2026-09-30',year:'2026-01-01 ~ 2026-12-31'};
+const DPR_PERIOD_COUNT={week:391,month:44310,quarter:138420,year:518200};
 function dprStart(ev){
   const per=dprPeriod;
   const r={id:'DPR-AI-'+(++dprSeq),period:per,status:'generating',retries:0,
@@ -1884,6 +1933,34 @@ function dprChartSVG(chart){
   return dprLineSVG(chart);
 }
 let dprDocRendered=false,dprWordZoom=1;
+/* 报告周期口径：季报用「第三季度统计区间」，其余沿用 10 月原文；正文数据一律不改 */
+function dprCurPeriod(){
+  const r=(typeof dprReports!=='undefined')?dprReports.find(x=>x.id===dprCurrent):null;
+  return r?r.period:'month';
+}
+function dprDocTitle(){
+  return dprCurPeriod()==='quarter'
+    ?'2026年第三季度中国中化双重预防机制运行分析报告'
+    :'2026年10月份中国中化双重预防机制运行分析报告';
+}
+function dprApplyWordMeta(){
+  const nm=document.getElementById('dpr-word-name'),tg=document.getElementById('dpr-word-tag');
+  if(nm)nm.textContent=dprDocTitle();
+  if(tg)tg.textContent=dprCurPeriod()==='quarter'?'季度口径 · Word 原文预览':'Word 原文预览';
+}
+/* 只替换文档第 3 段（报告期号与统计区间整行），不改任何正文数据 */
+function dprApplyWordTitle(){
+  dprApplyWordMeta();
+  if(dprCurPeriod()!=='quarter')return;
+  const doc=document.getElementById('dpr-word-doc');
+  if(!doc)return;
+  const ps=[...doc.querySelectorAll('p')];
+  const t=ps.find(x=>/月报/.test(x.textContent)&&/2026/.test(x.textContent));
+  if(!t)return;
+  const first=t.querySelector('span');
+  const style=first?first.getAttribute('style'):'';
+  t.innerHTML='<span lang="null" style="'+style+'">【2026年第三季度报】（2026年07月01日-2026年09月30日）</span>';
+}
 function dprApplyWordZoom(z){
   dprWordZoom=z;
   const el=document.getElementById('dpr-word-zoom');
@@ -1895,8 +1972,8 @@ function dprRenderWordDoc(){
   const charts=window.__DPR_CHARTS||[];
   body.innerHTML=`<div class="word-view">
     <div class="word-bar">
-      <span class="wb-name">2026年10月份中国中化双重预防机制运行分析报告</span>
-      <span class="wb-tag">Word 原文预览</span>
+      <span class="wb-name" id="dpr-word-name">2026年10月份中国中化双重预防机制运行分析报告</span>
+      <span class="wb-tag" id="dpr-word-tag">Word 原文预览</span>
       <span class="wb-sp"></span>
       <button type="button" id="dpr-word-zout" aria-label="缩小文档">−</button>
       <button type="button" id="dpr-word-zoom-label" aria-label="当前缩放比例" style="min-width:46px;cursor:default">100%</button>
@@ -1914,11 +1991,12 @@ function dprRenderWordDoc(){
       const bin=atob(window.__DPR_DOCX_B64),arr=new Uint8Array(bin.length);
       for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
       const url=URL.createObjectURL(new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
-      const a=document.createElement('a');a.href=url;a.download='2026年10月份中国中化双重预防机制运行分析报告.docx';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+      const a=document.createElement('a');a.href=url;a.download=dprDocTitle()+".docx";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
     };
   };
   bindZoom();
-  if(dprDocRendered){document.getElementById('dpr-word-doc').innerHTML=dprWordHTMLCache;dprFillCharts();return;}
+  dprApplyWordMeta();
+  if(dprDocRendered){document.getElementById('dpr-word-doc').innerHTML=dprWordHTMLCache;dprApplyWordTitle();dprFillCharts();return;}
   const bin=atob(window.__DPR_DOCX_B64),arr=new Uint8Array(bin.length);
   for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
   if(typeof docx==='undefined'||!window.JSZip){document.getElementById('dpr-word-doc').innerHTML='<div class="word-loading">文档渲染组件未加载，请刷新页面重试</div>';return;}
@@ -1929,6 +2007,7 @@ function dprRenderWordDoc(){
   }).then(()=>{
     dprWordHTMLCache=document.getElementById('dpr-word-doc').innerHTML;
     dprDocRendered=true;
+    dprApplyWordTitle();
     dprFillCharts();
   }).catch(e=>{document.getElementById('dpr-word-doc').innerHTML='<div class="word-loading">文档加载失败：'+dprEsc(e.message)+'</div>';});
 }
@@ -1960,8 +2039,144 @@ function showDprDetail(id){
   dprRenderWordDoc();
   document.getElementById('content').scrollTop=0;
 }
+/* ===== 双重预防运行报告：各周期生成日期配置（独立于隐患分析报告配置） ===== */
+const DPR_SCHED_KEY='dprSchedCfg';
+const DPR_SCHED_DEF={week:{day:'周五',time:'00:00'},month:{day:25,time:'00:00'},quarter:{monthAt:'first',day:1,time:'00:00'},year:{md:'01-01',time:'00:00'}};
+const DPR_SCHED_PERIOD={week:'周报',month:'月报',quarter:'季报',year:'年报'};
+const DPR_SCHED_TABS=['week','month','quarter','year'];
+let dprSchedTab='week';
+function dprSchedLoad(){
+  try{const o=JSON.parse(localStorage.getItem(DPR_SCHED_KEY));if(o&&typeof o==='object')return o;}catch(e){}
+  return null;
+}
+let dprSched=dprSchedLoad()||JSON.parse(JSON.stringify(DPR_SCHED_DEF));
+/* 补齐缺失字段，保证兼容旧缓存 */
+DPR_SCHED_TABS.forEach(k=>{dprSched[k]=Object.assign({},DPR_SCHED_DEF[k],dprSched[k]||{});});
+function dprSchedSave(){try{localStorage.setItem(DPR_SCHED_KEY,JSON.stringify(dprSched));}catch(e){}}
+/* 生成规则文案 + 下次执行时间 */
+function dprSchedRule(k){
+  const c=dprSched[k],t=c.time||'00:00';
+  if(k==='week')return{rule:'每周 '+c.day+' '+t+' 生成',next:nextExecCustom('week',1,{wds:[c.day]},t)};
+  if(k==='month')return{rule:'每月 '+c.day+' 号 '+t+' 生成',next:nextExecCustom('month',1,{day:c.day},t)};
+  if(k==='quarter'){const ma=c.monthAt||'first',pos=ma==='last'?'末月':'首月';return{rule:'每季度'+pos+' '+c.day+' 号 '+t+' 生成',next:nextExecCustom('quarter',1,{day:c.day,pos:ma},t)};}
+  const p=(c.md||'01-01').split('-');
+  return{rule:'每年 '+Number(p[0])+' 月 '+Number(p[1])+' 日 '+t+' 生成',next:nextExecTime([c.md||'01-01'],t,1)};
+}
+function renderDprSchedSummary(){
+  const el=document.getElementById('dpr-sched-sum');
+  if(!el)return;
+  el.innerHTML='<span>我的生成配置：</span>'+DPR_SCHED_TABS.map((k,i)=>{
+    const r=dprSchedRule(k);
+    return (i?'<span class="sc-sep">|</span>':'')+'<span><b>'+DPR_SCHED_PERIOD[k]+'</b> '+r.rule.replace(/ 生成$/,'')+'</span>';
+  }).join('');
+}
+function renderDprSchedFields(){
+  const wrap=document.getElementById('dpr-sched-fields');
+  if(!wrap)return;
+  const k=dprSchedTab,c=dprSched[k],wds=['周一','周二','周三','周四','周五','周六','周日'],t=c.time||'00:00';
+  let html='';
+  if(k==='week'){
+    html='<div class="ds-field"><div class="field-label">生成日（每周）</div><div class="ds-week-picks" id="ds-week">'
+      +wds.map(w=>'<button type="button" class="tag-pick'+(c.day===w?' on':'')+'" data-wd="'+w+'">'+w+'</button>').join('')
+      +'</div><div class="ds-hint">可任选一天作为周报固定生成日</div></div>';
+  }else if(k==='month'){
+    html='<div class="ds-field"><div class="field-label">生成日（每月）</div><div class="ds-inline"><input class="ds-num" id="ds-day" type="number" min="1" max="31" value="'+c.day+'" aria-label="每月第几天" style="width:78px"><span class="ds-unit">号</span></div><div class="ds-hint">配置为 29-31 号时，遇小月自动取当月最后一天</div></div>';
+  }else if(k==='quarter'){
+    const ma=c.monthAt||'first';
+    html='<div class="ds-field"><div class="field-label">生成月份</div><div class="ds-week-picks" id="ds-monthat">'
+      +'<button type="button" class="tag-pick'+(ma==='first'?' on':'')+'" data-ma="first">首月</button>'
+      +'<button type="button" class="tag-pick'+(ma==='last'?' on':'')+'" data-ma="last">末月</button>'
+      +'</div><div class="ds-hint">首月为 1 / 4 / 7 / 10 月，末月为 3 / 6 / 9 / 12 月</div></div>'
+      +'<div class="ds-field"><div class="field-label">生成日</div><div class="ds-inline"><input class="ds-num" id="ds-day" type="number" min="1" max="31" value="'+c.day+'" aria-label="季度首末月第几天" style="width:78px"><span class="ds-unit">号</span></div><div class="ds-hint">遇小月自动取当月最后一天</div></div>';
+  }else{
+    html='<div class="ds-field"><div class="field-label">生成日期（每年）</div><div class="ds-inline"><input class="ds-num" id="ds-month" type="number" min="1" max="12" value="'+String(c.md||'01-01').split('-')[0]+'" aria-label="月" style="width:70px"><span class="ds-unit">月</span><input class="ds-num" id="ds-dom" type="number" min="1" max="31" value="'+Number(String(c.md||'01-01').split('-')[1])+'" aria-label="日" style="width:70px"><span class="ds-unit">日</span></div></div>';
+  }
+  html+='<div class="ds-field"><div class="field-label">生成时间点</div><div class="ds-inline"><input class="ds-time" id="ds-time" type="time" value="'+t+'" aria-label="生成时间点"><span class="ds-unit">如 00:00 为零点生成</span></div></div>';
+  wrap.innerHTML=html;
+  // 绑定字段交互
+  if(k==='week'){
+    wrap.querySelectorAll('#ds-week .tag-pick').forEach(b=>b.onclick=()=>{
+      wrap.querySelectorAll('#ds-week .tag-pick').forEach(x=>x.classList.toggle('on',x===b));
+      refreshDprSchedPreview();
+    });
+  }else{
+    ['ds-day','ds-month','ds-dom'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',refreshDprSchedPreview);});
+  }
+  if(k==='quarter'){
+    wrap.querySelectorAll('#ds-monthat .tag-pick').forEach(b=>b.onclick=()=>{
+      wrap.querySelectorAll('#ds-monthat .tag-pick').forEach(x=>x.classList.toggle('on',x===b));
+      refreshDprSchedPreview();
+    });
+  }
+  const tm=document.getElementById('ds-time');if(tm)tm.addEventListener('input',refreshDprSchedPreview);
+  refreshDprSchedPreview();
+}
+/* 读取当前表单输入（未保存）用于预览 */
+function dprSchedDraft(){
+  const k=dprSchedTab,c=JSON.parse(JSON.stringify(dprSched[k]));
+  const tm=document.getElementById('ds-time');if(tm)c.time=tm.value||'00:00';
+  if(k==='week'){
+    const on=document.querySelector('#ds-week .tag-pick.on');if(on)c.day=on.dataset.wd;
+  }else if(k==='month'||k==='quarter'){
+    const d=document.getElementById('ds-day');if(d)c.day=Math.max(1,Math.min(31,parseInt(d.value,10)||1));
+    if(k==='quarter'){const mOn=document.querySelector('#ds-monthat .tag-pick.on');if(mOn)c.monthAt=mOn.dataset.ma;}
+  }else{
+    const mo=document.getElementById('ds-month'),dom=document.getElementById('ds-dom');
+    const mm=Math.max(1,Math.min(12,parseInt(mo.value,10)||1)),dd=Math.max(1,Math.min(31,parseInt(dom.value,10)||1));
+    c.md=String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+  }
+  return c;
+}
+function dprSchedRuleOf(k,c){
+  const t=c.time||'00:00';
+  if(k==='week')return{rule:'每周 '+c.day+' '+t+' 生成',next:nextExecCustom('week',1,{wds:[c.day]},t)};
+  if(k==='month')return{rule:'每月 '+c.day+' 号 '+t+' 生成',next:nextExecCustom('month',1,{day:c.day},t)};
+  if(k==='quarter'){const ma=c.monthAt||'first',pos=ma==='last'?'末月':'首月';return{rule:'每季度'+pos+' '+c.day+' 号 '+t+' 生成',next:nextExecCustom('quarter',1,{day:c.day,pos:ma},t)};}
+  const p=(c.md||'01-01').split('-');
+  return{rule:'每年 '+Number(p[0])+' 月 '+Number(p[1])+' 日 '+t+' 生成',next:nextExecTime([c.md||'01-01'],t,1)};
+}
+function refreshDprSchedPreview(){
+  const pv=document.getElementById('dpr-sched-preview');
+  if(!pv)return;
+  const r=dprSchedRuleOf(dprSchedTab,dprSchedDraft());
+  pv.innerHTML='生成规则预览：'+r.rule+(r.next?'<div class="cfg-next">⏰ 下次执行：'+r.next+'（到点自动生成）</div>':'');
+}
+function openDprSched(){
+  const m=document.getElementById('dpr-sched-modal');
+  if(!m)return;
+  dprSchedTab='week';
+  m.querySelectorAll('[data-ds]').forEach(b=>{const on=b.dataset.ds===dprSchedTab;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false');});
+  renderDprSchedFields();
+  m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+}
+function closeDprSched(){const m=document.getElementById('dpr-sched-modal');if(!m)return;m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+function bindDprSched(){
+  const m=document.getElementById('dpr-sched-modal');
+  if(!m)return;
+  const btn=document.getElementById('dpr-sched-btn');if(btn)btn.addEventListener('click',openDprSched);
+  document.getElementById('dpr-sched-close').addEventListener('click',closeDprSched);
+  document.getElementById('dpr-sched-cancel').addEventListener('click',closeDprSched);
+  m.addEventListener('click',e=>{if(e.target===m)closeDprSched();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!m.hidden)closeDprSched();});
+  m.querySelectorAll('[data-ds]').forEach(b=>b.addEventListener('click',()=>{
+    dprSchedTab=b.dataset.ds;
+    m.querySelectorAll('[data-ds]').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false');});
+    renderDprSchedFields();
+  }));
+  document.getElementById('dpr-sched-save').addEventListener('click',()=>{
+    DPR_SCHED_TABS.forEach(k=>{dprSched[k]=dprSched[k]||{};});
+    dprSched[dprSchedTab]=dprSchedDraft();
+    dprSchedSave();
+    renderDprSchedSummary();
+    closeDprSched();
+    const r=dprSchedRuleOf(dprSchedTab,dprSched[dprSchedTab]);
+    showToast('已保存'+DPR_SCHED_PERIOD[dprSchedTab]+'生成配置：'+r.rule+(r.next?'，下次执行 '+r.next:''));
+  });
+  renderDprSchedSummary();
+}
 function bindDprReport(){
   renderDprList();
+  bindDprSched();
   const role=document.getElementById('dpr-role');
   role.addEventListener('change',()=>{dprRole=role.value;dprPage=1;renderDprList();});
   document.querySelectorAll('[data-dperiod]').forEach(b=>{
@@ -3125,8 +3340,9 @@ function nextExecCustom(freq,interval,extra,time){
     }
   }else if(freq==='quarter'){
     const qs=now.getFullYear()*12+Math.floor(now.getMonth()/3)*3;
+    const moOff=extra&&extra.pos==='last'?2:0;/* 季末月：首月+2（3/6/9/12月） */
     for(let k=0;k<=interval*8;k++){
-      const t=qs+k*interval*3,y=Math.floor(t/12),mo=t%12;
+      const t=qs+k*interval*3+moOff,y=Math.floor(t/12),mo=t%12;
       const last=new Date(y,mo+1,0).getDate();
       const d=new Date(y,mo,Math.min(extra.day,last),hh,mm,0);
       if(d>now)return fmtNextExec(d);
