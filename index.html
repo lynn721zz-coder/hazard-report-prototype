@@ -1668,7 +1668,7 @@ function dprHTML(){
     <div class="rpt-head-row">
       <div class="rpt-list-head">
         <h1>双重预防运行报告</h1>
-        <div class="sub" id="dpr-list-sub">查看您名下的报告：AI 按周期对风险分级管控与隐患排查治理双体系运行情况进行综合分析生成</div>
+        <div class="sub" id="dpr-list-sub" style="display:none">查看您名下的报告：AI 按周期对风险分级管控与隐患排查治理双体系运行情况进行综合分析生成</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
         <select id="dpr-role" class="fi-select" style="appearance:auto;padding-right:10px" aria-label="切换用户角色视角">
@@ -1684,7 +1684,7 @@ function dprHTML(){
       <div class="rq-field"><label for="dpr-to">&nbsp;</label><input type="date" id="dpr-to"></div>
       <div class="rq-field"><label for="dpr-org">所属单位</label><span class="rq-input-wrap"><input type="text" id="dpr-org" list="dpr-org-list" placeholder="输入单位名称，支持模糊" style="width:170px"><button type="button" class="rq-clear" data-target="dpr-org" title="清除所选单位" aria-label="清除所属单位输入"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button></span><datalist id="dpr-org-list"><option value="中国中化"></option><option value="中国昊华"></option><option value="中化蓝天"></option><option value="蓝天氟材料"></option><option value="中化新材料"></option><option value="中化装备"></option></datalist></div>
       <span class="rq-spacer"></span>
-      <button class="rq-btn primary" id="dpr-start-btn"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>开始分析</button>
+      <button class="rq-btn primary" id="dpr-start-btn" style="display:none"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" fill="currentColor"/></svg>开始分析</button>
       <button class="rq-btn" id="dpr-reset">重置</button>
     </div>
     <div class="dpr-sched-sum" id="dpr-sched-sum" role="status" aria-live="polite"></div>
