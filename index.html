@@ -1933,33 +1933,81 @@ function dprChartSVG(chart){
   return dprLineSVG(chart);
 }
 let dprDocRendered=false,dprWordZoom=1;
-/* 报告周期口径：季报用「第三季度统计区间」，其余沿用 10 月原文；正文数据一律不改 */
-function dprCurPeriod(){
-  const r=(typeof dprReports!=='undefined')?dprReports.find(x=>x.id===dprCurrent):null;
-  return r?r.period:'month';
+/* 报告周期口径：标题行、工具条与正文周期措辞全部跟随当前报告周期；数值一律不改 */
+function dprCurReport(){return (typeof dprReports!=='undefined')?dprReports.find(x=>x.id===dprCurrent):null;}
+function dprCurPeriod(){const r=dprCurReport();return r?r.period:'month';}
+const DPR_PERIOD_WORD={week:'本周',month:'本月',quarter:'本季',year:'本年'};
+function dprReportYear(r){
+  if(!r)return '2026';
+  return (String(r.id).match(/(20\d{2})/)||String(r.range||'').match(/(20\d{2})/)||String(r.title||'').match(/(20\d{2})/)||[])[1]||'2026';
+}
+/* 报告期号：如 2026年第43周报 / 2026年10月报 / 2026年第三季度报 / 2025年年报 */
+function dprPeriodLabel(){
+  const r=dprCurReport(),per=dprCurPeriod(),y=dprReportYear(r);
+  const pick=(re,d)=>r&&(String(r.id).match(re)||[])[1]||d;
+  if(per==='week')return y+'年第'+pick(/W(\d+)/,1)+'周报';
+  if(per==='quarter')return y+'年第'+['一','二','三','四'][pick(/Q(\d+)/,3)-1]+'季度报';
+  if(per==='year')return y+'年年报';
+  return y+'年'+pick(/M(\d+)/,10)+'月报';
 }
 function dprDocTitle(){
-  return dprCurPeriod()==='quarter'
-    ?'2026年第三季度中国中化双重预防机制运行分析报告'
-    :'2026年10月份中国中化双重预防机制运行分析报告';
+  const r=dprCurReport(),per=dprCurPeriod(),y=dprReportYear(r);
+  const pick=(re,d)=>r&&(String(r.id).match(re)||[])[1]||d;
+  let p;
+  if(per==='week')p=y+'年第'+pick(/W(\d+)/,1)+'周';
+  else if(per==='month')p=y+'年'+pick(/M(\d+)/,10)+'月份';
+  else if(per==='quarter')p=y+'年第'+['一','二','三','四'][pick(/Q(\d+)/,3)-1]+'季度';
+  else p=y+'年度';
+  return p+'中国中化双重预防机制运行分析报告';
+}
+function dprWordRange(){
+  const r=dprCurReport(),m=r&&String(r.title||'').match(/（(.+?)）/);
+  return m?m[1].replace('至','-'):'';
 }
 function dprApplyWordMeta(){
   const nm=document.getElementById('dpr-word-name'),tg=document.getElementById('dpr-word-tag');
   if(nm)nm.textContent=dprDocTitle();
-  if(tg)tg.textContent=dprCurPeriod()==='quarter'?'季度口径 · Word 原文预览':'Word 原文预览';
+  if(tg)tg.textContent=(DPR_PERIOD_TITLE[dprCurPeriod()]||'报告')+' · Word 原文预览';
 }
-/* 只替换文档第 3 段（报告期号与统计区间整行），不改任何正文数据 */
+/* 标题行整行替换 + 正文周期措辞替换；仅改措辞，不改任何数值；年度累计（本年/2026年累计）保持原义 */
 function dprApplyWordTitle(){
   dprApplyWordMeta();
-  if(dprCurPeriod()!=='quarter')return;
   const doc=document.getElementById('dpr-word-doc');
   if(!doc)return;
   const ps=[...doc.querySelectorAll('p')];
-  const t=ps.find(x=>/月报/.test(x.textContent)&&/2026/.test(x.textContent));
-  if(!t)return;
-  const first=t.querySelector('span');
-  const style=first?first.getAttribute('style'):'';
-  t.innerHTML='<span lang="null" style="'+style+'">【2026年第三季度报】（2026年07月01日-2026年09月30日）</span>';
+  const t=ps.find(x=>/月报/.test(x.textContent)&&/20\d{2}/.test(x.textContent));
+  if(t){
+    const first=t.querySelector('span'),style=first?first.getAttribute('style'):'';
+    t.innerHTML='<span lang="null" style="'+style+'">【'+dprPeriodLabel()+'】（'+dprWordRange()+'）</span>';
+  }
+  const w=DPR_PERIOD_WORD[dprCurPeriod()]||'本月';
+  /* 先替换拆在多个 span 里的占位符：Word 把 【本周/月/年】 拆成 【本 / 周/月/年 / 】 三段，
+     逐节点正则匹配不到；这里逐段合并相邻文本节点，仅重写命中片段的节点，其余节点（含高亮样式）保持不动 */
+  [...doc.querySelectorAll('p')].forEach(p=>{
+    let changed=true;
+    while(changed){
+      changed=false;
+      const walker=document.createTreeWalker(p,NodeFilter.SHOW_TEXT,null,false);
+      const nodes=[];let n;
+      while((n=walker.nextNode()))nodes.push(n);
+      for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<Math.min(i+4,nodes.length);j++){
+          const seg=nodes.slice(i,j+1).map(x=>x.nodeValue).join('');
+          if(!/本周\/月\/年/.test(seg))continue;
+          const replaced=seg.replace(/本周\/月\/年/g,w);
+          nodes[i].nodeValue=replaced;
+          for(let k=i+1;k<=j;k++)nodes[k].nodeValue='';
+          changed=true;break;
+        }
+        if(changed)break;
+      }
+    }
+  });
+  /* 再替换单节点内的「本月」（如「本月再辨识风险」）；「本年累计」等年度口径不动 */
+  const walker2=document.createTreeWalker(doc,NodeFilter.SHOW_TEXT,null,false);
+  const rest=[];let n2;
+  while((n2=walker2.nextNode()))rest.push(n2);
+  rest.forEach(nd=>{const v=nd.nodeValue;if(v&&v.indexOf('本月')>=0)nd.nodeValue=v.replace(/本月/g,w);});
 }
 function dprApplyWordZoom(z){
   dprWordZoom=z;
