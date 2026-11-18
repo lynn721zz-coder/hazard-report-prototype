@@ -470,6 +470,8 @@
   .word-stage{background:#E9EDF3;border:1px solid var(--border);border-top:0;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:22px 12px 40px;overflow-x:auto}
   .word-zoom{transform-origin:top center;width:100%;transition:transform .2s ease}
   .word-doc{width:794px;max-width:100%;margin:0 auto;background:#fff;box-shadow:0 2px 18px rgba(15,35,75,.14);padding:44px 52px 60px;color:#222}
+  /* Word 中用窄表格承载的长段文字：重建为通栏普通段落，消除右侧大片留白（仅展示层，文字不变） */
+  .word-doc p.dpr-text-para{margin:0 0 6px!important;text-align:justify!important;text-indent:2em;line-height:1.7!important;min-height:0!important;font-family:'Times New Roman',宋体,serif;font-size:10.5pt}
   .word-doc .docx-wrapper{background:#fff!important;padding:0!important;box-shadow:none!important}
   .word-doc section.docx{box-shadow:none!important;margin:0 0 24px!important;width:100%!important;background:#fff!important;padding:0!important}
   .word-doc section.docx:last-child{margin-bottom:0!important}
@@ -1859,8 +1861,8 @@ const dprEsc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').
 const DPR_PAL=['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4','#EC4899','#84CC16','#F97316','#6366F1','#14B8A6','#A855F7','#EAB308','#0EA5E9','#F43F5E','#64748B'];
 const DPR_SVG_NS='http://www.w3.org/2000/svg';
 function dprPieSVG(ser){
-  const W=560,H=330,cx=195,cy=165,R=125;
-  const cats=ser.cats,vals=ser.vals;
+  const W=720,H=330,cx=180,cy=165,R=122;
+  const cats=ser.cats,vals=ser.vals,n=cats.length;
   const total=vals.reduce((a,b)=>a+b,0)||1;
   const fmt=n=>{const p=n/total*100;return p>=10?p.toFixed(1):p.toFixed(2);};
   let a0=-Math.PI/2,parts='';
@@ -1871,12 +1873,22 @@ function dprPieSVG(ser){
     parts+=`<path d="M${cx} ${cy} L${x0} ${y0} A${R} ${R} 0 ${big} 1 ${x1} ${y1} Z" fill="${DPR_PAL[i%DPR_PAL.length]}" stroke="#fff" stroke-width="1.5"><title>${dprEsc(cats[i]||'')} ${fmt(v)}%</title></path>`;
     a0=a1;
   });
+  /* 图例：每项是「类别名 + 占比」单行；类别名自带百分比时不再重复计算占比。
+     仅当类别较多(>6)时排两列，列间距 320px、行距 26px；否则单列。标签不截断，确保类别名完整可读。 */
+  const labels=cats.map((c,i)=>{
+    const hasPct=/\d+(\.\d+)?%/.test(c);
+    return hasPct?c:`${c} ${fmt(vals[i])}%`;
+  });
+  const twoCol=n>6;
+  const colGap=195,perRow=twoCol?Math.ceil(n/2):n;
+  const lx0=330,rowH=26,startY=twoCol?46:(H-(n*rowH))/2+rowH/2;
   let legend='';
-  const per=Math.ceil(cats.length/2);
   cats.forEach((c,i)=>{
-    const col=i<per?0:1,row=i%per;
-    const ly=42+row*27, lx=col?370:352;
-    legend+=`<rect x="${lx}" y="${ly-9}" width="11" height="11" rx="2" fill="${DPR_PAL[i%DPR_PAL.length]}"/><text x="${lx+17}" y="${ly}" font-size="11.5" fill="#334155">${dprEsc(c.length>16?c.slice(0,15)+'…':c)}</text><text x="${lx+17}" y="${ly+12}" font-size="10" fill="#64748B">${fmt(vals[i])}%</text>`;
+    const col=twoCol?(i>=perRow?1:0):0;
+    const row=twoCol?(i%perRow):i;
+    const lx=lx0+col*colGap, ly=startY+row*rowH;
+    legend+=`<rect x="${lx}" y="${ly-8}" width="12" height="12" rx="2.5" fill="${DPR_PAL[i%DPR_PAL.length]}"/>`
+      +`<text x="${lx+19}" y="${ly+2}" font-size="12" fill="#334155" font-family="Times New Roman, 宋体, serif">${dprEsc(labels[i])}</text>`;
   });
   return `<svg xmlns="${DPR_SVG_NS}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="饼图">${parts}${legend}</svg>`;
 }
@@ -1982,8 +1994,10 @@ function dprApplyWordTitle(){
     t.innerHTML='<span lang="null" style="'+style+'">【'+dprPeriodLabel()+'】（'+dprWordRange()+'）</span>';
   }
   const w=DPR_PERIOD_WORD[dprCurPeriod()]||'本月';
-  /* 先替换拆在多个 span 里的占位符：Word 把 【本周/月/年】 拆成 【本 / 周/月/年 / 】 三段，
-     逐节点正则匹配不到；这里逐段合并相邻文本节点，仅重写命中片段的节点，其余节点（含高亮样式）保持不动 */
+  /* 周期措辞统一替换：Word 会把 【本周/月/年】 拆成 【本 / 周/月/年，也会把 【本月】 拆成 【本 / 月】，
+     逐节点正则匹配不到跨 span 的词。这里逐段合并相邻文本节点（最多 4 个），命中「本周/月/年」或「本月」
+     即替换为当前周期词；仅重写命中片段的首节点、清空其余，保留其他节点（含高亮样式）不动。
+     「本年累计」「2026年累计」等年度口径不含「本月」，不受影响。 */
   [...doc.querySelectorAll('p')].forEach(p=>{
     let changed=true;
     while(changed){
@@ -1992,10 +2006,11 @@ function dprApplyWordTitle(){
       const nodes=[];let n;
       while((n=walker.nextNode()))nodes.push(n);
       for(let i=0;i<nodes.length;i++){
-        for(let j=i+1;j<Math.min(i+4,nodes.length);j++){
+        for(let j=i;j<Math.min(i+4,nodes.length);j++){
           const seg=nodes.slice(i,j+1).map(x=>x.nodeValue).join('');
-          if(!/本周\/月\/年/.test(seg))continue;
-          const replaced=seg.replace(/本周\/月\/年/g,w);
+          if(!/本周\/月\/年|本月/.test(seg))continue;
+          const replaced=seg.replace(/本周\/月\/年|本月/g,w);
+          if(replaced===seg)continue;
           nodes[i].nodeValue=replaced;
           for(let k=i+1;k<=j;k++)nodes[k].nodeValue='';
           changed=true;break;
@@ -2004,11 +2019,6 @@ function dprApplyWordTitle(){
       }
     }
   });
-  /* 再替换单节点内的「本月」（如「本月再辨识风险」）；「本年累计」等年度口径不动 */
-  const walker2=document.createTreeWalker(doc,NodeFilter.SHOW_TEXT,null,false);
-  const rest=[];let n2;
-  while((n2=walker2.nextNode()))rest.push(n2);
-  rest.forEach(nd=>{const v=nd.nodeValue;if(v&&v.indexOf('本月')>=0)nd.nodeValue=v.replace(/本月/g,w);});
 }
 function dprApplyWordZoom(z){
   dprWordZoom=z;
@@ -2076,6 +2086,30 @@ function dprFillCharts(){
     if(!charts[i])return;
     slot.classList.add('dpr-svg-slot');
     slot.innerHTML=dprChartSVG(charts[i]);
+  });
+  dprExpandTextTables();
+}
+/* 把 Word 里「用窄表格承载长段文字」的排版容器展开成通栏文字块：
+   判定：单元格平均文字数>25（真正的数据表格每格仅 2~9 字）。
+   仅改浏览器展示样式，不改 Word 文件与任何数据。 */
+function dprExpandTextTables(){
+  document.querySelectorAll('#dpr-word-doc table').forEach(tbl=>{
+    const cells=[...tbl.querySelectorAll('td,th')];
+    if(!cells.length)return;
+    const txt=tbl.textContent.replace(/\s/g,'');
+    if(txt.length/cells.length<=25)return;
+    /* 用单元格纯文本重建为普通段落，彻底摆脱表格布局与 Word 行高样式导致的文字重叠。
+       只改展示结构，文字内容一字不改。 */
+    const frag=document.createDocumentFragment();
+    cells.forEach(td=>{
+      const t=td.textContent.replace(/\u00a0/g,' ').trim();
+      if(!t)return;
+      const p=document.createElement('p');
+      p.className='dpr-text-para';
+      p.textContent=t;
+      frag.appendChild(p);
+    });
+    tbl.replaceWith(frag);
   });
 }
 function showDprDetail(id){
