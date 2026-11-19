@@ -730,6 +730,7 @@
   .mp-detail-item:last-child{border-bottom:none}
   .mp-detail-item .k{color:var(--text-tertiary)}
   .mp-detail-item .v{color:var(--text-primary)}
+  .mp-detail-item.mp-detail-hidden{display:none}
   .mp-log-summary{display:flex;gap:18px;padding:12px 20px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary)}
   .mp-log-summary b{color:var(--text-primary);font-size:14px;margin-left:4px}
   .mp-log-table{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -742,9 +743,25 @@
   .mp-log-badge.ok{background:var(--success-50);color:var(--success-800)}
   .mp-log-badge.fail{background:var(--danger-50);color:var(--danger-800)}
   .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
-  #mp-modal .modal-card{width:600px}
+  #mp-modal .modal-card{width:1040px;max-width:96vw}
   .mp-form-row{margin-bottom:14px}
   .mp-form-row .field-label{margin-bottom:7px}
+  /* 提醒配置表单（参照提醒事项新增页：字段右对齐 + 两列布局） */
+  .mp-form-two{display:grid;grid-template-columns:1.15fr .85fr;gap:26px}
+  .mp-field{display:grid;grid-template-columns:94px minmax(0,1fr);align-items:center;gap:8px;margin-bottom:13px}
+  .mp-field .mp-lbl{font-size:12.5px;color:var(--text-secondary);text-align:right;white-space:nowrap}
+  .mp-field .mp-lbl .req{color:var(--danger-600);margin-left:2px}
+  .mp-field .fi-input,.mp-field .fi-select{height:32px}
+  .mp-static-val{font-size:12.5px;color:var(--text-primary);line-height:32px}
+  .mp-input-count{position:relative}
+  .mp-input-count .fi-input{padding-right:58px}
+  .mp-input-count .cnt{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-tertiary);pointer-events:none}
+  .mp-obj-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .mp-obj-slot{display:flex;align-items:center;min-width:0;height:32px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--bg-card);overflow:hidden}
+  .mp-obj-slot>span{flex-shrink:0;height:100%;display:inline-flex;align-items:center;padding:0 7px;font-size:11px;color:var(--text-secondary);background:var(--bg-tertiary);border-right:1px solid var(--border);white-space:nowrap}
+  .mp-obj-slot select{flex:1;min-width:0;height:100%;border:0;outline:none;background:transparent;color:var(--text-primary);font-size:11.5px;padding:0 4px;cursor:pointer}
+  .mp-obj-slot select:focus{background:var(--sys-primary-bg-light)}
+  @media(max-width:980px){.mp-form-two{grid-template-columns:1fr;gap:0}}
   .mp-scene-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
   .mp-scene-opt{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border:1px solid var(--border-strong);border-radius:var(--radius-md);cursor:pointer;transition:all .15s;user-select:none}
   .mp-scene-opt:hover{border-color:var(--sys-primary)}
@@ -3328,11 +3345,26 @@ const MP_OBJECTS=[
   {id:'safety',name:'安全管理人员'},{id:'admin',name:'系统管理员'},{id:'custom',name:'指定人员'}
 ];
 const MP_CHANNELS=[
-  {id:'station',name:'站内消息'},{id:'wechat',name:'企业微信'},{id:'email',name:'邮件'},{id:'sms',name:'短信'}
+  {id:'station',name:'站内通知'},{id:'sms',name:'短信'},{id:'app',name:'APP推送'},{id:'email',name:'邮件'},
+  {id:'wechat',name:'企业微信'} /* 兼容历史配置，不在新增表单中展示 */
 ];
-const MP_FORMS=[{id:'message',name:'消息'},{id:'todo',name:'待办'}];
+const MP_FORM_CHANNELS=['station','sms','app','email'];
+const MP_FORMS=[{id:'todo',name:'待办事项'},{id:'message',name:'系统消息'}];
+const MP_DEPTS=[
+  {id:'',name:'请选择适用部门'},{id:'safety',name:'安全环保部'},{id:'production',name:'生产管理部'},
+  {id:'equipment',name:'设备管理部'},{id:'unit',name:'各基层单位'}
+];
+const MP_LEVELS=[
+  {id:'',name:'请选择隐患等级'},{id:'general',name:'一般隐患'},{id:'larger',name:'较大隐患'},{id:'major',name:'重大隐患'}
+];
+const MP_OBJ_POST=[{id:'',name:'请选择'},{id:'director',name:'安全总监'},{id:'manager',name:'部门负责人'},{id:'leader',name:'班组长'}];
+const MP_OBJ_PERSON=[{id:'',name:'请选择'},{id:'zhangsan',name:'张三'},{id:'lisi',name:'李四'},{id:'wangwu',name:'王五'}];
 const MP_KEY='dprMsgPushCfg';
-function mpName(list,id){const o=list.find(x=>x.id===id);return o?o.name:id;}
+function mpName(list,id){
+  const o=list.find(x=>x.id===id);if(o)return o.name;
+  const alt=[MP_OBJ_POST,MP_OBJ_PERSON].find(l=>l&&l.find(x=>x.id===id));
+  const a=alt&&alt.find(x=>x.id===id);return a?a.name:id;
+}
 /* 推送记录：按规则稳定生成演示数据（基于 id 哈希，保证每次渲染一致） */
 const MP_LOG_CONTENT={
   'report-done':'【中国昊华】隐患AI辅助分析报告（2025年12月1日至12月31日）已生成完成，请及时查看',
@@ -3369,9 +3401,9 @@ function mpLogsOf(rule){
 function mpLoad(){
   try{const raw=localStorage.getItem(MP_KEY);if(raw)return JSON.parse(raw);}catch(e){}
   const def=[
-    {id:'MP-1001',scene:'report-done',name:'隐患分析报告生成完成通知',objects:['creator','orgowner'],channels:['station','wechat'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
-    {id:'MP-1002',scene:'report-fail',name:'报告生成失败告警',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
-    {id:'MP-1003',scene:'dpr-done',name:'双重预防运行报告生成提醒',objects:['creator','safety'],channels:['station'],forms:['message','todo'],custom:'',enabled:true,updated:'2026-11-16 09:30'}
+    {id:'MP-1001',scene:'report-done',name:'隐患分析报告生成完成通知',dept:'safety',level:'general',objects:['creator','orgowner'],channels:['station','app'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
+    {id:'MP-1002',scene:'report-fail',name:'报告生成失败告警',dept:'production',level:'larger',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
+    {id:'MP-1003',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'safety',level:'general',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-16 09:30'}
   ];
   try{localStorage.setItem(MP_KEY,JSON.stringify(def));}catch(e){}
   return def;
@@ -3395,7 +3427,7 @@ function msgPushHTML(){
         <h2>推送规则 <span class="mp-sub" id="mp-count"></span></h2>
         <span class="mp-meta">同一场景可配置多条规则，满足不同对象的差异化推送</span>
       </div>
-      <div class="mp-rule-head"><span>业务场景</span><span>通知形式</span><span>推送对象</span><span>推送方式</span><span>状态</span><span>操作</span></div>
+      <div class="mp-rule-head"><span>业务场景</span><span>通知形式</span><span>通知对象</span><span>通知方式</span><span>状态</span><span>操作</span></div>
       <div id="mp-rows"></div>
     </div>
   </section>
@@ -3403,39 +3435,62 @@ function msgPushHTML(){
     <div class="modal-card">
       <div class="modal-head">
         <div>
-          <div class="modal-title" id="mp-modal-title">新增推送配置</div>
-          <div class="modal-desc">选择业务场景，设置通知形式、推送对象与推送方式；保存后立即生效</div>
+          <div class="modal-title" id="mp-modal-title">新增提醒配置</div>
+          <div class="modal-desc">按提醒事项配置所属场景、通知对象与通知方式，保存后立即生效</div>
         </div>
         <button class="modal-close" id="mp-close" aria-label="关闭">×</button>
       </div>
       <div class="modal-body">
-        <div class="mp-form-row">
-          <div class="field-label">业务场景 <span class="req">*</span></div>
-          <select class="fi-select" id="mp-scene" style="appearance:auto;padding-right:10px;height:34px"></select>
-          <div class="mp-tip" id="mp-trigger"></div>
-        </div>
-        <div class="mp-form-row">
-          <div class="field-label">配置名称 <span class="req">*</span></div>
-          <input class="fi-input" id="mp-name" style="height:34px;padding-right:10px" placeholder="为该推送规则命名">
-        </div>
-        <div class="mp-two">
-          <div class="mp-form-row">
-            <div class="field-label">通知形式 <span class="req">*</span></div>
-            <div class="mp-check-line" id="mp-forms"></div>
+        <div class="mp-form-two">
+          <div>
+            <div class="mp-field">
+              <label class="mp-lbl" for="mp-name">提醒事项名称<span class="req">*</span></label>
+              <div class="mp-input-count"><input class="fi-input" id="mp-name" maxlength="200" placeholder="请输入提醒事项名称"><span class="cnt" id="mp-name-cnt">0/200</span></div>
+            </div>
+            <div class="mp-field">
+              <label class="mp-lbl" for="mp-dept">适用部门<span class="req">*</span></label>
+              <select class="fi-select" id="mp-dept" style="appearance:auto;padding-right:10px"></select>
+            </div>
+            <div class="mp-field">
+              <span class="mp-lbl">所属业务<span class="req">*</span></span>
+              <div class="mp-static-val">隐患治理</div>
+            </div>
+            <div class="mp-field">
+              <label class="mp-lbl" for="mp-scene">所属场景<span class="req">*</span></label>
+              <select class="fi-select" id="mp-scene" style="appearance:auto;padding-right:10px"></select>
+            </div>
+            <div class="mp-field" style="align-items:start">
+              <span class="mp-lbl" style="padding-top:7px">通知方式<span class="req">*</span></span>
+              <div class="mp-check-line" id="mp-channels" style="padding-top:6px"></div>
+            </div>
+            <div class="mp-field" style="align-items:start;margin-bottom:0">
+              <span class="mp-lbl" style="padding-top:7px">通知对象<span class="req">*</span></span>
+              <div>
+                <div class="mp-obj-grid">
+                  <div class="mp-obj-slot"><span>隐患处置角色</span><select id="mp-obj-role" aria-label="隐患处置角色"></select></div>
+                  <div class="mp-obj-slot"><span>岗位</span><select id="mp-obj-post" aria-label="岗位"></select></div>
+                  <div class="mp-obj-slot"><span>人员</span><select id="mp-obj-person" aria-label="人员"></select></div>
+                </div>
+                <input class="fi-input" id="mp-custom" style="height:32px;padding-right:10px;margin-top:8px;display:none" placeholder="输入指定人员姓名，多个用顿号分隔">
+                <div id="mp-objects" style="display:none" aria-hidden="true"></div>
+              </div>
+            </div>
           </div>
-          <div class="mp-form-row">
-            <div class="field-label">推送方式 <span class="req">*</span></div>
-            <div class="mp-check-line" id="mp-channels"></div>
+          <div>
+            <div class="mp-field" style="align-items:start">
+              <span class="mp-lbl" style="padding-top:7px">通知形式<span class="req">*</span></span>
+              <div class="mp-check-line" id="mp-forms" style="padding-top:6px"></div>
+            </div>
+            <div class="mp-field">
+              <span class="mp-lbl">启停状态<span class="req">*</span></span>
+              <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="mp-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="mp-enabled-txt">启用 · 保存后按规则推送</span></div>
+            </div>
+            <div class="mp-field">
+              <label class="mp-lbl" for="mp-level">隐患等级<span class="req">*</span></label>
+              <select class="fi-select" id="mp-level" style="appearance:auto;padding-right:10px"></select>
+            </div>
+            <div class="mp-tip" id="mp-trigger" style="margin-top:14px;line-height:1.7"></div>
           </div>
-        </div>
-        <div class="mp-form-row">
-          <div class="field-label">推送对象 <span class="req">*</span></div>
-          <div class="mp-check-line" id="mp-objects"></div>
-          <input class="fi-input" id="mp-custom" style="height:32px;padding-right:10px;margin-top:10px;display:none" placeholder="输入指定人员姓名，多个用顿号分隔">
-        </div>
-        <div class="mp-form-row" style="margin-bottom:0">
-          <div class="field-label">状态</div>
-          <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="mp-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="mp-enabled-txt">启用 · 保存后按规则推送</span></div>
         </div>
       </div>
       <div class="modal-foot">
@@ -3499,34 +3554,65 @@ function renderMpRules(){
     </div>`;
   }).join('');
 }
+function mpOpts(list){return list.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');}
+function mpSetObjSelect(id,val,list){
+  const el=document.getElementById(id),v=val||'';
+  if(v&&![...el.options].some(o=>o.value===v)){
+    const op=document.createElement('option');op.value=v;
+    op.textContent=(list.find(x=>x.id===v)||MP_OBJECTS.find(x=>x.id===v)||{name:v}).name;
+    el.appendChild(op);
+  }
+  el.value=v;
+}
 function openMpModal(id){
   mpEditId=id||null;
   const r=id?mpData.find(x=>x.id===id):null;
-  const title=document.getElementById('mp-modal-title');
+  document.getElementById('mp-modal-title').textContent=r?'编辑提醒配置':'新增提醒配置';
   const sel=document.getElementById('mp-scene');
-  sel.innerHTML=MP_SCENES.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-  document.getElementById('mp-forms').innerHTML=MP_FORMS.map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
-  document.getElementById('mp-channels').innerHTML=MP_CHANNELS.map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
+  sel.innerHTML=mpOpts(MP_SCENES);
+  document.getElementById('mp-dept').innerHTML=mpOpts(MP_DEPTS);
+  document.getElementById('mp-level').innerHTML=mpOpts(MP_LEVELS);
+  const roleOpts=[{id:'',name:'请选择'},...MP_OBJECTS];
+  ['mp-obj-role','mp-obj-post','mp-obj-person'].forEach((box,i)=>{
+    document.getElementById(box).innerHTML=mpOpts(i===0?roleOpts:(i===1?MP_OBJ_POST:MP_OBJ_PERSON));
+  });
+  document.getElementById('mp-forms').innerHTML=MP_FORMS.map(f=>`<label><input type="radio" name="mp-form-radio" value="${f.id}">${f.name}</label>`).join('');
+  document.getElementById('mp-channels').innerHTML=MP_CHANNELS.filter(c=>MP_FORM_CHANNELS.includes(c.id)).map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
   document.getElementById('mp-objects').innerHTML=MP_OBJECTS.map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
+  const setChk=(box,arr,radio)=>{
+    const list=[...document.querySelectorAll('#'+box+' input')];
+    (arr||[]).forEach(v=>{const i=list.find(x=>x.value===v);if(i)i.checked=true;});
+    if(radio&&!list.some(x=>x.checked)&&list.length)list[0].checked=true;
+  };
   if(r){
-    title.textContent='编辑推送配置';
-    sel.value=r.scene;
-    document.getElementById('mp-name').value=r.name;
-    const check=(box,arr)=>document.querySelectorAll('#'+box+' input').forEach(i=>{i.checked=(arr||[]).includes(i.value);});
-    check('mp-forms',r.forms);check('mp-channels',r.channels);check('mp-objects',r.objects);
+    const objs=r.objects||[];
+    sel.value=r.scene||'';
+    document.getElementById('mp-name').value=r.name||'';
+    document.getElementById('mp-dept').value=r.dept||'';
+    document.getElementById('mp-level').value=r.level||'';
+    mpSetObjSelect('mp-obj-role',objs[0],roleOpts);
+    mpSetObjSelect('mp-obj-post',objs[1],MP_OBJ_POST);
+    mpSetObjSelect('mp-obj-person',objs[2],MP_OBJ_PERSON);
     document.getElementById('mp-custom').value=r.custom||'';
-    document.getElementById('mp-custom').style.display=(r.objects||[]).includes('custom')?'block':'none';
+    document.getElementById('mp-custom').style.display=(objs.includes('custom')||(r.custom&&objs.length>=3))?'block':'none';
+    document.querySelectorAll('#mp-channels input').forEach(i=>i.checked=false);
+    setChk('mp-channels',r.channels);setChk('mp-forms',r.forms,true);
     setMpSwitch(r.enabled);
   }else{
-    title.textContent='新增推送配置';
-    document.getElementById('mp-name').value='';
-    document.querySelectorAll('#mp-modal input[type=checkbox]').forEach(i=>i.checked=false);
-    document.getElementById('mp-custom').value='';
+    ['mp-name','mp-custom'].forEach(id=>{document.getElementById(id).value='';});
+    ['mp-dept','mp-level','mp-obj-role','mp-obj-post','mp-obj-person'].forEach(id=>{document.getElementById(id).value='';});
+    document.querySelectorAll('#mp-modal input[type=checkbox],#mp-modal input[type=radio]').forEach(i=>i.checked=false);
+    const st=document.querySelector('#mp-channels input[value="station"]');if(st)st.checked=true;
+    const msg=document.querySelector('#mp-forms input[value="message"]');if(msg)msg.checked=true;
     document.getElementById('mp-custom').style.display='none';
     setMpSwitch(true);
   }
-  mpSyncTrigger();mpSyncEnabled();
+  mpSyncCount();mpSyncTrigger();mpSyncEnabled();
   const m=document.getElementById('mp-modal');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+}
+function mpSyncCount(){
+  const el=document.getElementById('mp-name');
+  if(el)document.getElementById('mp-name-cnt').textContent=el.value.length+'/200';
 }
 function setMpSwitch(on){
   const s=document.getElementById('mp-enabled');
@@ -3550,16 +3636,21 @@ function openMpDetail(id){
   const sc=MP_SCENES.find(s=>s.id===r.scene);
   const nm=(list,arr)=>arr.map(x=>{if(x==='custom')return (r.custom||'指定人员');return mpName(list,x);}).join('、')||'—';
   const rows=[
+    ['提醒事项名称',dprEsc(r.name)],
     ['配置名称',dprEsc(r.name)],
+    ['适用部门',r.dept?dprEsc(mpName(MP_DEPTS,r.dept)):'—'],
+    ['所属业务','隐患治理'],
     ['业务场景',sc?dprEsc(sc.name):'—'],
     ['触发时机',sc?dprEsc(sc.trigger):'—'],
     ['通知形式',nm(MP_FORMS,r.forms)],
+    ['通知方式',nm(MP_CHANNELS,r.channels)],
     ['推送对象',nm(MP_OBJECTS,r.objects)],
     ['推送方式',nm(MP_CHANNELS,r.channels)],
+    ['隐患等级',r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'],
     ['当前状态',r.enabled?'启用':'停用'],
     ['最近更新',dprEsc(r.updated||'—')]
   ];
-  document.getElementById('mp-detail-body').innerHTML=rows.map(x=>`<div class="mp-detail-item"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
+  document.getElementById('mp-detail-body').innerHTML=rows.map(x=>`<div class="mp-detail-item${x[0]==='配置名称'||x[0]==='推送方式'?' mp-detail-hidden':''}"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
   mpOpenMask('mp-detail-modal');
 }
 function openMpLog(id){
@@ -3580,21 +3671,26 @@ function openMpLog(id){
 }
 function saveMpRule(){
   const name=document.getElementById('mp-name').value.trim();
-  if(!name){showToast('请填写配置名称');document.getElementById('mp-name').focus();return;}
+  if(!name){showToast('请填写提醒事项名称');document.getElementById('mp-name').focus();return;}
   const get=(box)=>[...document.querySelectorAll('#'+box+' input:checked')].map(i=>i.value);
-  const forms=get('mp-forms'),channels=get('mp-channels'),objects=get('mp-objects');
-  if(!forms.length){showToast('请选择至少一种通知形式');return;}
-  if(!channels.length){showToast('请选择至少一种推送方式');return;}
-  if(!objects.length){showToast('请选择至少一类推送对象');return;}
+  const forms=get('mp-forms'),channels=get('mp-channels');
+  const objects=[...new Set(['mp-obj-role','mp-obj-post','mp-obj-person'].map(id=>document.getElementById(id).value).filter(Boolean))];
+  get('mp-objects').forEach(v=>{if(!objects.includes(v))objects.push(v);}); // 兼容历史复选方式
+  if(!forms.length){showToast('请选择通知形式');return;}
+  if(!channels.length){showToast('请选择通知方式');return;}
+  if(!objects.length){showToast('请选择通知对象');return;}
   const custom=document.getElementById('mp-custom').value.trim();
   if(objects.includes('custom')&&!custom){showToast('请填写指定人员');document.getElementById('mp-custom').focus();return;}
   const enabled=document.getElementById('mp-enabled').classList.contains('on');
   const scene=document.getElementById('mp-scene').value;
+  const dept=document.getElementById('mp-dept').value;
+  const level=document.getElementById('mp-level').value;
+  const patch={scene,dept,level,name,forms,channels,objects,custom,enabled,updated:mpNow()};
   if(mpEditId){
     const r=mpData.find(x=>x.id===mpEditId);
-    if(r)Object.assign(r,{scene,name,forms,channels,objects,custom,enabled,updated:mpNow()});
+    if(r)Object.assign(r,patch);
   }else{
-    mpData.unshift({id:'MP-'+(Date.now()%100000),scene,name,forms,channels,objects,custom,enabled,updated:mpNow()});
+    mpData.unshift(Object.assign({id:'MP-'+(Date.now()%100000)},patch));
   }
   mpSave(mpData);closeMpModal();renderMpRules();
   showToast(mpEditId?'推送配置已更新':'推送配置已新增并生效');
@@ -3638,6 +3734,11 @@ function bindMsgPush(){
   page.querySelector('#mp-objects').addEventListener('change',()=>{
     const has=[...document.querySelectorAll('#mp-objects input:checked')].some(i=>i.value==='custom');
     document.getElementById('mp-custom').style.display=has?'block':'none';
+  });
+  page.querySelector('#mp-name').addEventListener('input',mpSyncCount);
+  page.querySelector('#mp-obj-role').addEventListener('change',function(){
+    const need=this.value==='custom'||[...document.querySelectorAll('#mp-objects input:checked')].some(i=>i.value==='custom');
+    document.getElementById('mp-custom').style.display=need?'block':'none';
   });
 }
 /* 报告详情页：下载原始隐患数据清单（Excel，兼容 MS Excel HTML 格式） */
