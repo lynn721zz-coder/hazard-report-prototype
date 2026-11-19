@@ -599,6 +599,8 @@
   .rpt-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
   .btn-rpt-cfg{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-secondary);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
   .btn-rpt-cfg:hover{border-color:var(--sys-primary);color:var(--sys-primary)}
+  .btn-rpt-cfg.primary{background:var(--sys-primary);color:#fff;border-color:var(--sys-primary)}
+  .btn-rpt-cfg.primary:hover{background:var(--sys-primary-deep);color:#fff;border-color:var(--sys-primary-deep)}
   .btn-rpt-cfg svg{width:14px;height:14px}
   .rpt-cfg-summary{font-size:12px;color:var(--text-tertiary);background:var(--sys-primary-bg);border:1px dashed var(--sys-primary);border-radius:var(--radius-md);padding:7px 12px;margin:10px 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .rpt-cfg-summary svg{width:13px;height:13px;color:var(--sys-primary);flex-shrink:0}
@@ -692,6 +694,51 @@
   .fbd-kind-badge.comment{background:#FFF4E0;color:#B26A00}
   .fbd-cmt{color:var(--text-secondary);max-width:260px}
   .cfg-next{font-size:11.5px;color:#2E7D32;background:#EDF7ED;border:1px solid #BFE3BF;border-radius:var(--radius-sm);padding:5px 10px;margin-top:6px;display:inline-block}
+
+  /* ===== 消息推送配置 ===== */
+  .mp-view{padding:20px 24px 40px}
+  .mp-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-top:14px}
+  .mp-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+  .mp-card-head h2{font-size:14.5px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+  .mp-card-head .mp-sub{font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:2px}
+  .mp-rule{display:grid;grid-template-columns:1.7fr 1fr 1.2fr .9fr .7fr;gap:12px;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border)}
+  .mp-rule:last-child{border-bottom:none}
+  .mp-rule:hover{background:var(--gray-50)}
+  .mp-rule-head{display:grid;grid-template-columns:1.7fr 1fr 1.2fr .9fr .7fr;gap:12px;padding:10px 20px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);font-weight:500}
+  .mp-scene{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .mp-scene .s-name{font-size:13.5px;font-weight:600;color:var(--text-primary)}
+  .mp-scene .s-trigger{font-size:11.5px;color:var(--text-tertiary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mp-chip{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:var(--radius-full);font-size:11.5px;margin:0 5px 3px 0;white-space:nowrap}
+  .mp-chip.ch{background:var(--sys-primary-bg-light);color:var(--sys-primary-deep)}
+  .mp-chip.obj{background:var(--gray-100);color:var(--text-secondary)}
+  .mp-chip.msg{background:#EEF2FF;color:#4338CA}
+  .mp-chip.todo{background:#FFF4E0;color:#B26A00}
+  .switch{position:relative;display:inline-flex;align-items:center;width:36px;height:20px;border-radius:var(--radius-full);background:var(--gray-200);cursor:pointer;transition:background .18s;flex-shrink:0}
+  .switch.on{background:var(--sys-primary)}
+  .switch::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s}
+  .switch.on::after{transform:translateX(16px)}
+  .mp-tools{display:flex;align-items:center;gap:6px}
+  .mp-tools button{font-size:12px;color:var(--sys-primary);padding:3px 6px;border-radius:var(--radius-sm)}
+  .mp-tools button:hover{background:var(--sys-primary-bg-light)}
+  .mp-tools button.del{color:var(--danger-600)}
+  .mp-tools button.del:hover{background:var(--danger-50)}
+  .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
+  #mp-modal .modal-card{width:600px}
+  .mp-form-row{margin-bottom:14px}
+  .mp-form-row .field-label{margin-bottom:7px}
+  .mp-scene-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .mp-scene-opt{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border:1px solid var(--border-strong);border-radius:var(--radius-md);cursor:pointer;transition:all .15s;user-select:none}
+  .mp-scene-opt:hover{border-color:var(--sys-primary)}
+  .mp-scene-opt.on{border-color:var(--sys-primary);background:var(--sys-primary-bg-light)}
+  .mp-scene-opt input{margin-top:3px;accent-color:var(--sys-primary)}
+  .mp-scene-opt .t{font-size:12.5px;font-weight:500;color:var(--text-primary)}
+  .mp-scene-opt .d{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+  .mp-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mp-check-line{display:flex;flex-wrap:wrap;gap:8px 16px}
+  .mp-check-line label{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;user-select:none}
+  .mp-check-line input{accent-color:var(--sys-primary)}
+  .mp-tip{font-size:11.5px;color:var(--text-tertiary);margin-top:5px;line-height:1.5}
+  .mp-meta{font-size:11.5px;color:var(--text-tertiary)}
 </style>
 <style id="__dm_no_drag_style__">* { -webkit-user-drag: none !important; }</style><style id="__dm_bindable_badge_style__">[data-sp-bindable="database"]{outline:1px dashed #0088ff;outline-offset:2px;border-radius:4px;}[data-sp-bindable="database"] *{pointer-events:none !important;transition:none !important;animation:none !important;}[data-sp-bindable="database"]{transition:none !important;animation:none !important;}</style></head>
 <body data-page-node-id="B8367azwbVzra0VnaXMIDa" style="">
@@ -1038,7 +1085,8 @@ const MENU=[
     {id:'dpr-report',name:'双重预防运行报告'},
     {id:'hazard-report',name:'隐患分析报告',report:true},
     {id:'fb-dashboard',name:'反馈统计看板'},
-    {id:'duty-report',name:'履职任务报表'}]},
+    {id:'duty-report',name:'履职任务报表'},
+    {id:'msg-push',name:'消息推送配置'}]},
   {id:'contractor',icon:IC.briefcase,name:'承包商HSE管理',children:[
     {id:'ct-info',name:'承包商档案'},{id:'ct-eval',name:'承包商评价'}]},
   {id:'upload',icon:IC.upload,name:'数据上报情况',children:[
@@ -2355,6 +2403,7 @@ function getPage(id){
   else if(id==='dpr-report'){div.classList.add('report-page');div.innerHTML=dprHTML();}
   else if(id==='hazard-list'){div.innerHTML=hazardListHTML();}
   else if(id==='fb-dashboard'){div.innerHTML=fbDashboardHTML();}
+  else if(id==='msg-push'){div.innerHTML=msgPushHTML();}
   else{
     const title=PAGE_TITLES[id]||id;
     div.innerHTML=`<div class="placeholder">
@@ -2369,6 +2418,7 @@ function getPage(id){
   if(id==='dpr-report'){bindDprReport();}
   if(id==='hazard-list'){bindHazardList();}
   if(id==='fb-dashboard'){bindFbDashboard();}
+  if(id==='msg-push'){bindMsgPush();}
   return div;
 }
 
@@ -3242,6 +3292,224 @@ function bindFbDashboard(){
   });
   document.getElementById('fbd-export').addEventListener('click',exportFbLog);
   renderFbDashboard();
+}
+/* ================= 消息推送配置 ================= */
+const MP_SCENES=[
+  {id:'report-done', name:'隐患分析报告生成完成', desc:'AI 分析完成后通知相关人员', trigger:'报告状态变为「已生成」时'},
+  {id:'report-fail', name:'隐患分析报告生成失败', desc:'报告生成失败后告警', trigger:'自动重试 3 次仍失败时'},
+  {id:'dpr-done',    name:'双重预防运行报告生成完成', desc:'周 / 月 / 季 / 报生成完成通知', trigger:'报告生成完成时'},
+  {id:'hazard-due',  name:'隐患整改到期提醒', desc:'整改期限临近提醒责任单位', trigger:'整改到期前 3 天'},
+  {id:'hazard-od',   name:'隐患超期未整改预警', desc:'超期仍未整改触发上级督办', trigger:'超期当日'},
+  {id:'risk-change', name:'重大风险变更提醒', desc:'风险等级上调时通知', trigger:'风险等级变更后'},
+  {id:'duty-assign', name:'履职任务分派', desc:'新任务分派通知责任人', trigger:'任务分派时'},
+  {id:'upload-bad',  name:'数据上报核查异常', desc:'核查不通过告警上报单位', trigger:'核查完成时'}
+];
+const MP_OBJECTS=[
+  {id:'creator',name:'报告创建人'},{id:'orgowner',name:'所属单位负责人'},
+  {id:'safety',name:'安全管理人员'},{id:'admin',name:'系统管理员'},{id:'custom',name:'指定人员'}
+];
+const MP_CHANNELS=[
+  {id:'station',name:'站内消息'},{id:'wechat',name:'企业微信'},{id:'email',name:'邮件'},{id:'sms',name:'短信'}
+];
+const MP_FORMS=[{id:'message',name:'消息'},{id:'todo',name:'待办'}];
+const MP_KEY='dprMsgPushCfg';
+function mpName(list,id){const o=list.find(x=>x.id===id);return o?o.name:id;}
+function mpLoad(){
+  try{const raw=localStorage.getItem(MP_KEY);if(raw)return JSON.parse(raw);}catch(e){}
+  const def=[
+    {id:'MP-1001',scene:'report-done',name:'隐患分析报告生成完成通知',objects:['creator','orgowner'],channels:['station','wechat'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
+    {id:'MP-1002',scene:'report-fail',name:'报告生成失败告警',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
+    {id:'MP-1003',scene:'dpr-done',name:'双重预防运行报告生成提醒',objects:['creator','safety'],channels:['station'],forms:['message','todo'],custom:'',enabled:true,updated:'2026-11-16 09:30'}
+  ];
+  try{localStorage.setItem(MP_KEY,JSON.stringify(def));}catch(e){}
+  return def;
+}
+function mpSave(arr){try{localStorage.setItem(MP_KEY,JSON.stringify(arr));return true;}catch(e){return false;}}
+function mpNow(){const d=new Date(),p=x=>String(x).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function msgPushHTML(){
+  return `
+  <section class="mp-view">
+    <div class="rpt-head-row">
+      <div class="rpt-list-head">
+        <h1>消息推送配置</h1>
+        <div class="sub">按业务场景配置消息 / 待办通知的推送对象与推送方式，配置生效后系统将在触发时自动推送</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn-rpt-cfg primary" id="mp-add"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>新增配置</button>
+      </div>
+    </div>
+    <div class="mp-card">
+      <div class="mp-card-head">
+        <h2>推送规则 <span class="mp-sub" id="mp-count"></span></h2>
+        <span class="mp-meta">同一场景可配置多条规则，满足不同对象的差异化推送</span>
+      </div>
+      <div class="mp-rule-head"><span>业务场景</span><span>通知形式</span><span>推送对象</span><span>推送方式</span><span>状态 / 操作</span></div>
+      <div id="mp-rows"></div>
+    </div>
+  </section>
+  <div class="modal-mask" id="mp-modal" role="dialog" aria-modal="true" aria-labelledby="mp-modal-title" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="mp-modal-title">新增推送配置</div>
+          <div class="modal-desc">选择业务场景，设置通知形式、推送对象与推送方式；保存后立即生效</div>
+        </div>
+        <button class="modal-close" id="mp-close" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="mp-form-row">
+          <div class="field-label">业务场景 <span class="req">*</span></div>
+          <select class="fi-select" id="mp-scene" style="appearance:auto;padding-right:10px;height:34px"></select>
+          <div class="mp-tip" id="mp-trigger"></div>
+        </div>
+        <div class="mp-form-row">
+          <div class="field-label">配置名称 <span class="req">*</span></div>
+          <input class="fi-input" id="mp-name" style="height:34px;padding-right:10px" placeholder="为该推送规则命名">
+        </div>
+        <div class="mp-two">
+          <div class="mp-form-row">
+            <div class="field-label">通知形式 <span class="req">*</span></div>
+            <div class="mp-check-line" id="mp-forms"></div>
+          </div>
+          <div class="mp-form-row">
+            <div class="field-label">推送方式 <span class="req">*</span></div>
+            <div class="mp-check-line" id="mp-channels"></div>
+          </div>
+        </div>
+        <div class="mp-form-row">
+          <div class="field-label">推送对象 <span class="req">*</span></div>
+          <div class="mp-check-line" id="mp-objects"></div>
+          <input class="fi-input" id="mp-custom" style="height:32px;padding-right:10px;margin-top:10px;display:none" placeholder="输入指定人员姓名，多个用顿号分隔">
+        </div>
+        <div class="mp-form-row" style="margin-bottom:0">
+          <div class="field-label">状态</div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="mp-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="mp-enabled-txt">启用 · 保存后按规则推送</span></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-rpt-cfg" id="mp-cancel">取消</button>
+        <button class="btn-rpt-cfg primary" id="mp-save">保存配置</button>
+      </div>
+    </div>
+  </div>`;
+}
+let mpData=[],mpEditId=null;
+function renderMpRules(){
+  const wrap=document.getElementById('mp-rows');if(!wrap)return;
+  mpData=mpLoad();
+  const c=document.getElementById('mp-count');if(c)c.textContent='共 '+mpData.length+' 条';
+  if(!mpData.length){wrap.innerHTML='<div class="mp-empty">暂无推送配置，点击右上角「新增配置」创建规则</div>';return;}
+  wrap.innerHTML=mpData.map(r=>{
+    const sc=MP_SCENES.find(s=>s.id===r.scene);
+    const formChips=r.forms.map(f=>`<span class="mp-chip ${f}">${mpName(MP_FORMS,f)}</span>`).join('');
+    const objChips=r.objects.map(o=>`<span class="mp-chip obj">${o==='custom'&&r.custom?r.custom:mpName(MP_OBJECTS,o)}</span>`).join('');
+    const chChips=r.channels.map(ch=>`<span class="mp-chip ch">${mpName(MP_CHANNELS,ch)}</span>`).join('');
+    return `<div class="mp-rule" data-id="${r.id}">
+      <div class="mp-scene"><span class="s-name">${dprEsc(r.name)}</span><span class="s-trigger">${sc?sc.name+' · '+dprEsc(sc.trigger):''}</span></div>
+      <div>${formChips}</div>
+      <div>${objChips}</div>
+      <div>${chChips}</div>
+      <div class="mp-tools"><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div>
+    </div>`;
+  }).join('');
+}
+function openMpModal(id){
+  mpEditId=id||null;
+  const r=id?mpData.find(x=>x.id===id):null;
+  const title=document.getElementById('mp-modal-title');
+  const sel=document.getElementById('mp-scene');
+  sel.innerHTML=MP_SCENES.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  document.getElementById('mp-forms').innerHTML=MP_FORMS.map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
+  document.getElementById('mp-channels').innerHTML=MP_CHANNELS.map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
+  document.getElementById('mp-objects').innerHTML=MP_OBJECTS.map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
+  if(r){
+    title.textContent='编辑推送配置';
+    sel.value=r.scene;
+    document.getElementById('mp-name').value=r.name;
+    const check=(box,arr)=>document.querySelectorAll('#'+box+' input').forEach(i=>{i.checked=(arr||[]).includes(i.value);});
+    check('mp-forms',r.forms);check('mp-channels',r.channels);check('mp-objects',r.objects);
+    document.getElementById('mp-custom').value=r.custom||'';
+    document.getElementById('mp-custom').style.display=(r.objects||[]).includes('custom')?'block':'none';
+    setMpSwitch(r.enabled);
+  }else{
+    title.textContent='新增推送配置';
+    document.getElementById('mp-name').value='';
+    document.querySelectorAll('#mp-modal input[type=checkbox]').forEach(i=>i.checked=false);
+    document.getElementById('mp-custom').value='';
+    document.getElementById('mp-custom').style.display='none';
+    setMpSwitch(true);
+  }
+  mpSyncTrigger();mpSyncEnabled();
+  const m=document.getElementById('mp-modal');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+}
+function setMpSwitch(on){
+  const s=document.getElementById('mp-enabled');
+  s.classList.toggle('on',!!on);s.setAttribute('aria-checked',!!on);
+}
+function mpSyncEnabled(){
+  const on=document.getElementById('mp-enabled').classList.contains('on');
+  document.getElementById('mp-enabled-txt').textContent=on?'启用 · 保存后按规则推送':'停用 · 保存后不推送';
+}
+function mpSyncTrigger(){
+  const s=MP_SCENES.find(x=>x.id===document.getElementById('mp-scene').value);
+  document.getElementById('mp-trigger').textContent=s?('触发时机：'+s.trigger+'；'+s.desc):'';
+}
+function closeMpModal(){
+  const m=document.getElementById('mp-modal');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);
+}
+function saveMpRule(){
+  const name=document.getElementById('mp-name').value.trim();
+  if(!name){showToast('请填写配置名称');document.getElementById('mp-name').focus();return;}
+  const get=(box)=>[...document.querySelectorAll('#'+box+' input:checked')].map(i=>i.value);
+  const forms=get('mp-forms'),channels=get('mp-channels'),objects=get('mp-objects');
+  if(!forms.length){showToast('请选择至少一种通知形式');return;}
+  if(!channels.length){showToast('请选择至少一种推送方式');return;}
+  if(!objects.length){showToast('请选择至少一类推送对象');return;}
+  const custom=document.getElementById('mp-custom').value.trim();
+  if(objects.includes('custom')&&!custom){showToast('请填写指定人员');document.getElementById('mp-custom').focus();return;}
+  const enabled=document.getElementById('mp-enabled').classList.contains('on');
+  const scene=document.getElementById('mp-scene').value;
+  if(mpEditId){
+    const r=mpData.find(x=>x.id===mpEditId);
+    if(r)Object.assign(r,{scene,name,forms,channels,objects,custom,enabled,updated:mpNow()});
+  }else{
+    mpData.unshift({id:'MP-'+(Date.now()%100000),scene,name,forms,channels,objects,custom,enabled,updated:mpNow()});
+  }
+  mpSave(mpData);closeMpModal();renderMpRules();
+  showToast(mpEditId?'推送配置已更新':'推送配置已新增并生效');
+}
+function bindMsgPush(){
+  renderMpRules();
+  const page=document.getElementById('page-msg-push');
+  if(!page)return;
+  page.querySelector('#mp-add').onclick=()=>openMpModal(null);
+  const rows=page.querySelector('#mp-rows');
+  rows.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-act]');if(!btn)return;
+    const id=btn.closest('.mp-rule').dataset.id;
+    const act=btn.dataset.act;
+    if(act==='edit'){openMpModal(id);}
+    else if(act==='toggle'){
+      const r=mpData.find(x=>x.id===id);if(!r)return;
+      r.enabled=!r.enabled;mpSave(mpData);renderMpRules();
+      showToast(r.enabled?'已启用该推送规则':'已停用该推送规则');
+    }else if(act==='del'){
+      const r=mpData.find(x=>x.id===id);if(!r)return;
+      showConfirm('确认删除推送配置「'+r.name+'」？删除后不再按此规则推送。',()=>{
+        mpData=mpData.filter(x=>x.id!==id);mpSave(mpData);renderMpRules();showToast('推送配置已删除');
+      });
+    }
+  });
+  page.querySelector('#mp-close').onclick=closeMpModal;
+  page.querySelector('#mp-cancel').onclick=closeMpModal;
+  page.querySelector('#mp-save').onclick=saveMpRule;
+  page.querySelector('#mp-modal').addEventListener('click',e=>{if(e.target.id==='mp-modal')closeMpModal();});
+  page.querySelector('#mp-scene').onchange=mpSyncTrigger;
+  page.querySelector('#mp-enabled').onclick=function(){setMpSwitch(!this.classList.contains('on'));mpSyncEnabled();};
+  page.querySelector('#mp-objects').addEventListener('change',()=>{
+    const has=[...document.querySelectorAll('#mp-objects input:checked')].some(i=>i.value==='custom');
+    document.getElementById('mp-custom').style.display=has?'block':'none';
+  });
 }
 /* 报告详情页：下载原始隐患数据清单（Excel，兼容 MS Excel HTML 格式） */
 function exportHazardExcel(ev){
