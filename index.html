@@ -701,10 +701,10 @@
   .mp-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
   .mp-card-head h2{font-size:14.5px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:8px}
   .mp-card-head .mp-sub{font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:2px}
-  .mp-rule{display:grid;grid-template-columns:1.7fr 1fr 1.2fr .9fr .7fr;gap:12px;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border)}
+  .mp-rule{display:grid;grid-template-columns:1.5fr .8fr 1fr .9fr .45fr 1.25fr;gap:10px;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border)}
   .mp-rule:last-child{border-bottom:none}
   .mp-rule:hover{background:var(--gray-50)}
-  .mp-rule-head{display:grid;grid-template-columns:1.7fr 1fr 1.2fr .9fr .7fr;gap:12px;padding:10px 20px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);font-weight:500}
+  .mp-rule-head{display:grid;grid-template-columns:1.5fr .8fr 1fr .9fr .45fr 1.25fr;gap:10px;padding:10px 20px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);font-weight:500}
   .mp-scene{display:flex;flex-direction:column;gap:3px;min-width:0}
   .mp-scene .s-name{font-size:13.5px;font-weight:600;color:var(--text-primary)}
   .mp-scene .s-trigger{font-size:11.5px;color:var(--text-tertiary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -717,11 +717,30 @@
   .switch.on{background:var(--sys-primary)}
   .switch::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s}
   .switch.on::after{transform:translateX(16px)}
-  .mp-tools{display:flex;align-items:center;gap:6px}
-  .mp-tools button{font-size:12px;color:var(--sys-primary);padding:3px 6px;border-radius:var(--radius-sm)}
+  .mp-tools{display:flex;align-items:center;gap:1px;white-space:nowrap}
+  .mp-tools button{font-size:12px;color:var(--sys-primary);padding:3px 5px;border-radius:var(--radius-sm);white-space:nowrap}
   .mp-tools button:hover{background:var(--sys-primary-bg-light)}
   .mp-tools button.del{color:var(--danger-600)}
   .mp-tools button.del:hover{background:var(--danger-50)}
+  .mp-status{display:flex;align-items:center}
+  /* 详情 / 推送记录弹窗 */
+  #mp-detail-modal .modal-card{width:620px}
+  #mp-log-modal .modal-card{width:760px}
+  .mp-detail-item{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .mp-detail-item:last-child{border-bottom:none}
+  .mp-detail-item .k{color:var(--text-tertiary)}
+  .mp-detail-item .v{color:var(--text-primary)}
+  .mp-log-summary{display:flex;gap:18px;padding:12px 20px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary)}
+  .mp-log-summary b{color:var(--text-primary);font-size:14px;margin-left:4px}
+  .mp-log-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .mp-log-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:9px 20px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .mp-log-table td{padding:10px 20px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle}
+  .mp-log-table tr:last-child td{border-bottom:none}
+  .mp-log-table .lt-time{color:var(--text-primary);white-space:nowrap;font-size:12px}
+  .mp-log-table .lt-content{color:var(--text-primary);max-width:220px;line-height:1.5}
+  .mp-log-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);font-size:11px;white-space:nowrap}
+  .mp-log-badge.ok{background:var(--success-50);color:var(--success-800)}
+  .mp-log-badge.fail{background:var(--danger-50);color:var(--danger-800)}
   .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
   #mp-modal .modal-card{width:600px}
   .mp-form-row{margin-bottom:14px}
@@ -3314,6 +3333,39 @@ const MP_CHANNELS=[
 const MP_FORMS=[{id:'message',name:'消息'},{id:'todo',name:'待办'}];
 const MP_KEY='dprMsgPushCfg';
 function mpName(list,id){const o=list.find(x=>x.id===id);return o?o.name:id;}
+/* 推送记录：按规则稳定生成演示数据（基于 id 哈希，保证每次渲染一致） */
+const MP_LOG_CONTENT={
+  'report-done':'【中国昊华】隐患AI辅助分析报告（2025年12月1日至12月31日）已生成完成，请及时查看',
+  'report-fail':'隐患分析报告生成失败（已自动重试 3 次），请检查数据源后重新发起',
+  'dpr-done':'2026年10月份中国中化双重预防机制运行分析报告已生成完成',
+  'hazard-due':'您名下有 3 条隐患将于到期前 3 天到达整改期限，请及时跟进',
+  'hazard-od':'存在 2 条超期未整改隐患，已触发上级督办',
+  'risk-change':'重大风险源风险等级由一般风险调整为较大风险，请关注',
+  'duty-assign':'有 1 项新的履职任务已分派给您，请查收',
+  'upload-bad':'数据上报核查未通过，请核对后重新上报'
+};
+function mpLogSeed(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))>>>0;return h;}
+function mpLogsOf(rule){
+  const n=3+(mpLogSeed(rule.id)%3); // 3~5 条
+  const objs=rule.objects.map(o=>o==='custom'?(rule.custom||'指定人员'):mpName(MP_OBJECTS,o));
+  const chs=rule.channels.map(c=>mpName(MP_CHANNELS,c));
+  const content=MP_LOG_CONTENT[rule.scene]||'推送配置「'+rule.name+'」已触发';
+  const out=[];let seed=mpLogSeed(rule.id);
+  for(let i=0;i<n;i++){
+    seed=(seed*1103515245+12345)>>>0;
+    const day=18-(i*2+seed%3);
+    const hh=String(8+(seed%9)).padStart(2,'0'),mm=String((seed>>4)%60).padStart(2,'0');
+    const ok=(seed>>8)%7!==0; // 约 1/7 失败
+    out.push({
+      time:'2026-11-'+String(Math.max(1,day)).padStart(2,'0')+' '+hh+':'+mm,
+      obj:objs[i%objs.length]||'报告创建人',
+      ch:chs[i%chs.length]||'站内消息',
+      form:mpName(MP_FORMS,rule.forms[i%rule.forms.length]||'message'),
+      content, ok
+    });
+  }
+  return out;
+}
 function mpLoad(){
   try{const raw=localStorage.getItem(MP_KEY);if(raw)return JSON.parse(raw);}catch(e){}
   const def=[
@@ -3343,7 +3395,7 @@ function msgPushHTML(){
         <h2>推送规则 <span class="mp-sub" id="mp-count"></span></h2>
         <span class="mp-meta">同一场景可配置多条规则，满足不同对象的差异化推送</span>
       </div>
-      <div class="mp-rule-head"><span>业务场景</span><span>通知形式</span><span>推送对象</span><span>推送方式</span><span>状态 / 操作</span></div>
+      <div class="mp-rule-head"><span>业务场景</span><span>通知形式</span><span>推送对象</span><span>推送方式</span><span>状态</span><span>操作</span></div>
       <div id="mp-rows"></div>
     </div>
   </section>
@@ -3391,6 +3443,39 @@ function msgPushHTML(){
         <button class="btn-rpt-cfg primary" id="mp-save">保存配置</button>
       </div>
     </div>
+  </div>
+  <!-- 推送配置详情弹窗 -->
+  <div class="modal-mask" id="mp-detail-modal" role="dialog" aria-modal="true" aria-labelledby="mp-detail-title" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="mp-detail-title">推送配置详情</div>
+          <div class="modal-desc">查看该推送规则的完整配置信息</div>
+        </div>
+        <button class="modal-close" id="mp-detail-close" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body" id="mp-detail-body"></div>
+      <div class="modal-foot">
+        <button class="btn-rpt-cfg primary" id="mp-detail-ok">关闭</button>
+      </div>
+    </div>
+  </div>
+  <!-- 推送记录弹窗 -->
+  <div class="modal-mask" id="mp-log-modal" role="dialog" aria-modal="true" aria-labelledby="mp-log-title" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="mp-log-title">推送记录</div>
+          <div class="modal-desc" id="mp-log-desc">该规则近期的消息 / 待办推送情况</div>
+        </div>
+        <button class="modal-close" id="mp-log-close" aria-label="关闭">×</button>
+      </div>
+      <div class="mp-log-summary" id="mp-log-summary"></div>
+      <div class="modal-body" style="padding:0;max-height:52vh;overflow:auto" id="mp-log-body"></div>
+      <div class="modal-foot">
+        <button class="btn-rpt-cfg primary" id="mp-log-ok">关闭</button>
+      </div>
+    </div>
   </div>`;
 }
 let mpData=[],mpEditId=null;
@@ -3409,7 +3494,8 @@ function renderMpRules(){
       <div>${formChips}</div>
       <div>${objChips}</div>
       <div>${chChips}</div>
-      <div class="mp-tools"><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div>
+      <div class="mp-status"><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span></div>
+      <div class="mp-tools"><button data-act="detail">详情</button><button data-act="log">推送记录</button><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div>
     </div>`;
   }).join('');
 }
@@ -3457,6 +3543,41 @@ function mpSyncTrigger(){
 function closeMpModal(){
   const m=document.getElementById('mp-modal');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);
 }
+function mpOpenMask(id){const m=document.getElementById(id);m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));}
+function mpCloseMask(id){const m=document.getElementById(id);m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+function openMpDetail(id){
+  const r=mpData.find(x=>x.id===id);if(!r)return;
+  const sc=MP_SCENES.find(s=>s.id===r.scene);
+  const nm=(list,arr)=>arr.map(x=>{if(x==='custom')return (r.custom||'指定人员');return mpName(list,x);}).join('、')||'—';
+  const rows=[
+    ['配置名称',dprEsc(r.name)],
+    ['业务场景',sc?dprEsc(sc.name):'—'],
+    ['触发时机',sc?dprEsc(sc.trigger):'—'],
+    ['通知形式',nm(MP_FORMS,r.forms)],
+    ['推送对象',nm(MP_OBJECTS,r.objects)],
+    ['推送方式',nm(MP_CHANNELS,r.channels)],
+    ['当前状态',r.enabled?'启用':'停用'],
+    ['最近更新',dprEsc(r.updated||'—')]
+  ];
+  document.getElementById('mp-detail-body').innerHTML=rows.map(x=>`<div class="mp-detail-item"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
+  mpOpenMask('mp-detail-modal');
+}
+function openMpLog(id){
+  const r=mpData.find(x=>x.id===id);if(!r)return;
+  const logs=mpLogsOf(r),okN=logs.filter(l=>l.ok).length,failN=logs.length-okN;
+  const sc=MP_SCENES.find(s=>s.id===r.scene);
+  document.getElementById('mp-log-desc').textContent='规则「'+r.name+'」'+(sc?'（'+sc.name+'）':'')+' 近期的消息 / 待办推送情况';
+  document.getElementById('mp-log-summary').innerHTML=`<span>推送总次数 <b>${logs.length}</b></span><span>推送成功 <b style="color:var(--success-800)">${okN}</b></span><span>推送失败 <b style="color:var(--danger-600)">${failN}</b></span>`;
+  document.getElementById('mp-log-body').innerHTML=`<table class="mp-log-table"><thead><tr><th>推送时间</th><th>推送内容</th><th>推送对象</th><th>形式</th><th>方式</th><th>结果</th></tr></thead><tbody>${logs.map(l=>`<tr>
+    <td class="lt-time">${dprEsc(l.time)}</td>
+    <td class="lt-content">${dprEsc(l.content)}</td>
+    <td>${dprEsc(l.obj)}</td>
+    <td>${dprEsc(l.form)}</td>
+    <td>${dprEsc(l.ch)}</td>
+    <td><span class="mp-log-badge ${l.ok?'ok':'fail'}">${l.ok?'成功':'失败'}</span></td>
+  </tr>`).join('')}</tbody></table>`;
+  mpOpenMask('mp-log-modal');
+}
 function saveMpRule(){
   const name=document.getElementById('mp-name').value.trim();
   if(!name){showToast('请填写配置名称');document.getElementById('mp-name').focus();return;}
@@ -3488,7 +3609,9 @@ function bindMsgPush(){
     const btn=e.target.closest('[data-act]');if(!btn)return;
     const id=btn.closest('.mp-rule').dataset.id;
     const act=btn.dataset.act;
-    if(act==='edit'){openMpModal(id);}
+    if(act==='detail'){openMpDetail(id);}
+    else if(act==='log'){openMpLog(id);}
+    else if(act==='edit'){openMpModal(id);}
     else if(act==='toggle'){
       const r=mpData.find(x=>x.id===id);if(!r)return;
       r.enabled=!r.enabled;mpSave(mpData);renderMpRules();
@@ -3504,6 +3627,12 @@ function bindMsgPush(){
   page.querySelector('#mp-cancel').onclick=closeMpModal;
   page.querySelector('#mp-save').onclick=saveMpRule;
   page.querySelector('#mp-modal').addEventListener('click',e=>{if(e.target.id==='mp-modal')closeMpModal();});
+  page.querySelector('#mp-detail-close').onclick=()=>mpCloseMask('mp-detail-modal');
+  page.querySelector('#mp-detail-ok').onclick=()=>mpCloseMask('mp-detail-modal');
+  page.querySelector('#mp-detail-modal').addEventListener('click',e=>{if(e.target.id==='mp-detail-modal')mpCloseMask('mp-detail-modal');});
+  page.querySelector('#mp-log-close').onclick=()=>mpCloseMask('mp-log-modal');
+  page.querySelector('#mp-log-ok').onclick=()=>mpCloseMask('mp-log-modal');
+  page.querySelector('#mp-log-modal').addEventListener('click',e=>{if(e.target.id==='mp-log-modal')mpCloseMask('mp-log-modal');});
   page.querySelector('#mp-scene').onchange=mpSyncTrigger;
   page.querySelector('#mp-enabled').onclick=function(){setMpSwitch(!this.classList.contains('on'));mpSyncEnabled();};
   page.querySelector('#mp-objects').addEventListener('change',()=>{
