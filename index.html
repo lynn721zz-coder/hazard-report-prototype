@@ -723,34 +723,34 @@
   .mp-tools button.del{color:var(--danger-600)}
   .mp-tools button.del:hover{background:var(--danger-50)}
   .mp-status{display:flex;align-items:center}
-  /* 详情 / 推送记录：页面承载（非弹窗） */
+  /* 详情 / 推送记录：同页整合（非弹窗） */
   .mp-view-pane{display:none}
   .mp-view-pane.active{display:block}
   .mp-crumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-tertiary);margin-bottom:8px}
   .mp-back{font-size:12px;color:var(--sys-primary);padding:2px 0}
   .mp-back:hover{text-decoration:underline}
-  .mp-sub-page{max-width:1040px}
+  .mp-sub-page{max-width:1200px}
   .mp-form-page .modal-body{padding:22px 24px;max-height:none;overflow:visible}
   .mp-form-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 24px 18px;border-top:1px solid var(--border)}
-  .mp-detail-grid{padding:10px 24px 16px}
-  .mp-detail-grid .mp-detail-item{grid-template-columns:118px 1fr}
-  .mp-log-card-body{padding:0;max-height:none;overflow:visible}
-  .mp-detail-item{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .mp-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .mp-detail-head .rpt-list-head{flex:1;min-width:0}
+  .mp-detail-head h1{display:flex;align-items:center;gap:10px}
+  .mp-status-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);background:var(--success-50);color:var(--success-800);font-size:11px;font-weight:500}
+  .mp-status-badge.off{background:var(--danger-50);color:var(--danger-800)}
+  .mp-detail-info{display:grid;grid-template-columns:1fr 1fr;column-gap:42px;padding:8px 24px 14px}
+  .mp-detail-item{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px;align-items:start}
   .mp-detail-item:last-child{border-bottom:none}
   .mp-detail-item .k{color:var(--text-tertiary)}
   .mp-detail-item .v{color:var(--text-primary)}
-  .mp-detail-item.mp-detail-hidden{display:none}
-  .mp-log-summary{display:flex;gap:18px;padding:12px 20px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary)}
-  .mp-log-summary b{color:var(--text-primary);font-size:14px;margin-left:4px}
-  .mp-log-table{width:100%;border-collapse:collapse;font-size:12.5px}
-  .mp-log-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:9px 20px;border-bottom:1px solid var(--border);white-space:nowrap}
-  .mp-log-table td{padding:10px 20px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle}
-  .mp-log-table tr:last-child td{border-bottom:none}
-  .mp-log-table .lt-time{color:var(--text-primary);white-space:nowrap;font-size:12px}
-  .mp-log-table .lt-content{color:var(--text-primary);max-width:220px;line-height:1.5}
-  .mp-log-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);font-size:11px;white-space:nowrap}
-  .mp-log-badge.ok{background:var(--success-50);color:var(--success-800)}
-  .mp-log-badge.fail{background:var(--danger-50);color:var(--danger-800)}
+  .mp-detail-tip{grid-column:1/-1;margin:6px 24px 4px;padding:9px 12px;background:var(--sys-primary-bg-light);border-left:3px solid var(--sys-primary);border-radius:var(--radius-sm);font-size:11.5px;color:var(--sys-primary-deep);line-height:1.6}
+  .mp-push-card{margin-top:14px}
+  .mp-push-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .mp-push-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .mp-push-table td{padding:11px 20px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle}
+  .mp-push-table tr:last-child td{border-bottom:none}
+  .mp-push-table .hz-name{color:var(--text-primary);font-weight:500}
+  .mp-push-table .lt-time{color:var(--text-primary);white-space:nowrap;font-size:12px}
+  .mp-node-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-sm);background:#EEF2FF;color:#4338CA;font-size:11px}
   .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
   .mp-form-row{margin-bottom:14px}
   .mp-form-row .field-label{margin-bottom:7px}
@@ -3375,37 +3375,28 @@ function mpName(list,id){
   const a=alt&&alt.find(x=>x.id===id);return a?a.name:id;
 }
 /* 推送记录：按规则稳定生成演示数据（基于 id 哈希，保证每次渲染一致） */
-const MP_LOG_CONTENT={
-  'report-done':'【中国昊华】隐患AI辅助分析报告（2025年12月1日至12月31日）已生成完成，请及时查看',
-  'report-fail':'隐患分析报告生成失败（已自动重试 3 次），请检查数据源后重新发起',
-  'dpr-done':'2026年10月份中国中化双重预防机制运行分析报告已生成完成',
-  'hazard-due':'您名下有 3 条隐患将于到期前 3 天到达整改期限，请及时跟进',
-  'hazard-od':'存在 2 条超期未整改隐患，已触发上级督办',
-  'risk-change':'重大风险源风险等级由一般风险调整为较大风险，请关注',
-  'duty-assign':'有 1 项新的履职任务已分派给您，请查收',
-  'upload-bad':'数据上报核查未通过，请核对后重新上报'
-};
 function mpLogSeed(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))>>>0;return h;}
-function mpLogsOf(rule){
-  const n=3+(mpLogSeed(rule.id)%3); // 3~5 条
-  const objs=rule.objects.map(o=>o==='custom'?(rule.custom||'指定人员'):mpName(MP_OBJECTS,o));
-  const chs=rule.channels.map(c=>mpName(MP_CHANNELS,c));
-  const content=MP_LOG_CONTENT[rule.scene]||'推送配置「'+rule.name+'」已触发';
-  const out=[];let seed=mpLogSeed(rule.id);
-  for(let i=0;i<n;i++){
-    seed=(seed*1103515245+12345)>>>0;
-    const day=18-(i*2+seed%3);
-    const hh=String(8+(seed%9)).padStart(2,'0'),mm=String((seed>>4)%60).padStart(2,'0');
-    const ok=(seed>>8)%7!==0; // 约 1/7 失败
-    out.push({
-      time:'2026-11-'+String(Math.max(1,day)).padStart(2,'0')+' '+hh+':'+mm,
-      obj:objs[i%objs.length]||'报告创建人',
-      ch:chs[i%chs.length]||'站内消息',
-      form:mpName(MP_FORMS,rule.forms[i%rule.forms.length]||'message'),
-      content, ok
-    });
-  }
-  return out;
+const MP_PUSH_HAZARDS=[
+  {name:'化学品储罐区闸门渗漏',level:'重大事故隐患',node:'待整改',days:5,person:'张伟',phone:'13800138001'},
+  {name:'车间配电箱未上锁',level:'一般A级隐患',node:'待整改',days:4,person:'李想',phone:'13600136004'},
+  {name:'反应釜压力表超期未检',level:'一般A级隐患',node:'待整改',days:3,person:'陈刚',phone:'13500135005'},
+  {name:'仓库消防通道堵塞',level:'一般A级隐患',node:'待整改',days:3,person:'王强',phone:'13700137003'},
+  {name:'动火作业票证不全',level:'一般A级隐患',node:'待验收',days:3,person:'刘敏',phone:'13800139002'},
+  {name:'有限空间警示标识缺失',level:'一般B级隐患',node:'待复查',days:2,person:'赵芳',phone:'13400134006'}
+];
+function mpPushRecords(rule){
+  const seed=mpLogSeed(rule.id||rule.name||'MP');
+  const hasSms=(rule.channels||[]).includes('sms');
+  const pad=x=>String(x).padStart(2,'0');
+  return MP_PUSH_HAZARDS.map((h,i)=>{
+    const t=new Date(Date.UTC(2026,9,9,1,0,12)-i*125000-(seed%30)*1000);
+    return {
+      no:i+1,name:h.name,level:h.level,node:h.node,days:h.days,
+      obj:h.person+'（'+h.phone+'）',
+      way:(i===3||!hasSms)?'待办':'待办、短信',
+      time:'2026-10-09 '+pad(t.getUTCHours())+':'+pad(t.getUTCMinutes())+':'+pad(t.getUTCSeconds())
+    };
+  });
 }
 function mpLoad(){
   try{const raw=localStorage.getItem(MP_KEY);if(raw)return JSON.parse(raw);}catch(e){}
@@ -3512,33 +3503,27 @@ function msgPushHTML(){
       </div>
     </div>
     </div>
-    <!-- 详情页 -->
+    <!-- 详情 + 推送记录（同页整合） -->
     <div class="mp-view-pane" id="mp-view-detail">
-    <div class="rpt-head-row">
+    <div class="rpt-head-row mp-detail-head">
       <div class="rpt-list-head">
         <div class="mp-crumb"><button class="mp-back" id="mp-detail-back">← 返回列表</button><span>/ 消息推送配置</span></div>
-        <h1>推送配置详情</h1>
-        <div class="sub">查看该推送规则的完整配置信息</div>
+        <h1>提醒配置详情 <span class="mp-status-badge" id="mp-detail-status">启用中</span></h1>
+        <div class="sub">查看该提醒配置的完整信息与消息推送记录</div>
       </div>
+      <button class="btn-rpt-cfg" id="mp-detail-top-back">返回</button>
     </div>
     <div class="mp-card mp-sub-page">
-      <div class="mp-card-head"><h2>基本信息 <span class="mp-sub" id="mp-detail-name"></span></h2></div>
-      <div class="mp-detail-grid" id="mp-detail-body"></div>
+      <div class="mp-card-head"><h2>基本信息</h2></div>
+      <div class="mp-detail-info" id="mp-detail-body"></div>
+      <div class="mp-detail-tip" id="mp-detail-tip"></div>
     </div>
-    </div>
-    <!-- 推送记录页 -->
-    <div class="mp-view-pane" id="mp-view-log">
-    <div class="rpt-head-row">
-      <div class="rpt-list-head">
-        <div class="mp-crumb"><button class="mp-back" id="mp-log-back">← 返回列表</button><span>/ 消息推送配置</span></div>
-        <h1>推送记录</h1>
-        <div class="sub" id="mp-log-desc">该规则近期的消息 / 待办推送情况</div>
+    <div class="mp-card mp-sub-page mp-push-card" id="mp-push-log-card">
+      <div class="mp-card-head">
+        <h2>催办消息推送记录</h2>
+        <span class="mp-meta" id="mp-push-summary"></span>
       </div>
-    </div>
-    <div class="mp-card mp-sub-page">
-      <div class="mp-card-head"><h2>推送明细 <span class="mp-sub" id="mp-log-rule"></span></h2></div>
-      <div class="mp-log-summary" id="mp-log-summary"></div>
-      <div class="mp-log-card-body" id="mp-log-body"></div>
+      <div id="mp-log-body"></div>
     </div>
     </div>
   </section>`;
@@ -3644,42 +3629,49 @@ function closeMpModal(){mpShowView('list');}
 function openMpDetail(id){
   const r=mpData.find(x=>x.id===id);if(!r)return;
   const sc=MP_SCENES.find(s=>s.id===r.scene);
-  const nm=(list,arr)=>arr.map(x=>{if(x==='custom')return (r.custom||'指定人员');return mpName(list,x);}).join('、')||'—';
-  const rows=[
+  const nm=(list,arr)=>(arr||[]).map(x=>x==='custom'?(r.custom||'指定人员'):mpName(list,x)).join('、')||'—';
+  const left=[
     ['提醒事项名称',dprEsc(r.name)],
-    ['配置名称',dprEsc(r.name)],
-    ['适用部门',r.dept?dprEsc(mpName(MP_DEPTS,r.dept)):'—'],
-    ['所属业务','隐患治理'],
-    ['业务场景',sc?dprEsc(sc.name):'—'],
-    ['触发时机',sc?dprEsc(sc.trigger):'—'],
-    ['通知形式',nm(MP_FORMS,r.forms)],
+    ['所属场景',sc?dprEsc(sc.name):'—'],
+    ['通知时间',dprEsc(r.notifyTime||'待整改 - 3天')],
     ['通知方式',nm(MP_CHANNELS,r.channels)],
-    ['推送对象',nm(MP_OBJECTS,r.objects)],
-    ['推送方式',nm(MP_CHANNELS,r.channels)],
     ['隐患等级',r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'],
-    ['当前状态',r.enabled?'启用':'停用'],
-    ['最近更新',dprEsc(r.updated||'—')]
+    ['适用部门',r.dept?dprEsc(mpName(MP_DEPTS,r.dept)):'—'],
+    ['通知对象',nm(MP_OBJECTS,r.objects)]
   ];
-  document.getElementById('mp-detail-body').innerHTML=rows.map(x=>`<div class="mp-detail-item${x[0]==='配置名称'||x[0]==='推送方式'?' mp-detail-hidden':''}"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
-  document.getElementById('mp-detail-name').textContent=r.name;
+  const right=[
+    ['所属业务','隐患治理'],
+    ['通知形式',nm(MP_FORMS,r.forms)],
+    ['通知频率',dprEsc(r.freq||'每日提醒')],
+    ['启停状态',r.enabled?'启用':'停用'],
+    ['更新人',dprEsc(r.updater||'胡伟-01')],
+    ['更新时间',dprEsc(r.updated||'—')]
+  ];
+  const item=x=>`<div class="mp-detail-item"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`;
+  document.getElementById('mp-detail-body').innerHTML='<div>'+left.map(item).join('')+'</div><div>'+right.map(item).join('')+'</div>';
+  document.getElementById('mp-detail-tip').textContent='生效逻辑：'+(r.notice||'隐患数据处于待整改3天后未流转，自动向处置节点处理人推送催办消息');
+  const badge=document.getElementById('mp-detail-status');
+  badge.textContent=r.enabled?'启用中':'已停用';badge.classList.toggle('off',!r.enabled);
+  const recs=mpPushRecords(r);
+  document.getElementById('mp-push-summary').textContent='累计推送 '+(20+mpLogSeed(r.id||'')%12)+' 条 · 今日推送 '+recs.length+' 条';
+  document.getElementById('mp-log-body').innerHTML=`<table class="mp-push-table"><thead><tr><th>序号</th><th>隐患名称</th><th>隐患等级</th><th>处置节点</th><th>逾期天数</th><th>推送对象</th><th>推送方式</th><th>推送时间</th></tr></thead><tbody>${recs.map(l=>`<tr>
+    <td>${l.no}</td>
+    <td class="hz-name">${dprEsc(l.name)}</td>
+    <td>${dprEsc(l.level)}</td>
+    <td><span class="mp-node-badge">${dprEsc(l.node)}</span></td>
+    <td>${l.days}</td>
+    <td>${dprEsc(l.obj)}</td>
+    <td>${dprEsc(l.way)}</td>
+    <td class="lt-time">${dprEsc(l.time)}</td>
+  </tr>`).join('')}</tbody></table>`;
   mpShowView('detail');
 }
 function openMpLog(id){
-  const r=mpData.find(x=>x.id===id);if(!r)return;
-  const logs=mpLogsOf(r),okN=logs.filter(l=>l.ok).length,failN=logs.length-okN;
-  const sc=MP_SCENES.find(s=>s.id===r.scene);
-  document.getElementById('mp-log-desc').textContent='规则「'+r.name+'」'+(sc?'（'+sc.name+'）':'')+' 近期的消息 / 待办推送情况';
-  document.getElementById('mp-log-summary').innerHTML=`<span>推送总次数 <b>${logs.length}</b></span><span>推送成功 <b style="color:var(--success-800)">${okN}</b></span><span>推送失败 <b style="color:var(--danger-600)">${failN}</b></span>`;
-  document.getElementById('mp-log-body').innerHTML=`<table class="mp-log-table"><thead><tr><th>推送时间</th><th>推送内容</th><th>推送对象</th><th>形式</th><th>方式</th><th>结果</th></tr></thead><tbody>${logs.map(l=>`<tr>
-    <td class="lt-time">${dprEsc(l.time)}</td>
-    <td class="lt-content">${dprEsc(l.content)}</td>
-    <td>${dprEsc(l.obj)}</td>
-    <td>${dprEsc(l.form)}</td>
-    <td>${dprEsc(l.ch)}</td>
-    <td><span class="mp-log-badge ${l.ok?'ok':'fail'}">${l.ok?'成功':'失败'}</span></td>
-  </tr>`).join('')}</tbody></table>`;
-  document.getElementById('mp-log-rule').textContent='规则「'+r.name+'」';
-  mpShowView('log');
+  openMpDetail(id);
+  requestAnimationFrame(()=>{
+    const card=document.getElementById('mp-push-log-card');
+    if(card)card.scrollIntoView({behavior:'smooth',block:'start'});
+  });
 }
 function saveMpRule(){
   const name=document.getElementById('mp-name').value.trim();
@@ -3734,7 +3726,7 @@ function bindMsgPush(){
   page.querySelector('#mp-form-back').onclick=closeMpModal;
   page.querySelector('#mp-cancel').onclick=closeMpModal;
   page.querySelector('#mp-detail-back').onclick=closeMpModal;
-  page.querySelector('#mp-log-back').onclick=closeMpModal;
+  page.querySelector('#mp-detail-top-back').onclick=closeMpModal;
   page.querySelector('#mp-save').onclick=saveMpRule;
   page.querySelector('#mp-scene').onchange=mpSyncTrigger;
   page.querySelector('#mp-enabled').onclick=function(){setMpSwitch(!this.classList.contains('on'));mpSyncEnabled();};
