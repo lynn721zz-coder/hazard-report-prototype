@@ -791,12 +791,12 @@
   #mp-log-body{overflow-x:auto}
   #mp-push-summary b{font-size:14px;font-weight:600;color:var(--text-primary);margin:0 1px}
   #mp-push-summary b.sum-today{color:var(--success-800)}
-  .mp-push-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px}
+  .mp-push-table{width:100%;table-layout:fixed;min-width:760px;border-collapse:collapse;font-size:12px}
   .mp-push-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
   .mp-push-table td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle;white-space:nowrap}
   .mp-push-table tr:last-child td{border-bottom:none}
   .mp-push-table tbody tr:hover td{background:var(--gray-50)}
-  .mp-push-table .hz-name{color:var(--text-primary);font-weight:500;white-space:nowrap}
+  .mp-push-table .hz-name{color:var(--text-primary);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mp-push-table .lt-time{color:var(--text-primary);white-space:nowrap;font-size:12px}
   .mp-node-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-sm);background:#EEF2FF;color:#4338CA;font-size:11px}
   .mp-node-badge.warn{background:#FFF4E0;color:#B26A00}
@@ -3818,9 +3818,9 @@ function openMpDetail(id){
   const recs=mpPushRecords(r);
   document.getElementById('mp-push-summary').innerHTML='累计推送 <b>'+(20+mpLogSeed(r.id||'')%12)+'</b> 条 · 今日推送 <b class="sum-today">'+recs.length+'</b> 条';
   const nodeCls=n=>n==='待验收'?' warn':(n&&n!=='待整改'?' done':'');
-  document.getElementById('mp-log-body').innerHTML=`<table class="mp-push-table"><colgroup><col style="width:40px"><col><col style="width:96px"><col style="width:72px"><col style="width:70px"><col style="width:156px"><col style="width:70px"><col style="width:150px"></colgroup><thead><tr><th>序号</th><th>隐患名称</th><th>隐患等级</th><th>处置节点</th><th>逾期天数</th><th>推送对象</th><th>推送方式</th><th>推送时间</th></tr></thead><tbody>${recs.map(l=>`<tr>
+  document.getElementById('mp-log-body').innerHTML=`<table class="mp-push-table"><colgroup><col style="width:5%"><col style="width:19%"><col style="width:12%"><col style="width:10%"><col style="width:9%"><col style="width:19%"><col style="width:9%"><col style="width:17%"></colgroup><thead><tr><th>序号</th><th>隐患名称</th><th>隐患等级</th><th>处置节点</th><th>逾期天数</th><th>推送对象</th><th>推送方式</th><th>推送时间</th></tr></thead><tbody>${recs.map(l=>`<tr>
     <td>${l.no}</td>
-    <td class="hz-name">${dprEsc(l.name)}</td>
+    <td class="hz-name" title="${dprEsc(l.name)}">${dprEsc(l.name)}</td>
     <td>${dprEsc(l.level)}</td>
     <td><span class="mp-node-badge${nodeCls(l.node)}">${dprEsc(l.node)}</span></td>
     <td>${l.days}</td>
