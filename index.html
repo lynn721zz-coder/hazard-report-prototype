@@ -703,6 +703,7 @@
   .mp-card-head .mp-sub{font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:2px}
   /* 列表页：查询区 + 数据表格 + 底部分页（参照隐患清单布局） */
   .mp-query{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-top:14px;padding:13px 16px}
+  .mp-list-toolbar{display:flex;justify-content:flex-end;padding:12px 2px 0}
   .mp-query-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 18px}
   .mp-query-item{display:flex;align-items:center;gap:8px;min-width:0}
   .mp-query-item>label{font-size:12px;color:var(--text-secondary);white-space:nowrap;flex:0 0 auto}
@@ -723,6 +724,7 @@
   .mp-list-table th:nth-child(2),.mp-list-table td:nth-child(2){position:sticky;left:46px;z-index:2;background:var(--bg-card);border-right:1px solid var(--border)}
   .mp-list-table th:last-child,.mp-list-table td:last-child{position:sticky;right:0;z-index:2;background:var(--bg-card);border-left:1px solid var(--border)}
   .mp-list-table th:nth-child(1),.mp-list-table th:nth-child(2),.mp-list-table th:last-child{background:var(--bg-tertiary)}
+  .mp-list-table th:nth-child(9){text-align:center}
   .mp-list-table tr:last-child td{border-bottom:none}
   .mp-list-table tr:last-child td:nth-child(2){border-right:1px solid var(--border)}
   .mp-list-table tr:last-child td:last-child{border-left:1px solid var(--border)}
@@ -763,8 +765,10 @@
   .mp-tools button:hover{background:var(--sys-primary-bg-light)}
   .mp-tools button.del{color:var(--danger-600)}
   .mp-tools button.del:hover{background:var(--danger-50)}
-  .mp-status{display:flex;align-items:center;gap:6px}
-  .mp-status-label{font-size:11.5px;white-space:nowrap;color:var(--text-tertiary)}
+  .mp-status{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;white-space:nowrap}
+  .mp-list-table td.mp-status{display:table-cell;text-align:center}
+  .mp-list-table td.mp-status .switch{vertical-align:middle}
+  .mp-status-label{font-size:11.5px;white-space:nowrap;color:var(--text-tertiary);display:inline-block;vertical-align:middle;margin-left:6px}
   .mp-status-label.on{color:var(--success-800)}
   /* 详情 / 推送记录：同页整合（非弹窗） */
   .mp-view-pane{display:none}
@@ -2946,14 +2950,20 @@ function showConfirm(msg,onOk,title,okText){
     m.addEventListener('click',e=>{if(e.target===m)hideConfirm();});
     document.getElementById('cfg-confirm-close').addEventListener('click',hideConfirm);
     document.getElementById('cfg-confirm-cancel').addEventListener('click',hideConfirm);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&m&&!m.hidden)hideConfirm();});
   }
   document.getElementById('cfg-confirm-msg').textContent=msg;
   document.getElementById('cfg-confirm-title').textContent=title||'删除确认';
   const ok=document.getElementById('cfg-confirm-ok');
   const newOk=ok.cloneNode(true);ok.parentNode.replaceChild(newOk,ok);
   newOk.textContent=okText||'确认删除';
-  newOk.addEventListener('click',()=>{hideConfirm();if(onOk)onOk();});
-  m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+  newOk.disabled=false;
+  newOk.addEventListener('click',()=>{
+    if(newOk.disabled)return;
+    newOk.disabled=true;newOk.textContent='处理中…';
+    setTimeout(()=>{hideConfirm();if(onOk)onOk();},350);
+  });
+  m.hidden=false;requestAnimationFrame(()=>{m.classList.add('show');setTimeout(()=>newOk.focus(),60);});
 }
 /* ===== 隐患类型编辑弹窗（仅管理员；默认类型仅可改说明，自定义类型可改名称+说明） ===== */
 function hideTypeEdit(){
@@ -3520,9 +3530,6 @@ function msgPushHTML(){
         <h1>消息推送配置</h1>
         <div class="sub">按业务场景配置消息 / 待办通知的推送对象与推送方式，配置生效后系统将在触发时自动推送</div>
       </div>
-      <div style="display:flex;gap:8px;flex-shrink:0">
-        <button class="btn-rpt-cfg primary" id="mp-add"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>新增配置</button>
-      </div>
     </div>
     <div class="mp-query">
       <div class="mp-query-grid">
@@ -3545,10 +3552,13 @@ function msgPushHTML(){
         <button class="btn-rpt-cfg" id="mq-reset">重置</button>
       </div>
     </div>
+    <div class="mp-list-toolbar">
+      <button class="btn-rpt-cfg primary" id="mp-add"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>新增配置</button>
+    </div>
     <div class="mp-card mp-list-card">
       <div class="mp-list-scroll">
         <table class="mp-list-table">
-          <colgroup><col class="col-no"><col style="width:150px"><col style="width:100px"><col style="width:88px"><col style="width:110px"><col style="width:88px"><col style="width:72px"><col style="width:72px"><col style="width:98px"><col style="width:112px"><col class="col-op"></colgroup>
+          <colgroup><col class="col-no"><col style="width:150px"><col style="width:100px"><col style="width:88px"><col style="width:110px"><col style="width:88px"><col style="width:72px"><col style="width:72px"><col style="width:106px"><col style="width:112px"><col class="col-op"></colgroup>
           <thead><tr>
             <th>序号</th><th>提醒事项名称</th><th>所属场景</th><th>通知时间</th><th>通知对象</th><th>通知方式</th><th>通知形式</th><th>隐患等级</th><th>启停状态</th><th>更新时间</th><th>操作</th>
           </tr></thead>
@@ -3702,7 +3712,7 @@ function renderMpRules(){
   const start=(mpPage-1)*mpPageSize,rows=list.slice(start,start+mpPageSize);
   const c=document.getElementById('mp-count');if(c)c.textContent=list.length;
   if(!rows.length){
-    wrap.innerHTML='<tr><td colspan="11" class="mp-empty">暂无推送配置，点击右上角「新增配置」创建规则</td></tr>';
+    wrap.innerHTML='<tr><td colspan="11" class="mp-empty">暂无推送配置，点击列表上方「新增配置」创建规则</td></tr>';
     mpRenderPager(totalPages);return;
   }
   wrap.innerHTML=rows.map((r,i)=>{
@@ -3937,6 +3947,11 @@ function bindMsgPush(){
         mpData=mpData.filter(x=>x.id!==id);mpSave(mpData);renderMpRules();showToast('推送配置已删除');
       });
     }
+  });
+  rows.addEventListener('keydown',e=>{
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    const sw=e.target.closest('.switch[data-act="toggle"]');if(!sw)return;
+    e.preventDefault();sw.click();
   });
   page.querySelector('#mp-form-back').onclick=closeMpModal;
   page.querySelector('#mp-cancel').onclick=closeMpModal;
