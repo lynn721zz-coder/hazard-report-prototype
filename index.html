@@ -715,10 +715,17 @@
   .mp-more-btn{margin-right:auto;background:none;border:none;color:var(--sys-primary);font-size:12px;cursor:pointer;padding:4px 0}
   .mp-list-card{margin-top:14px;overflow:hidden}
   .mp-list-scroll{overflow-x:auto}
-  .mp-list-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}
+  .mp-list-table{width:100%;min-width:1200px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12.5px}
   .mp-list-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
   .mp-list-table td{padding:9px 6px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* 两端固定列：序号 / 提醒事项名称固定在左，操作列固定在右，中间滚动 */
+  .mp-list-table th:nth-child(1),.mp-list-table td:nth-child(1){position:sticky;left:0;z-index:2;background:var(--bg-card);text-align:center}
+  .mp-list-table th:nth-child(2),.mp-list-table td:nth-child(2){position:sticky;left:46px;z-index:2;background:var(--bg-card);border-right:1px solid var(--border)}
+  .mp-list-table th:last-child,.mp-list-table td:last-child{position:sticky;right:0;z-index:2;background:var(--bg-card);border-left:1px solid var(--border)}
+  .mp-list-table th:nth-child(1),.mp-list-table th:nth-child(2),.mp-list-table th:last-child{background:var(--bg-tertiary)}
   .mp-list-table tr:last-child td{border-bottom:none}
+  .mp-list-table tr:last-child td:nth-child(2){border-right:1px solid var(--border)}
+  .mp-list-table tr:last-child td:last-child{border-left:1px solid var(--border)}
   .mp-rule:hover td{background:var(--gray-50)}
   .mp-list-table .col-chk{width:36px;text-align:center;padding-left:12px}
   .mp-list-table .col-no{width:46px}
@@ -1208,8 +1215,7 @@ const MENU=[
     {id:'hazard-report',name:'隐患分析报告',report:true},
     {id:'fb-dashboard',name:'反馈统计看板'},
     {id:'duty-report',name:'履职任务报表'},
-    {id:'msg-push',name:'消息推送配置'},
-    {id:'type-cfg',name:'类型配置'}]},
+    {id:'msg-push',name:'消息推送配置'}]},
   {id:'contractor',icon:IC.briefcase,name:'承包商HSE管理',children:[
     {id:'ct-info',name:'承包商档案'},{id:'ct-eval',name:'承包商评价'}]},
   {id:'upload',icon:IC.upload,name:'数据上报情况',children:[
@@ -3446,8 +3452,9 @@ const MP_CHANNELS=[
 const MP_FORM_CHANNELS=['station','sms','app','email'];
 const MP_FORMS=[{id:'todo',name:'待办事项'},{id:'message',name:'系统消息'}];
 const MP_DEPTS=[
-  {id:'',name:'请选择适用部门'},{id:'safety',name:'安全环保部'},{id:'production',name:'生产管理部'},
-  {id:'equipment',name:'设备管理部'},{id:'unit',name:'各基层单位'}
+  {id:'',name:'请选择适用单位'},{id:'hq',name:'中国中化（总部）'},{id:'haohua',name:'中国昊华'},
+  {id:'andisu',name:'安迪苏'},{id:'yangnong',name:'扬农化工'},{id:'lantian',name:'中化蓝天'},
+  {id:'zhehua',name:'浙化院'},{id:'beihuaji',name:'北化机'}
 ];
 const MP_LEVELS=[
   {id:'',name:'请选择隐患等级'},{id:'general',name:'一般隐患'},{id:'larger',name:'较大隐患'},{id:'major',name:'重大隐患'}
@@ -3487,9 +3494,16 @@ function mpPushRecords(rule){
 function mpLoad(){
   try{const raw=localStorage.getItem(MP_KEY);if(raw)return JSON.parse(raw);}catch(e){}
   const def=[
-    {id:'MP-1001',scene:'report-done',name:'隐患分析报告生成完成通知',dept:'safety',level:'general',objects:['creator','orgowner'],channels:['station','app'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
-    {id:'MP-1002',scene:'report-fail',name:'报告生成失败告警',dept:'production',level:'larger',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
-    {id:'MP-1003',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'safety',level:'general',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-16 09:30'}
+    {id:'MP-1001',scene:'report-done',name:'隐患分析报告生成完成通知',dept:'hq',level:'general',objects:['creator','orgowner'],channels:['station','app'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
+    {id:'MP-1002',scene:'report-fail',name:'报告生成失败告警',dept:'hq',level:'larger',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
+    {id:'MP-1003',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'lantian',level:'general',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-16 09:30'},
+    {id:'MP-1004',scene:'hazard-due',name:'隐患整改到期提前提醒',dept:'haohua',level:'general',objects:['safety'],channels:['station','app'],forms:['todo'],custom:'',enabled:true,updated:'2026-11-16 14:12'},
+    {id:'MP-1005',scene:'hazard-od',name:'隐患超期未整改督办',dept:'haohua',level:'larger',objects:['orgowner','safety'],channels:['station','sms'],forms:['todo','message'],custom:'',enabled:true,updated:'2026-11-15 11:08'},
+    {id:'MP-1006',scene:'risk-change',name:'重大风险等级变更提醒',dept:'hq',level:'major',objects:['orgowner','admin'],channels:['station','sms','app'],forms:['message'],custom:'',enabled:true,updated:'2026-11-14 17:45'},
+    {id:'MP-1007',scene:'duty-assign',name:'履职任务分派通知',dept:'zhehua',level:'',objects:['creator'],channels:['station'],forms:['todo'],custom:'',enabled:true,updated:'2026-11-13 09:22'},
+    {id:'MP-1008',scene:'upload-bad',name:'数据上报核查异常告警',dept:'yangnong',level:'larger',objects:['creator','safety'],channels:['station','email'],forms:['message'],custom:'',enabled:false,updated:'2026-11-12 15:36'},
+    {id:'MP-1009',scene:'hazard-due',name:'重大隐患整改到期专项提醒',dept:'andisu',level:'major',objects:['orgowner'],channels:['station','sms'],forms:['todo','message'],custom:'',enabled:true,updated:'2026-11-11 10:05'},
+    {id:'MP-1010',scene:'report-done',name:'月度报告生成完成提醒',dept:'beihuaji',level:'',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-10 08:50'}
   ];
   try{localStorage.setItem(MP_KEY,JSON.stringify(def));}catch(e){}
   return def;
@@ -3513,7 +3527,7 @@ function msgPushHTML(){
     <div class="mp-query">
       <div class="mp-query-grid">
         <div class="mp-query-item"><label for="mq-name">提醒事项名称</label><input class="fi-input" id="mq-name" placeholder="请输入名称"></div>
-        <div class="mp-query-item"><label for="mq-dept">适用部门</label><select class="fi-select" id="mq-dept" style="appearance:auto;padding-right:8px"></select></div>
+        <div class="mp-query-item"><label for="mq-dept">适用单位</label><select class="fi-select" id="mq-dept" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-scene">所属场景</label><select class="fi-select" id="mq-scene" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-level">隐患等级</label><select class="fi-select" id="mq-level" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-form">通知形式</label><select class="fi-select" id="mq-form" style="appearance:auto;padding-right:8px"></select></div>
@@ -3534,16 +3548,15 @@ function msgPushHTML(){
     <div class="mp-card mp-list-card">
       <div class="mp-list-scroll">
         <table class="mp-list-table">
-          <colgroup><col class="col-chk"><col class="col-no"><col style="width:152px"><col style="width:104px"><col style="width:88px"><col style="width:116px"><col style="width:88px"><col style="width:72px"><col style="width:72px"><col style="width:98px"><col style="width:96px"><col class="col-op"></colgroup>
+          <colgroup><col class="col-no"><col style="width:150px"><col style="width:100px"><col style="width:88px"><col style="width:110px"><col style="width:88px"><col style="width:72px"><col style="width:72px"><col style="width:98px"><col style="width:112px"><col class="col-op"></colgroup>
           <thead><tr>
-            <th class="col-chk"><input type="checkbox" id="mq-all" title="全选"></th><th>序号</th><th>提醒事项名称</th><th>所属场景</th><th>通知时间</th><th>通知对象</th><th>通知方式</th><th>通知形式</th><th>隐患等级</th><th>启停状态</th><th>更新时间</th><th>操作</th>
+            <th>序号</th><th>提醒事项名称</th><th>所属场景</th><th>通知时间</th><th>通知对象</th><th>通知方式</th><th>通知形式</th><th>隐患等级</th><th>启停状态</th><th>更新时间</th><th>操作</th>
           </tr></thead>
           <tbody id="mp-rows"></tbody>
         </table>
       </div>
       <div class="mp-list-foot" id="mp-list-foot">
         <div class="mp-foot-left">
-          <button id="mq-cols"><svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>列配置</button>
           <span>共 <b id="mp-count">0</b> 条</span>
         </div>
         <div class="mp-foot-right" id="mp-pager"></div>
@@ -3569,7 +3582,7 @@ function msgPushHTML(){
               <div class="mp-input-count"><input class="fi-input" id="mp-name" maxlength="200" placeholder="请输入提醒事项名称"><span class="cnt" id="mp-name-cnt">0/200</span></div>
             </div>
             <div class="mp-field">
-              <label class="mp-lbl" for="mp-dept">适用部门<span class="req">*</span></label>
+              <label class="mp-lbl" for="mp-dept">适用单位<span class="req">*</span></label>
               <select class="fi-select" id="mp-dept" style="appearance:auto;padding-right:10px"></select>
             </div>
             <div class="mp-field">
@@ -3689,8 +3702,7 @@ function renderMpRules(){
   const start=(mpPage-1)*mpPageSize,rows=list.slice(start,start+mpPageSize);
   const c=document.getElementById('mp-count');if(c)c.textContent=list.length;
   if(!rows.length){
-    wrap.innerHTML='<tr><td colspan="12" class="mp-empty">暂无推送配置，点击右上角「新增配置」创建规则</td></tr>';
-    const all=document.getElementById('mq-all');if(all)all.checked=false;
+    wrap.innerHTML='<tr><td colspan="11" class="mp-empty">暂无推送配置，点击右上角「新增配置」创建规则</td></tr>';
     mpRenderPager(totalPages);return;
   }
   wrap.innerHTML=rows.map((r,i)=>{
@@ -3699,7 +3711,6 @@ function renderMpRules(){
     const objChips=r.objects.map(o=>`<span class="mp-chip obj">${o==='custom'&&r.custom?r.custom:mpName(MP_OBJECTS,o)}</span>`).join('')||'—';
     const chChips=r.channels.map(ch=>`<span class="mp-chip ch">${mpName(MP_CHANNELS,ch)}</span>`).join('')||'—';
     return `<tr class="mp-rule" data-id="${r.id}">
-      <td class="col-chk"><input type="checkbox" class="mp-row-check" title="选择该规则"></td>
       <td>${start+i+1}</td>
       <td class="mp-name-cell" data-act="detail" title="${dprEsc(r.name)}">${dprEsc(r.name)}</td>
       <td>${sc?dprEsc(sc.name):'—'}</td>
@@ -3710,11 +3721,9 @@ function renderMpRules(){
       <td>${r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'}</td>
       <td class="mp-status"><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span><span class="mp-status-label${r.enabled?' on':''}">${r.enabled?'启用中':'已停用'}</span></td>
       <td>${dprEsc(r.updated||'—')}</td>
-      <td><div class="mp-row-tools"><button data-act="detail">详情</button><button data-act="log">记录</button><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div></td>
+      <td><div class="mp-row-tools"><button data-act="detail">详情</button><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div></td>
     </tr>`;
   }).join('');
-  const all=document.getElementById('mq-all');
-  if(all)all.checked=rows.every(r=>{const el=wrap.querySelector(`.mp-rule[data-id="${r.id}"] .mp-row-check`);return el&&el.checked;});
   mpRenderPager(totalPages);
 }
 function mpOpts(list){return list.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');}
@@ -3804,7 +3813,7 @@ function openMpDetail(id){
     ['通知时间',dprEsc(r.notifyTime||'待整改 - 3天')],
     ['通知方式',nm(MP_CHANNELS,r.channels)],
     ['隐患等级',r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'],
-    ['适用部门',r.dept?dprEsc(mpName(MP_DEPTS,r.dept)):'—'],
+    ['适用单位',r.dept?dprEsc(mpName(MP_DEPTS,r.dept)):'—'],
     ['通知对象',nm(MP_OBJECTS,r.objects)]
   ];
   const right=[
@@ -3889,10 +3898,6 @@ function bindMsgPush(){
     const m=document.getElementById('mq-more');m.classList.toggle('open');
     this.textContent=m.classList.contains('open')?'收起筛选 ▴':'更多筛选 ▾';
   };
-  page.querySelector('#mq-cols').onclick=()=>showToast('列配置：可选择列表展示字段（演示）');
-  page.querySelector('#mq-all').onchange=function(){
-    document.querySelectorAll('#mp-rows .mp-row-check').forEach(c=>{c.checked=this.checked;});
-  };
   const pager=page.querySelector('#mp-pager');
   pager.addEventListener('click',e=>{
     const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;
@@ -3912,11 +3917,6 @@ function bindMsgPush(){
     }
   });
   const rows=page.querySelector('#mp-rows');
-  rows.addEventListener('change',e=>{
-    if(!e.target.classList.contains('mp-row-check'))return;
-    const cbs=[...rows.querySelectorAll('.mp-row-check')],all=document.getElementById('mq-all');
-    if(all)all.checked=cbs.length>0&&cbs.every(c=>c.checked);
-  });
   rows.addEventListener('click',e=>{
     const btn=e.target.closest('[data-act]');if(!btn)return;
     const id=btn.closest('.mp-rule').dataset.id;
