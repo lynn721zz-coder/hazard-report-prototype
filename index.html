@@ -838,7 +838,7 @@
   .mp-form-row{margin-bottom:14px}
   .mp-form-row .field-label{margin-bottom:7px}
   /* 提醒配置表单（参照提醒事项新增页：字段右对齐 + 两列布局） */
-  .mp-form-two{display:grid;grid-template-columns:1.15fr .85fr;gap:26px}
+  .mp-form-two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
   .mp-field{display:grid;grid-template-columns:94px minmax(0,1fr);align-items:center;gap:8px;margin-bottom:13px}
   .mp-field .mp-lbl{font-size:12.5px;color:var(--text-secondary);text-align:right;white-space:nowrap}
   .mp-field .mp-lbl .req{color:var(--danger-600);margin-left:2px}
@@ -3588,11 +3588,21 @@ function msgPushHTML(){
               <label class="mp-lbl" for="mp-scene">所属场景<span class="req">*</span></label>
               <select class="fi-select" id="mp-scene" style="appearance:auto;padding-right:10px"></select>
             </div>
+            <div class="mp-field" style="margin-bottom:0">
+              <label class="mp-lbl" for="mp-level">隐患等级<span class="req">*</span></label>
+              <select class="fi-select" id="mp-level" style="appearance:auto;padding-right:10px"></select>
+            </div>
+          </div>
+          <div>
+            <div class="mp-field" style="align-items:start">
+              <span class="mp-lbl" style="padding-top:7px">通知形式<span class="req">*</span></span>
+              <div class="mp-check-line" id="mp-forms" style="padding-top:6px"></div>
+            </div>
             <div class="mp-field" style="align-items:start">
               <span class="mp-lbl" style="padding-top:7px">通知方式<span class="req">*</span></span>
               <div class="mp-check-line" id="mp-channels" style="padding-top:6px"></div>
             </div>
-            <div class="mp-field" style="align-items:start;margin-bottom:0">
+            <div class="mp-field" style="align-items:start">
               <span class="mp-lbl" style="padding-top:7px">通知对象<span class="req">*</span></span>
               <div>
                 <div class="mp-obj-grid">
@@ -3604,19 +3614,9 @@ function msgPushHTML(){
                 <div id="mp-objects" style="display:none" aria-hidden="true"></div>
               </div>
             </div>
-          </div>
-          <div>
-            <div class="mp-field" style="align-items:start">
-              <span class="mp-lbl" style="padding-top:7px">通知形式<span class="req">*</span></span>
-              <div class="mp-check-line" id="mp-forms" style="padding-top:6px"></div>
-            </div>
-            <div class="mp-field">
+            <div class="mp-field" style="margin-bottom:0">
               <span class="mp-lbl">启停状态<span class="req">*</span></span>
               <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="mp-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="mp-enabled-txt">启用</span></div>
-            </div>
-            <div class="mp-field">
-              <label class="mp-lbl" for="mp-level">隐患等级<span class="req">*</span></label>
-              <select class="fi-select" id="mp-level" style="appearance:auto;padding-right:10px"></select>
             </div>
           </div>
         </div>
@@ -3631,7 +3631,6 @@ function msgPushHTML(){
     <div class="mp-view-pane" id="mp-view-detail">
     <div class="rpt-head-row mp-detail-head">
       <div class="rpt-list-head">
-        <div class="mp-crumb"><button class="mp-back" id="mp-detail-back">← 返回列表</button><span>/ 消息推送配置</span></div>
         <h1>提醒配置详情 <span class="mp-status-badge" id="mp-detail-status">启用中</span></h1>
       </div>
     </div>
@@ -3645,6 +3644,9 @@ function msgPushHTML(){
         <span class="mp-meta" id="mp-push-summary"></span>
       </div>
       <div id="mp-log-body"></div>
+    </div>
+    <div class="mp-form-foot">
+      <button class="btn-rpt-cfg" id="mp-detail-back">返回</button>
     </div>
     </div>
   </section>`;
