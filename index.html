@@ -774,10 +774,13 @@
   .mp-back:hover{text-decoration:underline}
   .mp-sub-page{max-width:none}
   .mp-form-page .modal-body{padding:22px 24px;max-height:none;overflow:visible}
-  #page-msg-push #mp-view-form .mp-form-page{max-width:1000px}
-  #page-msg-push #mp-view-form .mp-form-two{gap:4px 20px}
-  #page-msg-push #mp-view-form .mp-field{grid-template-columns:88px minmax(0,1fr);gap:10px;margin-bottom:14px}
-  #page-msg-push #mp-view-form .mp-form-full{grid-column:1/-1;border-top:1px solid var(--border);padding-top:14px}
+  #page-msg-push .mp-view{min-height:calc(100vh - 88px);display:flex;flex-direction:column}
+  #page-msg-push #mp-view-form.active{flex:1;display:flex;flex-direction:column}
+  #page-msg-push #mp-view-form .mp-form-page{max-width:none}
+  #page-msg-push #mp-view-form .mp-form-two{gap:4px 24px}
+  #page-msg-push #mp-view-form .mp-field{grid-template-columns:100px minmax(0,1fr);gap:12px;margin-bottom:16px}
+  #page-msg-push #mp-view-form .mp-form-full{grid-column:1/-1;border-top:1px solid var(--border);padding-top:16px}
+  #page-msg-push #mp-view-form .mp-form-foot{margin-top:auto}
   .mp-form-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 24px 18px;border-top:1px solid var(--border)}
   .mp-card-head h2::before{content:'';width:3px;height:13px;background:var(--sys-primary);border-radius:2px;flex-shrink:0}
   .mp-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -3684,10 +3687,10 @@ function msgPushHTML(){
           </div>
         </div>
       </div>
-      <div class="mp-form-foot">
-        <button class="btn-rpt-cfg" id="mp-cancel">返回</button>
-        <button class="btn-rpt-cfg primary" id="mp-save">保存配置</button>
-      </div>
+    </div>
+    <div class="mp-form-foot">
+      <button class="btn-rpt-cfg" id="mp-cancel">返回</button>
+      <button class="btn-rpt-cfg primary" id="mp-save">保存配置</button>
     </div>
     </div>
     <!-- 详情 + 推送记录（同页整合） -->
