@@ -765,28 +765,37 @@
   .mp-crumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-tertiary);margin-bottom:8px}
   .mp-back{font-size:12px;color:var(--sys-primary);padding:2px 0}
   .mp-back:hover{text-decoration:underline}
-  .mp-sub-page{max-width:1200px}
+  .mp-sub-page{max-width:none}
   .mp-form-page .modal-body{padding:22px 24px;max-height:none;overflow:visible}
   .mp-form-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 24px 18px;border-top:1px solid var(--border)}
+  .mp-card-head h2::before{content:'';width:3px;height:13px;background:var(--sys-primary);border-radius:2px;flex-shrink:0}
   .mp-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .mp-detail-head .rpt-list-head{flex:1;min-width:0}
   .mp-detail-head h1{display:flex;align-items:center;gap:10px}
   .mp-status-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);background:var(--success-50);color:var(--success-800);font-size:11px;font-weight:500}
   .mp-status-badge.off{background:var(--danger-50);color:var(--danger-800)}
-  .mp-detail-info{display:grid;grid-template-columns:1fr 1fr;column-gap:42px;padding:8px 24px 14px}
-  .mp-detail-item{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px;align-items:start}
+  .mp-detail-info{display:grid;grid-template-columns:1fr 1fr;column-gap:48px;padding:8px 24px 14px}
+  .mp-detail-item{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12.5px;align-items:start}
   .mp-detail-item:last-child{border-bottom:none}
-  .mp-detail-item .k{color:var(--text-tertiary)}
-  .mp-detail-item .v{color:var(--text-primary)}
+  .mp-detail-item .k{color:var(--text-tertiary);white-space:nowrap}
+  .mp-detail-item .v{color:var(--text-primary);word-break:break-all;line-height:1.5}
+  .mp-detail-item .v.dim{color:var(--text-tertiary)}
   .mp-detail-tip{grid-column:1/-1;margin:6px 24px 4px;padding:9px 12px;background:var(--sys-primary-bg-light);border-left:3px solid var(--sys-primary);border-radius:var(--radius-sm);font-size:11.5px;color:var(--sys-primary-deep);line-height:1.6}
+  .mp-detail-tip b{font-weight:600}
   .mp-push-card{margin-top:14px}
-  .mp-push-table{width:100%;border-collapse:collapse;font-size:12.5px}
-  .mp-push-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 20px;border-bottom:1px solid var(--border);white-space:nowrap}
-  .mp-push-table td{padding:11px 20px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle}
+  #mp-log-body{overflow-x:auto}
+  #mp-push-summary b{font-size:14px;font-weight:600;color:var(--text-primary);margin:0 1px}
+  #mp-push-summary b.sum-today{color:var(--success-800)}
+  .mp-push-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px}
+  .mp-push-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .mp-push-table td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle;white-space:nowrap}
   .mp-push-table tr:last-child td{border-bottom:none}
-  .mp-push-table .hz-name{color:var(--text-primary);font-weight:500}
+  .mp-push-table tbody tr:hover td{background:var(--gray-50)}
+  .mp-push-table .hz-name{color:var(--text-primary);font-weight:500;white-space:nowrap}
   .mp-push-table .lt-time{color:var(--text-primary);white-space:nowrap;font-size:12px}
   .mp-node-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-sm);background:#EEF2FF;color:#4338CA;font-size:11px}
+  .mp-node-badge.warn{background:#FFF4E0;color:#B26A00}
+  .mp-node-badge.done{background:#F3E8FF;color:#7E22CE}
   .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
   .mp-form-row{margin-bottom:14px}
   .mp-form-row .field-label{margin-bottom:7px}
@@ -3580,7 +3589,6 @@ function msgPushHTML(){
         <h1>提醒配置详情 <span class="mp-status-badge" id="mp-detail-status">启用中</span></h1>
         <div class="sub">查看该提醒配置的完整信息与消息推送记录</div>
       </div>
-      <button class="btn-rpt-cfg" id="mp-detail-top-back">返回</button>
     </div>
     <div class="mp-card mp-sub-page">
       <div class="mp-card-head"><h2>基本信息</h2></div>
@@ -3764,22 +3772,23 @@ function openMpDetail(id){
     ['所属业务','隐患治理'],
     ['通知形式',nm(MP_FORMS,r.forms)],
     ['通知频率',dprEsc(r.freq||'每日提醒')],
-    ['启停状态',r.enabled?'启用':'停用'],
+    ['启停状态',r.enabled?'启用中':'已停用'],
     ['更新人',dprEsc(r.updater||'胡伟-01')],
     ['更新时间',dprEsc(r.updated||'—')]
   ];
-  const item=x=>`<div class="mp-detail-item"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`;
+  const item=x=>`<div class="mp-detail-item"><span class="k">${x[0]}</span><span class="v${x[1]==='—'?' dim':''}">${x[1]}</span></div>`;
   document.getElementById('mp-detail-body').innerHTML='<div>'+left.map(item).join('')+'</div><div>'+right.map(item).join('')+'</div>';
-  document.getElementById('mp-detail-tip').textContent='生效逻辑：'+(r.notice||'隐患数据处于待整改3天后未流转，自动向处置节点处理人推送催办消息');
+  document.getElementById('mp-detail-tip').innerHTML='<b>生效逻辑：</b>'+dprEsc(r.notice||'隐患数据处于待整改3天后未流转，自动向处置节点处理人推送催办消息');
   const badge=document.getElementById('mp-detail-status');
   badge.textContent=r.enabled?'启用中':'已停用';badge.classList.toggle('off',!r.enabled);
   const recs=mpPushRecords(r);
-  document.getElementById('mp-push-summary').textContent='累计推送 '+(20+mpLogSeed(r.id||'')%12)+' 条 · 今日推送 '+recs.length+' 条';
-  document.getElementById('mp-log-body').innerHTML=`<table class="mp-push-table"><thead><tr><th>序号</th><th>隐患名称</th><th>隐患等级</th><th>处置节点</th><th>逾期天数</th><th>推送对象</th><th>推送方式</th><th>推送时间</th></tr></thead><tbody>${recs.map(l=>`<tr>
+  document.getElementById('mp-push-summary').innerHTML='累计推送 <b>'+(20+mpLogSeed(r.id||'')%12)+'</b> 条 · 今日推送 <b class="sum-today">'+recs.length+'</b> 条';
+  const nodeCls=n=>n==='待验收'?' warn':(n&&n!=='待整改'?' done':'');
+  document.getElementById('mp-log-body').innerHTML=`<table class="mp-push-table"><colgroup><col style="width:40px"><col><col style="width:96px"><col style="width:72px"><col style="width:70px"><col style="width:156px"><col style="width:70px"><col style="width:150px"></colgroup><thead><tr><th>序号</th><th>隐患名称</th><th>隐患等级</th><th>处置节点</th><th>逾期天数</th><th>推送对象</th><th>推送方式</th><th>推送时间</th></tr></thead><tbody>${recs.map(l=>`<tr>
     <td>${l.no}</td>
     <td class="hz-name">${dprEsc(l.name)}</td>
     <td>${dprEsc(l.level)}</td>
-    <td><span class="mp-node-badge">${dprEsc(l.node)}</span></td>
+    <td><span class="mp-node-badge${nodeCls(l.node)}">${dprEsc(l.node)}</span></td>
     <td>${l.days}</td>
     <td>${dprEsc(l.obj)}</td>
     <td>${dprEsc(l.way)}</td>
@@ -3893,7 +3902,6 @@ function bindMsgPush(){
   page.querySelector('#mp-form-back').onclick=closeMpModal;
   page.querySelector('#mp-cancel').onclick=closeMpModal;
   page.querySelector('#mp-detail-back').onclick=closeMpModal;
-  page.querySelector('#mp-detail-top-back').onclick=closeMpModal;
   page.querySelector('#mp-save').onclick=saveMpRule;
   page.querySelector('#mp-scene').onchange=mpSyncTrigger;
   page.querySelector('#mp-enabled').onclick=function(){setMpSwitch(!this.classList.contains('on'));mpSyncEnabled();};
