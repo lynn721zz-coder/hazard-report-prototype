@@ -708,12 +708,9 @@
   .mp-query-item{display:flex;align-items:center;gap:8px;min-width:0}
   .mp-query-item>label{font-size:12px;color:var(--text-secondary);white-space:nowrap;flex:0 0 auto}
   .mp-query-item .fi-input,.mp-query-item .fi-select{height:30px;min-width:0;flex:1;padding-right:8px;color:var(--text-primary)}
-  .mp-query-more{display:none}
-  .mp-query-more.open{display:grid;margin-top:10px}
   .mp-query-date{display:flex;align-items:center;gap:4px;flex:1;min-width:0;font-size:12px;color:var(--text-tertiary)}
   .mp-query-date input{height:30px;min-width:0;flex:1;padding:0 7px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-secondary);font-size:11.5px}
   .mp-query-act{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
-  .mp-more-btn{margin-right:auto;background:none;border:none;color:var(--sys-primary);font-size:12px;cursor:pointer;padding:4px 0}
   .mp-list-card{margin-top:14px;overflow:hidden}
   .mp-list-scroll{overflow-x:auto}
   .mp-list-table{width:100%;min-width:1200px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12.5px}
@@ -733,8 +730,7 @@
   .mp-list-table .col-no{width:46px}
   .mp-list-table .col-op{width:156px}
   .mp-list-table input[type=checkbox]{width:13px;height:13px;accent-color:var(--sys-primary);cursor:pointer;vertical-align:middle}
-  .mp-name-cell{color:var(--sys-primary);font-weight:500;cursor:pointer}
-  .mp-name-cell:hover{text-decoration:underline}
+  .mp-name-cell{font-weight:500}
   .mp-row-tools{display:flex;align-items:center;gap:7px;white-space:nowrap}
   .mp-row-tools button{font-size:12px;color:var(--sys-primary);padding:0;white-space:nowrap}
   .mp-row-tools button:hover{text-decoration:underline}
@@ -791,8 +787,6 @@
   .mp-detail-item .k{color:var(--text-tertiary);white-space:nowrap}
   .mp-detail-item .v{color:var(--text-primary);word-break:break-all;line-height:1.5}
   .mp-detail-item .v.dim{color:var(--text-tertiary)}
-  .mp-detail-tip{grid-column:1/-1;margin:6px 24px 4px;padding:9px 12px;background:var(--sys-primary-bg-light);border-left:3px solid var(--sys-primary);border-radius:var(--radius-sm);font-size:11.5px;color:var(--sys-primary-deep);line-height:1.6}
-  .mp-detail-tip b{font-weight:600}
   .mp-push-card{margin-top:14px}
   #mp-log-body{overflow-x:auto}
   #mp-push-summary b{font-size:14px;font-weight:600;color:var(--text-primary);margin:0 1px}
@@ -870,7 +864,6 @@
   .mp-check-line{display:flex;flex-wrap:wrap;gap:8px 16px}
   .mp-check-line label{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;user-select:none}
   .mp-check-line input{accent-color:var(--sys-primary)}
-  .mp-tip{font-size:11.5px;color:var(--text-tertiary);margin-top:5px;line-height:1.5}
   .mp-meta{font-size:11.5px;color:var(--text-tertiary)}
 </style>
 <style id="__dm_no_drag_style__">* { -webkit-user-drag: none !important; }</style><style id="__dm_bindable_badge_style__">[data-sp-bindable="database"]{outline:1px dashed #0088ff;outline-offset:2px;border-radius:4px;}[data-sp-bindable="database"] *{pointer-events:none !important;transition:none !important;animation:none !important;}[data-sp-bindable="database"]{transition:none !important;animation:none !important;}</style></head>
@@ -3528,7 +3521,6 @@ function msgPushHTML(){
     <div class="rpt-head-row">
       <div class="rpt-list-head">
         <h1>消息推送配置</h1>
-        <div class="sub">按业务场景配置消息 / 待办通知的推送对象与推送方式，配置生效后系统将在触发时自动推送</div>
       </div>
     </div>
     <div class="mp-query">
@@ -3542,12 +3534,7 @@ function msgPushHTML(){
         <div class="mp-query-item"><label for="mq-enabled">启停状态</label><select class="fi-select" id="mq-enabled" style="appearance:auto;padding-right:8px"><option value="">请选择</option><option value="1">启用</option><option value="0">停用</option></select></div>
         <div class="mp-query-item"><label>更新时间</label><div class="mp-query-date"><input id="mq-from" type="date"><span>至</span><input id="mq-to" type="date"></div></div>
       </div>
-      <div class="mp-query-more mp-query-grid" id="mq-more">
-        <div class="mp-query-item"><label for="mq-obj">通知对象</label><select class="fi-select" id="mq-obj" style="appearance:auto;padding-right:8px"></select></div>
-        <div class="mp-query-item"><label for="mq-biz">所属业务</label><select class="fi-select" id="mq-biz" style="appearance:auto;padding-right:8px"><option value="">请选择</option><option value="hazard">隐患治理</option></select></div>
-      </div>
       <div class="mp-query-act">
-        <button class="mp-more-btn" id="mq-more-btn">更多筛选 ▾</button>
         <button class="btn-rpt-cfg primary" id="mq-search">查询</button>
         <button class="btn-rpt-cfg" id="mq-reset">重置</button>
       </div>
@@ -3577,13 +3564,11 @@ function msgPushHTML(){
     <div class="mp-view-pane" id="mp-view-form">
     <div class="rpt-head-row">
       <div class="rpt-list-head">
-        <div class="mp-crumb"><button class="mp-back" id="mp-form-back">← 返回列表</button><span>/ 消息推送配置</span></div>
         <h1 id="mp-form-title">新增提醒配置</h1>
-        <div class="sub">按提醒事项配置所属场景、通知对象与通知方式，保存后立即生效</div>
       </div>
     </div>
     <div class="mp-card mp-form-page">
-      <div class="mp-card-head"><h2>配置信息 <span class="mp-sub">带 * 为必填项</span></h2></div>
+      <div class="mp-card-head"><h2>配置信息</h2></div>
       <div class="modal-body">
         <div class="mp-form-two">
           <div>
@@ -3627,18 +3612,17 @@ function msgPushHTML(){
             </div>
             <div class="mp-field">
               <span class="mp-lbl">启停状态<span class="req">*</span></span>
-              <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="mp-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="mp-enabled-txt">启用 · 保存后按规则推送</span></div>
+              <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="mp-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="mp-enabled-txt">启用</span></div>
             </div>
             <div class="mp-field">
               <label class="mp-lbl" for="mp-level">隐患等级<span class="req">*</span></label>
               <select class="fi-select" id="mp-level" style="appearance:auto;padding-right:10px"></select>
             </div>
-            <div class="mp-tip" id="mp-trigger" style="margin-top:14px;line-height:1.7"></div>
           </div>
         </div>
       </div>
       <div class="mp-form-foot">
-        <button class="btn-rpt-cfg" id="mp-cancel">取消</button>
+        <button class="btn-rpt-cfg" id="mp-cancel">返回</button>
         <button class="btn-rpt-cfg primary" id="mp-save">保存配置</button>
       </div>
     </div>
@@ -3649,13 +3633,11 @@ function msgPushHTML(){
       <div class="rpt-list-head">
         <div class="mp-crumb"><button class="mp-back" id="mp-detail-back">← 返回列表</button><span>/ 消息推送配置</span></div>
         <h1>提醒配置详情 <span class="mp-status-badge" id="mp-detail-status">启用中</span></h1>
-        <div class="sub">查看该提醒配置的完整信息与消息推送记录</div>
       </div>
     </div>
     <div class="mp-card mp-sub-page">
       <div class="mp-card-head"><h2>基本信息</h2></div>
       <div class="mp-detail-info" id="mp-detail-body"></div>
-      <div class="mp-detail-tip" id="mp-detail-tip"></div>
     </div>
     <div class="mp-card mp-sub-page mp-push-card" id="mp-push-log-card">
       <div class="mp-card-head">
@@ -3675,7 +3657,6 @@ function mpFillQuery(){
   set('mq-level',mpOpts(MP_LEVELS));
   set('mq-form','<option value="">请选择</option>'+mpOpts(MP_FORMS));
   set('mq-channel','<option value="">请选择</option>'+mpOpts(MP_CHANNELS.filter(c=>MP_FORM_CHANNELS.includes(c.id))));
-  set('mq-obj','<option value="">请选择</option>'+mpOpts(MP_OBJECTS));
 }
 function mpFiltered(){
   const f=mpFilter||{};
@@ -3686,8 +3667,6 @@ function mpFiltered(){
     if(f.level&&r.level!==f.level)return false;
     if(f.form&&!(r.forms||[]).includes(f.form))return false;
     if(f.channel&&!(r.channels||[]).includes(f.channel))return false;
-    if(f.obj&&!(r.objects||[]).includes(f.obj))return false;
-    if(f.biz&&f.biz!=='hazard')return false;
     if(f.enabled!==undefined&&f.enabled!==''&&String(!!r.enabled)!==f.enabled)return false;
     if(f.from&&(r.updated||'')<f.from)return false;
     if(f.to&&(r.updated||'')>f.to+' 23:59:59')return false;
@@ -3722,7 +3701,7 @@ function renderMpRules(){
     const chChips=r.channels.map(ch=>`<span class="mp-chip ch">${mpName(MP_CHANNELS,ch)}</span>`).join('')||'—';
     return `<tr class="mp-rule" data-id="${r.id}">
       <td>${start+i+1}</td>
-      <td class="mp-name-cell" data-act="detail" title="${dprEsc(r.name)}">${dprEsc(r.name)}</td>
+      <td class="mp-name-cell" title="${dprEsc(r.name)}">${dprEsc(r.name)}</td>
       <td>${sc?dprEsc(sc.name):'—'}</td>
       <td>${sc?dprEsc(sc.trigger):'—'}</td>
       <td>${objChips}</td>
@@ -3789,7 +3768,7 @@ function openMpModal(id){
     document.getElementById('mp-custom').style.display='none';
     setMpSwitch(true);
   }
-  mpSyncCount();mpSyncTrigger();mpSyncEnabled();
+  mpSyncCount();mpSyncEnabled();
   mpShowView('form');
 }
 function mpSyncCount(){
@@ -3802,11 +3781,7 @@ function setMpSwitch(on){
 }
 function mpSyncEnabled(){
   const on=document.getElementById('mp-enabled').classList.contains('on');
-  document.getElementById('mp-enabled-txt').textContent=on?'启用 · 保存后按规则推送':'停用 · 保存后不推送';
-}
-function mpSyncTrigger(){
-  const s=MP_SCENES.find(x=>x.id===document.getElementById('mp-scene').value);
-  document.getElementById('mp-trigger').textContent=s?('触发时机：'+s.trigger+'；'+s.desc):'';
+  document.getElementById('mp-enabled-txt').textContent=on?'启用':'停用';
 }
 function mpShowView(view){
   document.querySelectorAll('#page-msg-push .mp-view-pane').forEach(p=>p.classList.toggle('active',p.id==='mp-view-'+view));
@@ -3836,7 +3811,6 @@ function openMpDetail(id){
   ];
   const item=x=>`<div class="mp-detail-item"><span class="k">${x[0]}</span><span class="v${x[1]==='—'?' dim':''}">${x[1]}</span></div>`;
   document.getElementById('mp-detail-body').innerHTML='<div>'+left.map(item).join('')+'</div><div>'+right.map(item).join('')+'</div>';
-  document.getElementById('mp-detail-tip').innerHTML='<b>生效逻辑：</b>'+dprEsc(r.notice||'隐患数据处于待整改3天后未流转，自动向处置节点处理人推送催办消息');
   const badge=document.getElementById('mp-detail-status');
   badge.textContent=r.enabled?'启用中':'已停用';badge.classList.toggle('off',!r.enabled);
   const recs=mpPushRecords(r);
@@ -3895,18 +3869,14 @@ function bindMsgPush(){
   page.querySelector('#mp-add').onclick=()=>openMpModal(null);
   const val=id=>document.getElementById(id).value;
   page.querySelector('#mq-search').onclick=()=>{
-    mpFilter={name:val('mq-name').trim(),dept:val('mq-dept'),scene:val('mq-scene'),level:val('mq-level'),form:val('mq-form'),channel:val('mq-channel'),enabled:val('mq-enabled'),from:val('mq-from'),to:val('mq-to'),obj:val('mq-obj'),biz:val('mq-biz')};
+    mpFilter={name:val('mq-name').trim(),dept:val('mq-dept'),scene:val('mq-scene'),level:val('mq-level'),form:val('mq-form'),channel:val('mq-channel'),enabled:val('mq-enabled'),from:val('mq-from'),to:val('mq-to')};
     mpPage=1;renderMpRules();
     if(!mpFiltered().length)showToast('没有符合条件的推送配置');
   };
   page.querySelector('#mq-reset').onclick=()=>{
     ['mq-name','mq-from','mq-to'].forEach(id=>{document.getElementById(id).value='';});
-    ['mq-dept','mq-scene','mq-level','mq-form','mq-channel','mq-enabled','mq-obj','mq-biz'].forEach(id=>{document.getElementById(id).value='';});
+    ['mq-dept','mq-scene','mq-level','mq-form','mq-channel','mq-enabled'].forEach(id=>{document.getElementById(id).value='';});
     mpFilter={};mpPage=1;renderMpRules();
-  };
-  page.querySelector('#mq-more-btn').onclick=function(){
-    const m=document.getElementById('mq-more');m.classList.toggle('open');
-    this.textContent=m.classList.contains('open')?'收起筛选 ▴':'更多筛选 ▾';
   };
   const pager=page.querySelector('#mp-pager');
   pager.addEventListener('click',e=>{
@@ -3937,13 +3907,13 @@ function bindMsgPush(){
     else if(act==='toggle'){
       const r=mpData.find(x=>x.id===id);if(!r)return;
       const next=!r.enabled,verb=next?'启用':'停用';
-      showConfirm('确认'+verb+'推送配置「'+r.name+'」？'+(next?'启用后系统将按此规则自动推送。':'停用后系统将不再按此规则推送。'),()=>{
+      showConfirm('确认'+verb+'推送配置「'+r.name+'」？',()=>{
         r.enabled=next;mpSave(mpData);renderMpRules();
         showToast('已'+verb+'该推送规则');
       },'启停确认','确认'+verb);
     }else if(act==='del'){
       const r=mpData.find(x=>x.id===id);if(!r)return;
-      showConfirm('确认删除推送配置「'+r.name+'」？删除后不再按此规则推送。',()=>{
+      showConfirm('确认删除推送配置「'+r.name+'」？',()=>{
         mpData=mpData.filter(x=>x.id!==id);mpSave(mpData);renderMpRules();showToast('推送配置已删除');
       });
     }
@@ -3953,11 +3923,9 @@ function bindMsgPush(){
     const sw=e.target.closest('.switch[data-act="toggle"]');if(!sw)return;
     e.preventDefault();sw.click();
   });
-  page.querySelector('#mp-form-back').onclick=closeMpModal;
   page.querySelector('#mp-cancel').onclick=closeMpModal;
   page.querySelector('#mp-detail-back').onclick=closeMpModal;
   page.querySelector('#mp-save').onclick=saveMpRule;
-  page.querySelector('#mp-scene').onchange=mpSyncTrigger;
   page.querySelector('#mp-enabled').onclick=function(){setMpSwitch(!this.classList.contains('on'));mpSyncEnabled();};
   page.querySelector('#mp-objects').addEventListener('change',()=>{
     const has=[...document.querySelectorAll('#mp-objects input:checked')].some(i=>i.value==='custom');
@@ -4105,7 +4073,7 @@ function typeCfgHTML(){
         </div>
         <div class="tc-field" style="margin-bottom:0">
           <div class="field-label">启停状态</div>
-          <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="tc-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="tc-enabled-txt">启用 · 启用后进入候选池供配置引用</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="switch on" id="tc-enabled" role="switch" aria-checked="true" tabindex="0"></span><span class="mp-meta" id="tc-enabled-txt">启用</span></div>
         </div>
       </div>
       <div class="mp-form-foot">
@@ -4201,7 +4169,7 @@ function tcSyncCount(){
 }
 function tcSyncEnabled(){
   const on=document.getElementById('tc-enabled').classList.contains('on');
-  document.getElementById('tc-enabled-txt').textContent=on?'启用 · 启用后进入候选池供配置引用':'停用 · 停用后不在候选池中展示';
+  document.getElementById('tc-enabled-txt').textContent=on?'启用':'停用';
 }
 function tcScopeCard(){
   return document.querySelector('#tc-scope .tc-radio-card.on');
