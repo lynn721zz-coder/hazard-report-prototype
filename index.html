@@ -798,6 +798,15 @@
   .mp-push-table tbody tr:hover td{background:var(--gray-50)}
   .mp-push-table .hz-name{color:var(--text-primary);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mp-push-table .lt-time{color:var(--text-primary);white-space:nowrap;font-size:12px}
+  .op-detail-btn{border:none;background:none;color:var(--sys-primary);font-size:12px;cursor:pointer;padding:2px 0}
+  .op-detail-btn:hover{text-decoration:underline}
+  .mp-op-table td .dim{color:var(--text-tertiary)}
+  .mp-op-meta{font-size:12px;color:var(--text-secondary);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+  .mp-change-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .mp-change-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:9px 10px;border-bottom:1px solid var(--border)}
+  .mp-change-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text-primary);line-height:1.5}
+  .mp-change-table td.old{color:var(--danger-800);text-decoration:line-through}
+  .mp-change-table td.new{color:var(--success-800)}
   .mp-node-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-sm);background:#EEF2FF;color:#4338CA;font-size:11px}
   .mp-node-badge.warn{background:#FFF4E0;color:#B26A00}
   .mp-node-badge.done{background:#F3E8FF;color:#7E22CE}
@@ -3472,6 +3481,54 @@ function mpName(list,id){
 }
 /* 推送记录：按规则稳定生成演示数据（基于 id 哈希，保证每次渲染一致） */
 function mpLogSeed(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))>>>0;return h;}
+/* 操作记录：创建 / 编辑，编辑记录可查看变更内容 */
+function mpOpRecords(rule){
+  const seed=mpLogSeed(rule.id||rule.name||'MP');
+  const user=rule.updater||'胡伟-01';
+  const name=rule.name||'提醒配置';
+  const nm=(list,arr)=>(arr||[]).map(x=>x==='custom'?(rule.custom||'指定人员'):mpName(list,x)).join('、')||'—';
+  return [
+    {op:'创建配置',time:'2026-08-25 19:57:00',user:'胡伟-01'},
+    {op:'编辑配置',time:'2026-08-26 10:07:56',user:'胡伟-01',changes:[
+      {field:'提醒事项名称',before:'隐患整改到期提醒',after:name},
+      {field:'通知时间',before:'到期前 1 天',after:rule.notifyTime||'待整改 - 3天'},
+      {field:'通知方式',before:'站内通知',after:nm(MP_CHANNELS,rule.channels||[])}
+    ]},
+    {op:'编辑配置',time:'2026-11-12 09:23:18',user,changes:[
+      {field:'通知对象',before:'隐患处置角色',after:nm(MP_OBJECTS,rule.objects||[])},
+      {field:'隐患等级',before:'一般隐患',after:rule.level?mpName(MP_LEVELS,rule.level):'—'},
+      {field:'启停状态',before:'停用',after:rule.enabled?'启用':'停用'}
+    ]}
+  ];
+}
+function showMpOpDetail(rule,idx){
+  const ops=mpOpRecords(rule),op=ops[idx];if(!op||!op.changes)return;
+  let m=document.getElementById('mp-op-modal');
+  if(!m){
+    m=document.createElement('div');m.id='mp-op-modal';m.className='modal-mask';m.hidden=true;
+    m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-labelledby','mp-op-title');
+    m.innerHTML=`<div class="modal-card" style="width:520px">
+      <div class="modal-head"><h2 id="mp-op-title">编辑内容</h2><button class="modal-close" id="mp-op-close" aria-label="关闭">×</button></div>
+      <div class="modal-body" id="mp-op-changes"></div>
+      <div class="modal-foot"><button class="btn-cancel" id="mp-op-cancel">关闭</button></div>
+    </div>`;
+    document.body.appendChild(m);
+    m.addEventListener('click',e=>{if(e.target===m)hideMpOp();});
+    document.getElementById('mp-op-close').addEventListener('click',hideMpOp);
+    document.getElementById('mp-op-cancel').addEventListener('click',hideMpOp);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&m&&!m.hidden)hideMpOp();});
+  }
+  document.getElementById('mp-op-changes').innerHTML=
+    `<div class="mp-op-meta">操作时间：${dprEsc(op.time)}　操作人：${dprEsc(op.user)}</div>
+     <table class="mp-change-table"><thead><tr><th>字段</th><th>修改前</th><th>修改后</th></tr></thead><tbody>
+     ${op.changes.map(c=>`<tr><td>${dprEsc(c.field)}</td><td class="old">${dprEsc(c.before)}</td><td class="new">${dprEsc(c.after)}</td></tr>`).join('')}
+     </tbody></table>`;
+  m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+}
+function hideMpOp(){
+  const m=document.getElementById('mp-op-modal');
+  if(m){m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+}
 const MP_PUSH_HAZARDS=[
   {name:'化学品储罐区闸门渗漏',level:'重大事故隐患',node:'待整改',days:5,person:'张伟',phone:'13800138001'},
   {name:'车间配电箱未上锁',level:'一般A级隐患',node:'待整改',days:4,person:'李想',phone:'13600136004'},
@@ -3638,12 +3695,9 @@ function msgPushHTML(){
       <div class="mp-card-head"><h2>基本信息</h2></div>
       <div class="mp-detail-info" id="mp-detail-body"></div>
     </div>
-    <div class="mp-card mp-sub-page mp-push-card" id="mp-push-log-card">
-      <div class="mp-card-head">
-        <h2>催办消息推送记录</h2>
-        <span class="mp-meta" id="mp-push-summary"></span>
-      </div>
-      <div id="mp-log-body"></div>
+    <div class="mp-card mp-sub-page mp-push-card" id="mp-op-log-card">
+      <div class="mp-card-head"><h2>操作记录</h2></div>
+      <div id="mp-op-body"></div>
     </div>
     <div class="mp-form-foot">
       <button class="btn-rpt-cfg" id="mp-detail-back">返回</button>
@@ -3651,7 +3705,7 @@ function msgPushHTML(){
     </div>
   </section>`;
 }
-let mpData=[],mpEditId=null,mpFilter={},mpPage=1,mpPageSize=10;
+let mpData=[],mpEditId=null,mpDetailId=null,mpFilter={},mpPage=1,mpPageSize=10;
 function mpFillQuery(){
   const set=(id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html;};
   set('mq-dept',mpOpts(MP_DEPTS));
@@ -3792,6 +3846,7 @@ function mpShowView(view){
 function closeMpModal(){mpShowView('list');}
 function openMpDetail(id){
   const r=mpData.find(x=>x.id===id);if(!r)return;
+  mpDetailId=id;
   const sc=MP_SCENES.find(s=>s.id===r.scene);
   const nm=(list,arr)=>(arr||[]).map(x=>x==='custom'?(r.custom||'指定人员'):mpName(list,x)).join('、')||'—';
   const left=[
@@ -3815,18 +3870,13 @@ function openMpDetail(id){
   document.getElementById('mp-detail-body').innerHTML='<div>'+left.map(item).join('')+'</div><div>'+right.map(item).join('')+'</div>';
   const badge=document.getElementById('mp-detail-status');
   badge.textContent=r.enabled?'启用中':'已停用';badge.classList.toggle('off',!r.enabled);
-  const recs=mpPushRecords(r);
-  document.getElementById('mp-push-summary').innerHTML='累计推送 <b>'+(20+mpLogSeed(r.id||'')%12)+'</b> 条 · 今日推送 <b class="sum-today">'+recs.length+'</b> 条';
-  const nodeCls=n=>n==='待验收'?' warn':(n&&n!=='待整改'?' done':'');
-  document.getElementById('mp-log-body').innerHTML=`<table class="mp-push-table"><colgroup><col style="width:5%"><col style="width:19%"><col style="width:12%"><col style="width:10%"><col style="width:9%"><col style="width:19%"><col style="width:9%"><col style="width:17%"></colgroup><thead><tr><th>序号</th><th>隐患名称</th><th>隐患等级</th><th>处置节点</th><th>逾期天数</th><th>推送对象</th><th>推送方式</th><th>推送时间</th></tr></thead><tbody>${recs.map(l=>`<tr>
-    <td>${l.no}</td>
-    <td class="hz-name" title="${dprEsc(l.name)}">${dprEsc(l.name)}</td>
-    <td>${dprEsc(l.level)}</td>
-    <td><span class="mp-node-badge${nodeCls(l.node)}">${dprEsc(l.node)}</span></td>
-    <td>${l.days}</td>
-    <td>${dprEsc(l.obj)}</td>
-    <td>${dprEsc(l.way)}</td>
-    <td class="lt-time">${dprEsc(l.time)}</td>
+  const ops=mpOpRecords(r);
+  document.getElementById('mp-op-body').innerHTML=`<table class="mp-push-table mp-op-table"><colgroup><col style="width:7%"><col style="width:16%"><col style="width:25%"><col style="width:20%"><col style="width:12%"></colgroup><thead><tr><th>序号</th><th>操作</th><th>操作时间</th><th>操作人</th><th>操作</th></tr></thead><tbody>${ops.map((o,i)=>`<tr>
+    <td>${i+1}</td>
+    <td>${dprEsc(o.op)}</td>
+    <td class="lt-time">${dprEsc(o.time)}</td>
+    <td>${dprEsc(o.user)}</td>
+    <td>${o.changes?`<button class="op-detail-btn" data-op="${i}">详情</button>`:'<span class="dim">—</span>'}</td>
   </tr>`).join('')}</tbody></table>`;
   mpShowView('detail');
 }
@@ -3924,6 +3974,11 @@ function bindMsgPush(){
     if(e.key!=='Enter'&&e.key!==' ')return;
     const sw=e.target.closest('.switch[data-act="toggle"]');if(!sw)return;
     e.preventDefault();sw.click();
+  });
+  const opBody=page.querySelector('#mp-op-body');
+  if(opBody)opBody.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-op]');if(!btn)return;
+    const r=mpData.find(x=>x.id===mpDetailId);if(r)showMpOpDetail(r,Number(btn.dataset.op));
   });
   page.querySelector('#mp-cancel').onclick=closeMpModal;
   page.querySelector('#mp-detail-back').onclick=closeMpModal;
