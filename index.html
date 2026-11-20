@@ -723,9 +723,18 @@
   .mp-tools button.del{color:var(--danger-600)}
   .mp-tools button.del:hover{background:var(--danger-50)}
   .mp-status{display:flex;align-items:center}
-  /* 详情 / 推送记录弹窗 */
-  #mp-detail-modal .modal-card{width:620px}
-  #mp-log-modal .modal-card{width:760px}
+  /* 详情 / 推送记录：页面承载（非弹窗） */
+  .mp-view-pane{display:none}
+  .mp-view-pane.active{display:block}
+  .mp-crumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-tertiary);margin-bottom:8px}
+  .mp-back{font-size:12px;color:var(--sys-primary);padding:2px 0}
+  .mp-back:hover{text-decoration:underline}
+  .mp-sub-page{max-width:1040px}
+  .mp-form-page .modal-body{padding:22px 24px;max-height:none;overflow:visible}
+  .mp-form-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 24px 18px;border-top:1px solid var(--border)}
+  .mp-detail-grid{padding:10px 24px 16px}
+  .mp-detail-grid .mp-detail-item{grid-template-columns:118px 1fr}
+  .mp-log-card-body{padding:0;max-height:none;overflow:visible}
   .mp-detail-item{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
   .mp-detail-item:last-child{border-bottom:none}
   .mp-detail-item .k{color:var(--text-tertiary)}
@@ -743,7 +752,6 @@
   .mp-log-badge.ok{background:var(--success-50);color:var(--success-800)}
   .mp-log-badge.fail{background:var(--danger-50);color:var(--danger-800)}
   .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
-  #mp-modal .modal-card{width:1040px;max-width:96vw}
   .mp-form-row{margin-bottom:14px}
   .mp-form-row .field-label{margin-bottom:7px}
   /* 提醒配置表单（参照提醒事项新增页：字段右对齐 + 两列布局） */
@@ -2463,6 +2471,7 @@ function activatePage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   getPage(id).classList.add('active');
   document.querySelectorAll('.menu-l2').forEach(m=>m.classList.toggle('active',m.dataset.page===id));
+  if(id==='msg-push')mpShowView('list');
   renderTabs();
 }
 
@@ -3413,6 +3422,8 @@ function mpNow(){const d=new Date(),p=x=>String(x).padStart(2,'0');return d.getF
 function msgPushHTML(){
   return `
   <section class="mp-view">
+    <!-- 列表页 -->
+    <div class="mp-view-pane active" id="mp-view-list">
     <div class="rpt-head-row">
       <div class="rpt-list-head">
         <h1>消息推送配置</h1>
@@ -3430,16 +3441,18 @@ function msgPushHTML(){
       <div class="mp-rule-head"><span>业务场景</span><span>通知形式</span><span>通知对象</span><span>通知方式</span><span>状态</span><span>操作</span></div>
       <div id="mp-rows"></div>
     </div>
-  </section>
-  <div class="modal-mask" id="mp-modal" role="dialog" aria-modal="true" aria-labelledby="mp-modal-title" hidden>
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title" id="mp-modal-title">新增提醒配置</div>
-          <div class="modal-desc">按提醒事项配置所属场景、通知对象与通知方式，保存后立即生效</div>
-        </div>
-        <button class="modal-close" id="mp-close" aria-label="关闭">×</button>
+    </div>
+    <!-- 新增 / 编辑页 -->
+    <div class="mp-view-pane" id="mp-view-form">
+    <div class="rpt-head-row">
+      <div class="rpt-list-head">
+        <div class="mp-crumb"><button class="mp-back" id="mp-form-back">← 返回列表</button><span>/ 消息推送配置</span></div>
+        <h1 id="mp-form-title">新增提醒配置</h1>
+        <div class="sub">按提醒事项配置所属场景、通知对象与通知方式，保存后立即生效</div>
       </div>
+    </div>
+    <div class="mp-card mp-form-page">
+      <div class="mp-card-head"><h2>配置信息 <span class="mp-sub">带 * 为必填项</span></h2></div>
       <div class="modal-body">
         <div class="mp-form-two">
           <div>
@@ -3493,45 +3506,42 @@ function msgPushHTML(){
           </div>
         </div>
       </div>
-      <div class="modal-foot">
+      <div class="mp-form-foot">
         <button class="btn-rpt-cfg" id="mp-cancel">取消</button>
         <button class="btn-rpt-cfg primary" id="mp-save">保存配置</button>
       </div>
     </div>
-  </div>
-  <!-- 推送配置详情弹窗 -->
-  <div class="modal-mask" id="mp-detail-modal" role="dialog" aria-modal="true" aria-labelledby="mp-detail-title" hidden>
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title" id="mp-detail-title">推送配置详情</div>
-          <div class="modal-desc">查看该推送规则的完整配置信息</div>
-        </div>
-        <button class="modal-close" id="mp-detail-close" aria-label="关闭">×</button>
-      </div>
-      <div class="modal-body" id="mp-detail-body"></div>
-      <div class="modal-foot">
-        <button class="btn-rpt-cfg primary" id="mp-detail-ok">关闭</button>
+    </div>
+    <!-- 详情页 -->
+    <div class="mp-view-pane" id="mp-view-detail">
+    <div class="rpt-head-row">
+      <div class="rpt-list-head">
+        <div class="mp-crumb"><button class="mp-back" id="mp-detail-back">← 返回列表</button><span>/ 消息推送配置</span></div>
+        <h1>推送配置详情</h1>
+        <div class="sub">查看该推送规则的完整配置信息</div>
       </div>
     </div>
-  </div>
-  <!-- 推送记录弹窗 -->
-  <div class="modal-mask" id="mp-log-modal" role="dialog" aria-modal="true" aria-labelledby="mp-log-title" hidden>
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title" id="mp-log-title">推送记录</div>
-          <div class="modal-desc" id="mp-log-desc">该规则近期的消息 / 待办推送情况</div>
-        </div>
-        <button class="modal-close" id="mp-log-close" aria-label="关闭">×</button>
+    <div class="mp-card mp-sub-page">
+      <div class="mp-card-head"><h2>基本信息 <span class="mp-sub" id="mp-detail-name"></span></h2></div>
+      <div class="mp-detail-grid" id="mp-detail-body"></div>
+    </div>
+    </div>
+    <!-- 推送记录页 -->
+    <div class="mp-view-pane" id="mp-view-log">
+    <div class="rpt-head-row">
+      <div class="rpt-list-head">
+        <div class="mp-crumb"><button class="mp-back" id="mp-log-back">← 返回列表</button><span>/ 消息推送配置</span></div>
+        <h1>推送记录</h1>
+        <div class="sub" id="mp-log-desc">该规则近期的消息 / 待办推送情况</div>
       </div>
+    </div>
+    <div class="mp-card mp-sub-page">
+      <div class="mp-card-head"><h2>推送明细 <span class="mp-sub" id="mp-log-rule"></span></h2></div>
       <div class="mp-log-summary" id="mp-log-summary"></div>
-      <div class="modal-body" style="padding:0;max-height:52vh;overflow:auto" id="mp-log-body"></div>
-      <div class="modal-foot">
-        <button class="btn-rpt-cfg primary" id="mp-log-ok">关闭</button>
-      </div>
+      <div class="mp-log-card-body" id="mp-log-body"></div>
     </div>
-  </div>`;
+    </div>
+  </section>`;
 }
 let mpData=[],mpEditId=null;
 function renderMpRules(){
@@ -3567,7 +3577,7 @@ function mpSetObjSelect(id,val,list){
 function openMpModal(id){
   mpEditId=id||null;
   const r=id?mpData.find(x=>x.id===id):null;
-  document.getElementById('mp-modal-title').textContent=r?'编辑提醒配置':'新增提醒配置';
+  document.getElementById('mp-form-title').textContent=r?'编辑提醒配置':'新增提醒配置';
   const sel=document.getElementById('mp-scene');
   sel.innerHTML=mpOpts(MP_SCENES);
   document.getElementById('mp-dept').innerHTML=mpOpts(MP_DEPTS);
@@ -3601,14 +3611,14 @@ function openMpModal(id){
   }else{
     ['mp-name','mp-custom'].forEach(id=>{document.getElementById(id).value='';});
     ['mp-dept','mp-level','mp-obj-role','mp-obj-post','mp-obj-person'].forEach(id=>{document.getElementById(id).value='';});
-    document.querySelectorAll('#mp-modal input[type=checkbox],#mp-modal input[type=radio]').forEach(i=>i.checked=false);
+    document.querySelectorAll('#mp-view-form input[type=checkbox],#mp-view-form input[type=radio]').forEach(i=>i.checked=false);
     const st=document.querySelector('#mp-channels input[value="station"]');if(st)st.checked=true;
     const msg=document.querySelector('#mp-forms input[value="message"]');if(msg)msg.checked=true;
     document.getElementById('mp-custom').style.display='none';
     setMpSwitch(true);
   }
   mpSyncCount();mpSyncTrigger();mpSyncEnabled();
-  const m=document.getElementById('mp-modal');m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));
+  mpShowView('form');
 }
 function mpSyncCount(){
   const el=document.getElementById('mp-name');
@@ -3626,11 +3636,11 @@ function mpSyncTrigger(){
   const s=MP_SCENES.find(x=>x.id===document.getElementById('mp-scene').value);
   document.getElementById('mp-trigger').textContent=s?('触发时机：'+s.trigger+'；'+s.desc):'';
 }
-function closeMpModal(){
-  const m=document.getElementById('mp-modal');m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);
+function mpShowView(view){
+  document.querySelectorAll('#page-msg-push .mp-view-pane').forEach(p=>p.classList.toggle('active',p.id==='mp-view-'+view));
+  window.scrollTo(0,0);
 }
-function mpOpenMask(id){const m=document.getElementById(id);m.hidden=false;requestAnimationFrame(()=>m.classList.add('show'));}
-function mpCloseMask(id){const m=document.getElementById(id);m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+function closeMpModal(){mpShowView('list');}
 function openMpDetail(id){
   const r=mpData.find(x=>x.id===id);if(!r)return;
   const sc=MP_SCENES.find(s=>s.id===r.scene);
@@ -3651,7 +3661,8 @@ function openMpDetail(id){
     ['最近更新',dprEsc(r.updated||'—')]
   ];
   document.getElementById('mp-detail-body').innerHTML=rows.map(x=>`<div class="mp-detail-item${x[0]==='配置名称'||x[0]==='推送方式'?' mp-detail-hidden':''}"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
-  mpOpenMask('mp-detail-modal');
+  document.getElementById('mp-detail-name').textContent=r.name;
+  mpShowView('detail');
 }
 function openMpLog(id){
   const r=mpData.find(x=>x.id===id);if(!r)return;
@@ -3667,7 +3678,8 @@ function openMpLog(id){
     <td>${dprEsc(l.ch)}</td>
     <td><span class="mp-log-badge ${l.ok?'ok':'fail'}">${l.ok?'成功':'失败'}</span></td>
   </tr>`).join('')}</tbody></table>`;
-  mpOpenMask('mp-log-modal');
+  document.getElementById('mp-log-rule').textContent='规则「'+r.name+'」';
+  mpShowView('log');
 }
 function saveMpRule(){
   const name=document.getElementById('mp-name').value.trim();
@@ -3719,16 +3731,11 @@ function bindMsgPush(){
       });
     }
   });
-  page.querySelector('#mp-close').onclick=closeMpModal;
+  page.querySelector('#mp-form-back').onclick=closeMpModal;
   page.querySelector('#mp-cancel').onclick=closeMpModal;
+  page.querySelector('#mp-detail-back').onclick=closeMpModal;
+  page.querySelector('#mp-log-back').onclick=closeMpModal;
   page.querySelector('#mp-save').onclick=saveMpRule;
-  page.querySelector('#mp-modal').addEventListener('click',e=>{if(e.target.id==='mp-modal')closeMpModal();});
-  page.querySelector('#mp-detail-close').onclick=()=>mpCloseMask('mp-detail-modal');
-  page.querySelector('#mp-detail-ok').onclick=()=>mpCloseMask('mp-detail-modal');
-  page.querySelector('#mp-detail-modal').addEventListener('click',e=>{if(e.target.id==='mp-detail-modal')mpCloseMask('mp-detail-modal');});
-  page.querySelector('#mp-log-close').onclick=()=>mpCloseMask('mp-log-modal');
-  page.querySelector('#mp-log-ok').onclick=()=>mpCloseMask('mp-log-modal');
-  page.querySelector('#mp-log-modal').addEventListener('click',e=>{if(e.target.id==='mp-log-modal')mpCloseMask('mp-log-modal');});
   page.querySelector('#mp-scene').onchange=mpSyncTrigger;
   page.querySelector('#mp-enabled').onclick=function(){setMpSwitch(!this.classList.contains('on'));mpSyncEnabled();};
   page.querySelector('#mp-objects').addEventListener('change',()=>{
