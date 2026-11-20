@@ -756,7 +756,9 @@
   .mp-tools button:hover{background:var(--sys-primary-bg-light)}
   .mp-tools button.del{color:var(--danger-600)}
   .mp-tools button.del:hover{background:var(--danger-50)}
-  .mp-status{display:flex;align-items:center}
+  .mp-status{display:flex;align-items:center;gap:6px}
+  .mp-status-label{font-size:11.5px;white-space:nowrap;color:var(--text-tertiary)}
+  .mp-status-label.on{color:var(--success-800)}
   /* 详情 / 推送记录：同页整合（非弹窗） */
   .mp-view-pane{display:none}
   .mp-view-pane.active{display:block}
@@ -3484,7 +3486,7 @@ function msgPushHTML(){
     <div class="mp-card mp-list-card">
       <div class="mp-list-scroll">
         <table class="mp-list-table">
-          <colgroup><col class="col-chk"><col class="col-no"><col style="width:160px"><col style="width:108px"><col style="width:92px"><col style="width:120px"><col style="width:92px"><col style="width:74px"><col style="width:74px"><col style="width:62px"><col style="width:100px"><col class="col-op"></colgroup>
+          <colgroup><col class="col-chk"><col class="col-no"><col style="width:152px"><col style="width:104px"><col style="width:88px"><col style="width:116px"><col style="width:88px"><col style="width:72px"><col style="width:72px"><col style="width:98px"><col style="width:96px"><col class="col-op"></colgroup>
           <thead><tr>
             <th class="col-chk"><input type="checkbox" id="mq-all" title="全选"></th><th>序号</th><th>提醒事项名称</th><th>所属场景</th><th>通知时间</th><th>通知对象</th><th>通知方式</th><th>通知形式</th><th>隐患等级</th><th>启停状态</th><th>更新时间</th><th>操作</th>
           </tr></thead>
@@ -3659,7 +3661,7 @@ function renderMpRules(){
       <td>${chChips}</td>
       <td>${formChips}</td>
       <td>${r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'}</td>
-      <td><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span></td>
+      <td class="mp-status"><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span><span class="mp-status-label${r.enabled?' on':''}">${r.enabled?'启用中':'已停用'}</span></td>
       <td>${dprEsc(r.updated||'—')}</td>
       <td><div class="mp-row-tools"><button data-act="detail">详情</button><button data-act="log">记录</button><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div></td>
     </tr>`;
