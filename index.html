@@ -3479,12 +3479,12 @@ const MP_DEPTS=[
 const MP_LEVELS=[
   {id:'',name:'请选择隐患等级'},{id:'general',name:'一般隐患'},{id:'larger',name:'较大隐患'},{id:'major',name:'重大隐患'}
 ];
-const MP_OBJ_POST=[{id:'',name:'请选择'},{id:'director',name:'安全总监'},{id:'manager',name:'部门负责人'},{id:'leader',name:'班组长'}];
+const MP_OBJ_DEPT=[{id:'',name:'请选择'},{id:'safety-dept',name:'安全环保部'},{id:'prod-dept',name:'生产管理部'},{id:'equip-dept',name:'设备管理部'},{id:'tech-dept',name:'技术质量部'},{id:'general-dept',name:'综合管理部'}];
 const MP_OBJ_PERSON=[{id:'',name:'请选择'},{id:'zhangsan',name:'张三'},{id:'lisi',name:'李四'},{id:'wangwu',name:'王五'}];
 const MP_KEY='dprMsgPushCfg';
 function mpName(list,id){
   const o=list.find(x=>x.id===id);if(o)return o.name;
-  const alt=[MP_OBJ_POST,MP_OBJ_PERSON].find(l=>l&&l.find(x=>x.id===id));
+  const alt=[MP_OBJ_DEPT,MP_OBJ_PERSON].find(l=>l&&l.find(x=>x.id===id));
   const a=alt&&alt.find(x=>x.id===id);return a?a.name:id;
 }
 /* 推送记录：按规则稳定生成演示数据（基于 id 哈希，保证每次渲染一致） */
@@ -3678,7 +3678,7 @@ function msgPushHTML(){
               <div>
                 <div class="mp-obj-grid">
                   <div class="mp-obj-slot"><span>隐患处置角色</span><select id="mp-obj-role" aria-label="隐患处置角色"></select></div>
-                  <div class="mp-obj-slot"><span>岗位</span><select id="mp-obj-post" aria-label="岗位"></select></div>
+                  <div class="mp-obj-slot"><span>部门</span><select id="mp-obj-dept" aria-label="部门"></select></div>
                   <div class="mp-obj-slot"><span>人员</span><select id="mp-obj-person" aria-label="人员"></select></div>
                 </div>
                 <input class="fi-input" id="mp-custom" style="height:32px;padding-right:10px;margin-top:8px;display:none" placeholder="输入指定人员姓名，多个用顿号分隔">
@@ -3800,8 +3800,8 @@ function openMpModal(id){
   document.getElementById('mp-dept').innerHTML=mpOpts(MP_DEPTS);
   document.getElementById('mp-level').innerHTML=mpOpts(MP_LEVELS);
   const roleOpts=[{id:'',name:'请选择'},...MP_OBJECTS];
-  ['mp-obj-role','mp-obj-post','mp-obj-person'].forEach((box,i)=>{
-    document.getElementById(box).innerHTML=mpOpts(i===0?roleOpts:(i===1?MP_OBJ_POST:MP_OBJ_PERSON));
+  ['mp-obj-role','mp-obj-dept','mp-obj-person'].forEach((box,i)=>{
+    document.getElementById(box).innerHTML=mpOpts(i===0?roleOpts:(i===1?MP_OBJ_DEPT:MP_OBJ_PERSON));
   });
   document.getElementById('mp-forms').innerHTML=MP_FORMS.map(f=>`<label><input type="radio" name="mp-form-radio" value="${f.id}">${f.name}</label>`).join('');
   document.getElementById('mp-channels').innerHTML=MP_CHANNELS.filter(c=>MP_FORM_CHANNELS.includes(c.id)).map(f=>`<label><input type="checkbox" value="${f.id}">${f.name}</label>`).join('');
@@ -3817,9 +3817,10 @@ function openMpModal(id){
     document.getElementById('mp-name').value=r.name||'';
     document.getElementById('mp-dept').value=r.dept||'';
     document.getElementById('mp-level').value=r.level||'';
-    mpSetObjSelect('mp-obj-role',objs[0],roleOpts);
-    mpSetObjSelect('mp-obj-post',objs[1],MP_OBJ_POST);
-    mpSetObjSelect('mp-obj-person',objs[2],MP_OBJ_PERSON);
+    const inList=(list)=>objs.find(x=>list.some(o=>o.id===x))||'';
+    mpSetObjSelect('mp-obj-role',inList(roleOpts),roleOpts);
+    mpSetObjSelect('mp-obj-dept',inList(MP_OBJ_DEPT),MP_OBJ_DEPT);
+    mpSetObjSelect('mp-obj-person',inList(MP_OBJ_PERSON),MP_OBJ_PERSON);
     document.getElementById('mp-custom').value=r.custom||'';
     document.getElementById('mp-custom').style.display=(objs.includes('custom')||(r.custom&&objs.length>=3))?'block':'none';
     document.querySelectorAll('#mp-channels input').forEach(i=>i.checked=false);
@@ -3827,7 +3828,7 @@ function openMpModal(id){
     setMpSwitch(r.enabled);
   }else{
     ['mp-name','mp-custom'].forEach(id=>{document.getElementById(id).value='';});
-    ['mp-dept','mp-level','mp-obj-role','mp-obj-post','mp-obj-person'].forEach(id=>{document.getElementById(id).value='';});
+    ['mp-dept','mp-level','mp-obj-role','mp-obj-dept','mp-obj-person'].forEach(id=>{document.getElementById(id).value='';});
     document.querySelectorAll('#mp-view-form input[type=checkbox],#mp-view-form input[type=radio]').forEach(i=>i.checked=false);
     const st=document.querySelector('#mp-channels input[value="station"]');if(st)st.checked=true;
     const msg=document.querySelector('#mp-forms input[value="message"]');if(msg)msg.checked=true;
@@ -3902,7 +3903,7 @@ function saveMpRule(){
   if(!name){showToast('请填写提醒事项名称');document.getElementById('mp-name').focus();return;}
   const get=(box)=>[...document.querySelectorAll('#'+box+' input:checked')].map(i=>i.value);
   const forms=get('mp-forms'),channels=get('mp-channels');
-  const objects=[...new Set(['mp-obj-role','mp-obj-post','mp-obj-person'].map(id=>document.getElementById(id).value).filter(Boolean))];
+  const objects=[...new Set(['mp-obj-role','mp-obj-dept','mp-obj-person'].map(id=>document.getElementById(id).value).filter(Boolean))];
   get('mp-objects').forEach(v=>{if(!objects.includes(v))objects.push(v);}); // 兼容历史复选方式
   if(!forms.length){showToast('请选择通知形式');return;}
   if(!channels.length){showToast('请选择通知方式');return;}
