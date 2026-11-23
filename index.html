@@ -2710,7 +2710,6 @@ function reportHTML(){
     <div class="rpt-head-row">
       <div class="rpt-list-head">
         <h1>隐患分析报告</h1>
-        <div class="sub" id="rpt-list-sub">查看您名下的报告：按您的生成配置产生的周期报告 + 您发起的 AI 辅助分析报告</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
         <select id="rpt-role" class="fi-select" style="appearance:auto;padding-right:10px" aria-label="切换用户角色视角">
@@ -3105,10 +3104,6 @@ function renderReportList(filter){
   if(currentRFilter!==prevFilter)currentRPage=1;/* 切换筛选回到第一页 */
   /* 角色可见性：业务用户仅看自己名下的报告，管理用户可查看全部报告内容 */
   let list=roleVisibleReports();
-  const sub=document.getElementById('rpt-list-sub');
-  if(sub)sub.textContent=curRole==='admin'
-    ?'管理用户视角：可查看全部报告内容（含所有用户名下的周期报告与 AI 辅助分析报告）'
-    :'查看您名下的报告：按您的生成配置产生的周期报告 + 您发起的 AI 辅助分析报告；管理用户可查看全部报告';
   if(currentRFilter!=='all')list=list.filter(r=>r.type===currentRFilter);
   /* 查询区过滤：时间范围 / 企业 / 隐患类型 */
   const qFrom=document.getElementById('rq-from'),qTo=document.getElementById('rq-to'),qOrg=document.getElementById('rq-org'),qType=document.getElementById('rq-type'),qOwner=document.getElementById('rq-owner');
@@ -3303,7 +3298,6 @@ function fbDashboardHTML(){
     <div class="rpt-head-row">
       <div class="rpt-list-head">
         <h1>反馈统计看板</h1>
-        <div class="sub">汇总查看隐患分析报告的点赞、点踩与意见反馈，支持按对象统计与记录导出</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0">
         <button class="btn-rpt-cfg" id="fbd-export"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12M7 10l5 5 5-5M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>导出反馈记录</button>
@@ -4058,7 +4052,6 @@ function typeCfgHTML(){
     <div class="rpt-head-row">
       <div class="rpt-list-head">
         <h1>类型配置</h1>
-        <div class="sub" id="tc-page-sub">维护隐患分析所用的隐患类型：总部级类型全系统通用，各级单位可自建本单位类型；配置后供报告生成与 AI 分析引用</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
         <select id="tc-role" class="fi-select" style="appearance:auto;padding-right:8px;height:34px;max-width:220px" aria-label="切换单位视角">
@@ -4310,9 +4303,6 @@ function bindTypeCfg(){
       ?(tcCurScope==='hq'?'总部级类型由总部统一维护，各单位仅可查看引用':'仅展示本单位「'+tcRoleOrg+'」自建的类型，其他单位的类型不可见')
       :(tcCurScope==='hq'?'总部级类型全系统通用，仅总部管理员可维护':'单位级类型由各级单位自建，仅本单位可见可用');
     document.getElementById('tc-scope-tip').textContent=tip;
-    document.getElementById('tc-page-sub').textContent=unitView
-      ?'您当前为「'+tcRoleOrg+'」单位管理员：仅可配置和查看本单位的类型，总部级类型仅供查看引用'
-      :'维护隐患分析所用的隐患类型：总部级类型全系统通用，各级单位可自建本单位类型；配置后供报告生成与 AI 分析引用';
     document.getElementById('tq-org-row').style.display=(tcCurScope==='unit'&&tcRole==='hq')?'grid':'none';
     tcPage=1;renderTypeRules();
   };
