@@ -713,7 +713,7 @@
   .mp-query-act{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
   .mp-list-card{margin-top:14px;overflow:hidden}
   .mp-list-scroll{overflow-x:auto}
-  .mp-list-table{width:100%;min-width:1200px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12.5px}
+  .mp-list-table{width:100%;min-width:1140px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12.5px}
   .mp-list-table th{background:var(--bg-tertiary);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
   .mp-list-table td{padding:9px 6px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* 两端固定列：序号 / 提醒事项名称固定在左，操作列固定在右，中间滚动 */
@@ -721,7 +721,7 @@
   .mp-list-table th:nth-child(2),.mp-list-table td:nth-child(2){position:sticky;left:46px;z-index:2;background:var(--bg-card);border-right:1px solid var(--border)}
   .mp-list-table th:last-child,.mp-list-table td:last-child{position:sticky;right:0;z-index:2;background:var(--bg-card);border-left:1px solid var(--border)}
   .mp-list-table th:nth-child(1),.mp-list-table th:nth-child(2),.mp-list-table th:last-child{background:var(--bg-tertiary)}
-  .mp-list-table th:nth-child(9){text-align:center}
+  .mp-list-table th:nth-child(8){text-align:center}
   .mp-list-table tr:last-child td{border-bottom:none}
   .mp-list-table tr:last-child td:nth-child(2){border-right:1px solid var(--border)}
   .mp-list-table tr:last-child td:last-child{border-left:1px solid var(--border)}
@@ -752,6 +752,9 @@
   .mp-chip.obj{background:var(--gray-100);color:var(--text-secondary)}
   .mp-chip.msg{background:#EEF2FF;color:#4338CA}
   .mp-chip.todo{background:#FFF4E0;color:#B26A00}
+  .mp-list-table td[data-tip]{cursor:default}
+  .mp-tip{position:fixed;z-index:3000;max-width:340px;padding:7px 10px;border-radius:6px;background:#1F2937;color:#fff;font-size:12px;line-height:1.5;box-shadow:0 6px 18px rgba(15,23,42,.22);opacity:0;transform:translateY(-2px);transition:opacity .12s ease,transform .12s ease;pointer-events:none;white-space:normal;word-break:break-all}
+  .mp-tip.on{opacity:1;transform:translateY(0)}
   .switch{position:relative;display:inline-flex;align-items:center;width:36px;height:20px;border-radius:var(--radius-full);background:var(--gray-200);cursor:pointer;transition:background .18s;flex-shrink:0}
   .switch.on{background:var(--sys-primary)}
   .switch::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s}
@@ -3446,32 +3449,25 @@ function bindFbDashboard(){
 }
 /* ================= 消息推送配置 ================= */
 const MP_SCENES=[
-  {id:'report-done', name:'隐患分析报告生成完成', desc:'AI 分析完成后通知相关人员', trigger:'报告状态变为「已生成」时'},
-  {id:'report-fail', name:'隐患分析报告生成失败', desc:'报告生成失败后告警', trigger:'自动重试 3 次仍失败时'},
-  {id:'dpr-done',    name:'双重预防运行报告生成完成', desc:'周 / 月 / 季 / 报生成完成通知', trigger:'报告生成完成时'},
-  {id:'hazard-due',  name:'隐患整改到期提醒', desc:'整改期限临近提醒责任单位', trigger:'整改到期前 3 天'},
-  {id:'hazard-od',   name:'隐患超期未整改预警', desc:'超期仍未整改触发上级督办', trigger:'超期当日'},
-  {id:'risk-change', name:'重大风险变更提醒', desc:'风险等级上调时通知', trigger:'风险等级变更后'},
-  {id:'duty-assign', name:'履职任务分派', desc:'新任务分派通知责任人', trigger:'任务分派时'},
-  {id:'upload-bad',  name:'数据上报核查异常', desc:'核查不通过告警上报单位', trigger:'核查完成时'}
+  {id:'dpr-done',    name:'双重预防运行报告生成提醒', desc:'周期报告生成完成后提醒相关人员', trigger:'报告生成完成时'},
+  {id:'report-done', name:'隐患 AI 分析报告生成完成通知', desc:'AI 分析完成后通知相关人员', trigger:'报告状态变为「已生成」时'},
+  {id:'report-fail', name:'隐患 AI 分析报告生成失败通知', desc:'生成失败后通知发起人与管理员', trigger:'自动重试 3 次仍失败时'},
+  {id:'hazard-od',   name:'隐患督办提醒', desc:'隐患超期未整改触发上级督办', trigger:'隐患超期未整改时'}
 ];
 const MP_OBJECTS=[
   {id:'creator',name:'报告创建人'},{id:'orgowner',name:'所属单位负责人'},
   {id:'safety',name:'安全管理人员'},{id:'admin',name:'系统管理员'},{id:'custom',name:'指定人员'}
 ];
 const MP_CHANNELS=[
-  {id:'station',name:'站内通知'},{id:'sms',name:'短信'},{id:'app',name:'APP推送'},{id:'email',name:'邮件'},
-  {id:'wechat',name:'企业微信'} /* 兼容历史配置，不在新增表单中展示 */
+  {id:'station',name:'站内通知'},{id:'sms',name:'短信'},{id:'email',name:'邮件'},
+  {id:'app',name:'APP推送'},{id:'wechat',name:'企业微信'} /* 兼容历史配置，不在新增表单中展示 */
 ];
-const MP_FORM_CHANNELS=['station','sms','app','email'];
+const MP_FORM_CHANNELS=['station','sms','email'];
 const MP_FORMS=[{id:'todo',name:'待办事项'},{id:'message',name:'系统消息'}];
 const MP_DEPTS=[
   {id:'',name:'请选择适用单位'},{id:'hq',name:'中国中化（总部）'},{id:'haohua',name:'中国昊华'},
   {id:'andisu',name:'安迪苏'},{id:'yangnong',name:'扬农化工'},{id:'lantian',name:'中化蓝天'},
   {id:'zhehua',name:'浙化院'},{id:'beihuaji',name:'北化机'}
-];
-const MP_LEVELS=[
-  {id:'',name:'请选择隐患等级'},{id:'general',name:'一般隐患'},{id:'larger',name:'较大隐患'},{id:'major',name:'重大隐患'}
 ];
 const MP_OBJ_DEPT=[{id:'',name:'请选择'},{id:'safety-dept',name:'安全环保部'},{id:'prod-dept',name:'生产管理部'},{id:'equip-dept',name:'设备管理部'},{id:'tech-dept',name:'技术质量部'},{id:'general-dept',name:'综合管理部'}];
 const MP_OBJ_PERSON=[{id:'',name:'请选择'},{id:'zhangsan',name:'张三'},{id:'lisi',name:'李四'},{id:'wangwu',name:'王五'}];
@@ -3492,13 +3488,13 @@ function mpOpRecords(rule){
   return [
     {op:'创建配置',time:'2026-08-25 19:57:00',user:'胡伟-01'},
     {op:'编辑配置',time:'2026-08-26 10:07:56',user:'胡伟-01',changes:[
-      {field:'提醒事项名称',before:'隐患整改到期提醒',after:name},
+      {field:'提醒事项名称',before:'隐患督办提醒',after:name},
       {field:'通知时间',before:'到期前 1 天',after:rule.notifyTime||'待整改 - 3天'},
       {field:'通知方式',before:'站内通知',after:nm(MP_CHANNELS,rule.channels||[])}
     ]},
     {op:'编辑配置',time:'2026-11-12 09:23:18',user,changes:[
       {field:'通知对象',before:'隐患处置角色',after:nm(MP_OBJECTS,rule.objects||[])},
-      {field:'隐患等级',before:'一般隐患',after:rule.level?mpName(MP_LEVELS,rule.level):'—'},
+      {field:'所属场景',before:'双重预防运行报告生成提醒',after:rule.scene?mpName(MP_SCENES,rule.scene):'—'},
       {field:'启停状态',before:'停用',after:rule.enabled?'启用':'停用'}
     ]}
   ];
@@ -3554,18 +3550,27 @@ function mpPushRecords(rule){
   });
 }
 function mpLoad(){
-  try{const raw=localStorage.getItem(MP_KEY);if(raw)return JSON.parse(raw);}catch(e){}
+  try{
+    const raw=localStorage.getItem(MP_KEY);
+    if(raw){
+      const arr=JSON.parse(raw);
+      if(Array.isArray(arr)&&arr.every(r=>MP_SCENES.some(s=>s.id===r.scene))){
+        arr.forEach(r=>{if(r.channels)r.channels=r.channels.filter(c=>MP_FORM_CHANNELS.includes(c));});
+        return arr;
+      }
+    }
+  }catch(e){}
   const def=[
-    {id:'MP-1001',scene:'report-done',name:'隐患分析报告生成完成通知',dept:'hq',level:'general',objects:['creator','orgowner'],channels:['station','app'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
-    {id:'MP-1002',scene:'report-fail',name:'报告生成失败告警',dept:'hq',level:'larger',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
-    {id:'MP-1003',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'lantian',level:'general',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-16 09:30'},
-    {id:'MP-1004',scene:'hazard-due',name:'隐患整改到期提前提醒',dept:'haohua',level:'general',objects:['safety'],channels:['station','app'],forms:['todo'],custom:'',enabled:true,updated:'2026-11-16 14:12'},
-    {id:'MP-1005',scene:'hazard-od',name:'隐患超期未整改督办',dept:'haohua',level:'larger',objects:['orgowner','safety'],channels:['station','sms'],forms:['todo','message'],custom:'',enabled:true,updated:'2026-11-15 11:08'},
-    {id:'MP-1006',scene:'risk-change',name:'重大风险等级变更提醒',dept:'hq',level:'major',objects:['orgowner','admin'],channels:['station','sms','app'],forms:['message'],custom:'',enabled:true,updated:'2026-11-14 17:45'},
-    {id:'MP-1007',scene:'duty-assign',name:'履职任务分派通知',dept:'zhehua',level:'',objects:['creator'],channels:['station'],forms:['todo'],custom:'',enabled:true,updated:'2026-11-13 09:22'},
-    {id:'MP-1008',scene:'upload-bad',name:'数据上报核查异常告警',dept:'yangnong',level:'larger',objects:['creator','safety'],channels:['station','email'],forms:['message'],custom:'',enabled:false,updated:'2026-11-12 15:36'},
-    {id:'MP-1009',scene:'hazard-due',name:'重大隐患整改到期专项提醒',dept:'andisu',level:'major',objects:['orgowner'],channels:['station','sms'],forms:['todo','message'],custom:'',enabled:true,updated:'2026-11-11 10:05'},
-    {id:'MP-1010',scene:'report-done',name:'月度报告生成完成提醒',dept:'beihuaji',level:'',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-10 08:50'}
+    {id:'MP-1001',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'hq',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 10:20'},
+    {id:'MP-1002',scene:'report-done',name:'隐患 AI 分析报告生成完成通知',dept:'hq',objects:['creator','orgowner'],channels:['station','email'],forms:['message'],custom:'',enabled:true,updated:'2026-11-18 09:40'},
+    {id:'MP-1003',scene:'report-fail',name:'隐患 AI 分析报告生成失败通知',dept:'hq',objects:['creator','admin'],channels:['station','sms'],forms:['message'],custom:'',enabled:true,updated:'2026-11-17 16:05'},
+    {id:'MP-1004',scene:'hazard-od',name:'隐患督办提醒',dept:'haohua',objects:['orgowner','safety'],channels:['station','sms'],forms:['todo','message'],custom:'',enabled:true,updated:'2026-11-17 11:08'},
+    {id:'MP-1005',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'lantian',objects:['creator','safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-16 09:30'},
+    {id:'MP-1006',scene:'report-done',name:'隐患 AI 分析报告生成完成通知',dept:'beihuaji',objects:['creator'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-15 14:12'},
+    {id:'MP-1007',scene:'hazard-od',name:'隐患督办提醒',dept:'andisu',objects:['orgowner'],channels:['station','sms'],forms:['todo','message'],custom:'',enabled:true,updated:'2026-11-14 10:05'},
+    {id:'MP-1008',scene:'report-fail',name:'隐患 AI 分析报告生成失败通知',dept:'zhehua',objects:['creator'],channels:['station','email'],forms:['message'],custom:'',enabled:false,updated:'2026-11-13 15:36'},
+    {id:'MP-1009',scene:'dpr-done',name:'双重预防运行报告生成提醒',dept:'yangnong',objects:['safety'],channels:['station'],forms:['message'],custom:'',enabled:true,updated:'2026-11-12 09:22'},
+    {id:'MP-1010',scene:'hazard-od',name:'隐患督办提醒',dept:'haohua',objects:['safety'],channels:['station'],forms:['todo'],custom:'',enabled:true,updated:'2026-11-10 08:50'}
   ];
   try{localStorage.setItem(MP_KEY,JSON.stringify(def));}catch(e){}
   return def;
@@ -3587,7 +3592,6 @@ function msgPushHTML(){
         <div class="mp-query-item"><label for="mq-name">提醒事项名称</label><input class="fi-input" id="mq-name" placeholder="请输入名称"></div>
         <div class="mp-query-item"><label for="mq-dept">适用单位</label><select class="fi-select" id="mq-dept" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-scene">所属场景</label><select class="fi-select" id="mq-scene" style="appearance:auto;padding-right:8px"></select></div>
-        <div class="mp-query-item"><label for="mq-level">隐患等级</label><select class="fi-select" id="mq-level" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-form">通知形式</label><select class="fi-select" id="mq-form" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-channel">通知方式</label><select class="fi-select" id="mq-channel" style="appearance:auto;padding-right:8px"></select></div>
         <div class="mp-query-item"><label for="mq-enabled">启停状态</label><select class="fi-select" id="mq-enabled" style="appearance:auto;padding-right:8px"><option value="">请选择</option><option value="1">启用</option><option value="0">停用</option></select></div>
@@ -3604,9 +3608,9 @@ function msgPushHTML(){
     <div class="mp-card mp-list-card">
       <div class="mp-list-scroll">
         <table class="mp-list-table">
-          <colgroup><col class="col-no"><col style="width:150px"><col style="width:100px"><col style="width:88px"><col style="width:110px"><col style="width:88px"><col style="width:72px"><col style="width:72px"><col style="width:106px"><col style="width:112px"><col class="col-op"></colgroup>
+          <colgroup><col class="col-no"><col style="width:170px"><col style="width:130px"><col style="width:130px"><col style="width:120px"><col style="width:96px"><col style="width:88px"><col style="width:100px"><col style="width:112px"><col class="col-op"></colgroup>
           <thead><tr>
-            <th>序号</th><th>提醒事项名称</th><th>所属场景</th><th>通知时间</th><th>通知对象</th><th>通知方式</th><th>通知形式</th><th>隐患等级</th><th>启停状态</th><th>更新时间</th><th>操作</th>
+            <th>序号</th><th>提醒事项名称</th><th>所属场景</th><th>通知时间</th><th>通知对象</th><th>通知方式</th><th>通知形式</th><th>启停状态</th><th>更新时间</th><th>操作</th>
           </tr></thead>
           <tbody id="mp-rows"></tbody>
         </table>
@@ -3646,15 +3650,6 @@ function msgPushHTML(){
           <div class="mp-field">
             <span class="mp-lbl">通知方式<span class="req">*</span></span>
             <div class="mp-check-line" id="mp-channels"></div>
-          </div>
-
-          <div class="mp-field">
-            <span class="mp-lbl">所属业务<span class="req">*</span></span>
-            <div class="mp-static-val">隐患治理</div>
-          </div>
-          <div class="mp-field">
-            <label class="mp-lbl" for="mp-level">隐患等级<span class="req">*</span></label>
-            <select class="fi-select" id="mp-level" style="appearance:auto;padding-right:10px"></select>
           </div>
 
           <div class="mp-field">
@@ -3714,7 +3709,6 @@ function mpFillQuery(){
   const set=(id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html;};
   set('mq-dept',mpOpts(MP_DEPTS));
   set('mq-scene','<option value="">请选择</option>'+mpOpts(MP_SCENES));
-  set('mq-level',mpOpts(MP_LEVELS));
   set('mq-form','<option value="">请选择</option>'+mpOpts(MP_FORMS));
   set('mq-channel','<option value="">请选择</option>'+mpOpts(MP_CHANNELS.filter(c=>MP_FORM_CHANNELS.includes(c.id))));
 }
@@ -3724,7 +3718,6 @@ function mpFiltered(){
     if(f.name&&!(r.name||'').includes(f.name))return false;
     if(f.dept&&r.dept!==f.dept)return false;
     if(f.scene&&r.scene!==f.scene)return false;
-    if(f.level&&r.level!==f.level)return false;
     if(f.form&&!(r.forms||[]).includes(f.form))return false;
     if(f.channel&&!(r.channels||[]).includes(f.channel))return false;
     if(f.enabled!==undefined&&f.enabled!==''&&String(!!r.enabled)!==f.enabled)return false;
@@ -3751,7 +3744,7 @@ function renderMpRules(){
   const start=(mpPage-1)*mpPageSize,rows=list.slice(start,start+mpPageSize);
   const c=document.getElementById('mp-count');if(c)c.textContent=list.length;
   if(!rows.length){
-    wrap.innerHTML='<tr><td colspan="11" class="mp-empty">暂无推送配置，点击列表上方「新增配置」创建规则</td></tr>';
+    wrap.innerHTML='<tr><td colspan="10" class="mp-empty">暂无推送配置，点击列表上方「新增配置」创建规则</td></tr>';
     mpRenderPager(totalPages);return;
   }
   wrap.innerHTML=rows.map((r,i)=>{
@@ -3759,15 +3752,17 @@ function renderMpRules(){
     const formChips=r.forms.map(f=>`<span class="mp-chip ${f}">${mpName(MP_FORMS,f)}</span>`).join('')||'—';
     const objChips=r.objects.map(o=>`<span class="mp-chip obj">${o==='custom'&&r.custom?r.custom:mpName(MP_OBJECTS,o)}</span>`).join('')||'—';
     const chChips=r.channels.map(ch=>`<span class="mp-chip ch">${mpName(MP_CHANNELS,ch)}</span>`).join('')||'—';
+    const objText=r.objects.map(o=>o==='custom'&&r.custom?r.custom:mpName(MP_OBJECTS,o)).join('、')||'—';
+    const chText=r.channels.map(ch=>mpName(MP_CHANNELS,ch)).join('、')||'—';
+    const formText=r.forms.map(f=>mpName(MP_FORMS,f)).join('、')||'—';
     return `<tr class="mp-rule" data-id="${r.id}">
       <td>${start+i+1}</td>
-      <td class="mp-name-cell" title="${dprEsc(r.name)}">${dprEsc(r.name)}</td>
-      <td>${sc?dprEsc(sc.name):'—'}</td>
-      <td>${sc?dprEsc(sc.trigger):'—'}</td>
-      <td>${objChips}</td>
-      <td>${chChips}</td>
-      <td>${formChips}</td>
-      <td>${r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'}</td>
+      <td class="mp-name-cell" data-tip="${dprEsc(r.name)}">${dprEsc(r.name)}</td>
+      <td data-tip="${sc?dprEsc(sc.name):''}">${sc?dprEsc(sc.name):'—'}</td>
+      <td data-tip="${sc?dprEsc(sc.trigger):''}">${sc?dprEsc(sc.trigger):'—'}</td>
+      <td data-tip="${dprEsc(objText)}">${objChips}</td>
+      <td data-tip="${dprEsc(chText)}">${chChips}</td>
+      <td data-tip="${dprEsc(formText)}">${formChips}</td>
       <td class="mp-status"><span class="switch${r.enabled?' on':''}" data-act="toggle" role="switch" aria-checked="${r.enabled}" tabindex="0" title="${r.enabled?'点击停用':'点击启用'}"></span><span class="mp-status-label${r.enabled?' on':''}">${r.enabled?'启用中':'已停用'}</span></td>
       <td>${dprEsc(r.updated||'—')}</td>
       <td><div class="mp-row-tools"><button data-act="detail">详情</button><button data-act="edit">编辑</button><button class="del" data-act="del">删除</button></div></td>
@@ -3792,7 +3787,6 @@ function openMpModal(id){
   const sel=document.getElementById('mp-scene');
   sel.innerHTML=mpOpts(MP_SCENES);
   document.getElementById('mp-dept').innerHTML=mpOpts(MP_DEPTS);
-  document.getElementById('mp-level').innerHTML=mpOpts(MP_LEVELS);
   const roleOpts=[{id:'',name:'请选择'},...MP_OBJECTS];
   ['mp-obj-role','mp-obj-dept','mp-obj-person'].forEach((box,i)=>{
     document.getElementById(box).innerHTML=mpOpts(i===0?roleOpts:(i===1?MP_OBJ_DEPT:MP_OBJ_PERSON));
@@ -3810,7 +3804,6 @@ function openMpModal(id){
     sel.value=r.scene||'';
     document.getElementById('mp-name').value=r.name||'';
     document.getElementById('mp-dept').value=r.dept||'';
-    document.getElementById('mp-level').value=r.level||'';
     const inList=(list)=>objs.find(x=>list.some(o=>o.id===x))||'';
     mpSetObjSelect('mp-obj-role',inList(roleOpts),roleOpts);
     mpSetObjSelect('mp-obj-dept',inList(MP_OBJ_DEPT),MP_OBJ_DEPT);
@@ -3822,7 +3815,7 @@ function openMpModal(id){
     setMpSwitch(r.enabled);
   }else{
     ['mp-name','mp-custom'].forEach(id=>{document.getElementById(id).value='';});
-    ['mp-dept','mp-level','mp-obj-role','mp-obj-dept','mp-obj-person'].forEach(id=>{document.getElementById(id).value='';});
+    ['mp-dept','mp-obj-role','mp-obj-dept','mp-obj-person'].forEach(id=>{document.getElementById(id).value='';});
     document.querySelectorAll('#mp-view-form input[type=checkbox],#mp-view-form input[type=radio]').forEach(i=>i.checked=false);
     const st=document.querySelector('#mp-channels input[value="station"]');if(st)st.checked=true;
     const msg=document.querySelector('#mp-forms input[value="message"]');if(msg)msg.checked=true;
@@ -3857,9 +3850,8 @@ function openMpDetail(id){
   const left=[
     ['提醒事项名称',dprEsc(r.name)],
     ['所属场景',sc?dprEsc(sc.name):'—'],
-    ['通知时间',dprEsc(r.notifyTime||'待整改 - 3天')],
+    ['通知时间',sc?dprEsc(sc.trigger):'—'],
     ['通知方式',nm(MP_CHANNELS,r.channels)],
-    ['隐患等级',r.level?dprEsc(mpName(MP_LEVELS,r.level)):'—'],
     ['适用单位',r.dept?dprEsc(mpName(MP_DEPTS,r.dept)):'—'],
     ['通知对象',nm(MP_OBJECTS,r.objects)]
   ];
@@ -3907,8 +3899,7 @@ function saveMpRule(){
   const enabled=document.getElementById('mp-enabled').classList.contains('on');
   const scene=document.getElementById('mp-scene').value;
   const dept=document.getElementById('mp-dept').value;
-  const level=document.getElementById('mp-level').value;
-  const patch={scene,dept,level,name,forms,channels,objects,custom,enabled,updated:mpNow()};
+  const patch={scene,dept,name,forms,channels,objects,custom,enabled,updated:mpNow()};
   if(mpEditId){
     const r=mpData.find(x=>x.id===mpEditId);
     if(r)Object.assign(r,patch);
@@ -3926,13 +3917,13 @@ function bindMsgPush(){
   page.querySelector('#mp-add').onclick=()=>openMpModal(null);
   const val=id=>document.getElementById(id).value;
   page.querySelector('#mq-search').onclick=()=>{
-    mpFilter={name:val('mq-name').trim(),dept:val('mq-dept'),scene:val('mq-scene'),level:val('mq-level'),form:val('mq-form'),channel:val('mq-channel'),enabled:val('mq-enabled'),from:val('mq-from'),to:val('mq-to')};
+    mpFilter={name:val('mq-name').trim(),dept:val('mq-dept'),scene:val('mq-scene'),form:val('mq-form'),channel:val('mq-channel'),enabled:val('mq-enabled'),from:val('mq-from'),to:val('mq-to')};
     mpPage=1;renderMpRules();
     if(!mpFiltered().length)showToast('没有符合条件的推送配置');
   };
   page.querySelector('#mq-reset').onclick=()=>{
     ['mq-name','mq-from','mq-to'].forEach(id=>{document.getElementById(id).value='';});
-    ['mq-dept','mq-scene','mq-level','mq-form','mq-channel','mq-enabled'].forEach(id=>{document.getElementById(id).value='';});
+    ['mq-dept','mq-scene','mq-form','mq-channel','mq-enabled'].forEach(id=>{document.getElementById(id).value='';});
     mpFilter={};mpPage=1;renderMpRules();
   };
   const pager=page.querySelector('#mp-pager');
@@ -3954,6 +3945,28 @@ function bindMsgPush(){
     }
   });
   const rows=page.querySelector('#mp-rows');
+  /* 悬停查看被截断的完整内容 */
+  let tipEl=document.getElementById('mp-tip');
+  if(!tipEl){
+    tipEl=document.createElement('div');tipEl.id='mp-tip';tipEl.className='mp-tip';
+    tipEl.setAttribute('role','tooltip');document.body.appendChild(tipEl);
+    const hideTip=()=>tipEl.classList.remove('on');
+    document.addEventListener('scroll',hideTip,true);
+    window.addEventListener('resize',hideTip);
+  }
+  rows.addEventListener('mouseover',e=>{
+    const c=e.target.closest('td[data-tip]');
+    if(!c||!c.dataset.tip)return;
+    if(c.scrollWidth<=c.clientWidth+1)return;
+    tipEl.textContent=c.dataset.tip;
+    const b=c.getBoundingClientRect();
+    tipEl.style.left=Math.max(8,Math.min(b.left,window.innerWidth-360))+'px';
+    tipEl.style.top=(b.bottom+6)+'px';
+    tipEl.classList.add('on');
+  });
+  rows.addEventListener('mouseout',e=>{
+    if(e.target.closest('td[data-tip]'))tipEl.classList.remove('on');
+  });
   rows.addEventListener('click',e=>{
     const btn=e.target.closest('[data-act]');if(!btn)return;
     const id=btn.closest('.mp-rule').dataset.id;
