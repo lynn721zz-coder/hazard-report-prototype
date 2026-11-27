@@ -726,7 +726,6 @@
   .mp-list-table tr:last-child td:nth-child(2){border-right:1px solid var(--border)}
   .mp-list-table tr:last-child td:last-child{border-left:1px solid var(--border)}
   .mp-rule:hover td{background:var(--gray-50)}
-  .mp-list-table .col-chk{width:36px;text-align:center;padding-left:12px}
   .mp-list-table .col-no{width:46px}
   .mp-list-table .col-op{width:156px}
   .mp-list-table input[type=checkbox]{width:13px;height:13px;accent-color:var(--sys-primary);cursor:pointer;vertical-align:middle}
@@ -823,13 +822,9 @@
   .mp-node-badge.done{background:#F3E8FF;color:#7E22CE}
   .mp-empty{padding:48px 20px;text-align:center;color:var(--text-tertiary);font-size:13px}
   /* ===== 类型配置（总部级 / 单位级） ===== */
-  .tc-scope-tabs{display:flex;align-items:center;gap:10px;margin-top:14px}
-  .tc-scope-tab{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 16px;border:1px solid var(--border-strong);border-radius:var(--radius-full);background:var(--bg-card);color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .15s}
-  .tc-scope-tab span{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:var(--radius-full);background:var(--gray-100);color:var(--text-tertiary);font-size:11px}
-  .tc-scope-tab:hover{border-color:var(--sys-primary);color:var(--sys-primary)}
-  .tc-scope-tab.on{background:var(--sys-primary);border-color:var(--sys-primary);color:#fff}
-  .tc-scope-tab.on span{background:rgba(255,255,255,.25);color:#fff}
-  .tc-scope-tip{margin-left:6px;font-size:12px;color:var(--text-tertiary)}
+  .tc-radio-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .tc-radio-card{position:relative;border:1px solid var(--border-strong);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;transition:all .15s}
+  .tc-radio-card.lock{cursor:not-allowed;opacity:.65}
   .tc-src-badge{display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:var(--radius-full);font-size:11px;white-space:nowrap}
   .tc-src-badge.builtin{background:var(--sys-primary-bg-light);color:var(--sys-primary-deep)}
   .tc-src-badge.custom{background:#F3E8FF;color:#7E22CE}
@@ -1232,7 +1227,8 @@ const MENU=[
     {id:'hazard-report',name:'隐患分析报告',report:true},
     {id:'fb-dashboard',name:'反馈统计看板'},
     {id:'duty-report',name:'履职任务报表'},
-    {id:'msg-push',name:'消息推送配置'}]},
+    {id:'msg-push',name:'消息推送配置'},
+    {id:'type-cfg',name:'类型配置'}]},
   {id:'contractor',icon:IC.briefcase,name:'承包商HSE管理',children:[
     {id:'ct-info',name:'承包商档案'},{id:'ct-eval',name:'承包商评价'}]},
   {id:'upload',icon:IC.upload,name:'数据上报情况',children:[
@@ -2943,9 +2939,10 @@ function bindPager(container,onGo){
   }));
 }
 /* ===== 通用二次确认弹窗 ===== */
+let cfgConfirmHideTimer=null;
 function hideConfirm(){
   const m=document.getElementById('cfg-confirm-mask');
-  if(m){m.classList.remove('show');setTimeout(()=>{m.hidden=true;},220);}
+  if(m){m.classList.remove('show');cfgConfirmHideTimer=setTimeout(()=>{m.hidden=true;},220);}
 }
 function showConfirm(msg,onOk,title,okText){
   let m=document.getElementById('cfg-confirm-mask');
@@ -2975,7 +2972,10 @@ function showConfirm(msg,onOk,title,okText){
     newOk.disabled=true;newOk.textContent='处理中…';
     setTimeout(()=>{hideConfirm();if(onOk)onOk();},350);
   });
-  m.hidden=false;requestAnimationFrame(()=>{m.classList.add('show');setTimeout(()=>newOk.focus(),60);});
+  m.hidden=false;
+  /* 清掉上一次关闭遗留的延迟隐藏定时器，避免新弹窗刚打开就被隐藏 */
+  if(cfgConfirmHideTimer){clearTimeout(cfgConfirmHideTimer);cfgConfirmHideTimer=null;}
+  requestAnimationFrame(()=>{m.classList.add('show');setTimeout(()=>newOk.focus(),60);});
 }
 /* ===== 隐患类型编辑弹窗（仅管理员；默认类型仅可改说明，自定义类型可改名称+说明） ===== */
 function hideTypeEdit(){
@@ -3705,6 +3705,34 @@ function msgPushHTML(){
   </section>`;
 }
 let mpData=[],mpEditId=null,mpDetailId=null,mpFilter={},mpPage=1,mpPageSize=10;
+/* 列表截断内容悬停查看（通用） */
+function mpEnsureTip(){
+  let tipEl=document.getElementById('mp-tip');
+  if(!tipEl){
+    tipEl=document.createElement('div');tipEl.id='mp-tip';tipEl.className='mp-tip';
+    tipEl.setAttribute('role','tooltip');document.body.appendChild(tipEl);
+    const hideTip=()=>tipEl.classList.remove('on');
+    document.addEventListener('scroll',hideTip,true);
+    window.addEventListener('resize',hideTip);
+  }
+  return tipEl;
+}
+function bindRowTips(rows){
+  const tipEl=mpEnsureTip();
+  rows.addEventListener('mouseover',e=>{
+    const c=e.target.closest('td[data-tip]');
+    if(!c||!c.dataset.tip)return;
+    if(c.scrollWidth<=c.clientWidth+1)return;
+    tipEl.textContent=c.dataset.tip;
+    const b=c.getBoundingClientRect();
+    tipEl.style.left=Math.max(8,Math.min(b.left,window.innerWidth-360))+'px';
+    tipEl.style.top=(b.bottom+6)+'px';
+    tipEl.classList.add('on');
+  });
+  rows.addEventListener('mouseout',e=>{
+    if(e.target.closest('td[data-tip]'))tipEl.classList.remove('on');
+  });
+}
 function mpFillQuery(){
   const set=(id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html;};
   set('mq-dept',mpOpts(MP_DEPTS));
@@ -3945,28 +3973,7 @@ function bindMsgPush(){
     }
   });
   const rows=page.querySelector('#mp-rows');
-  /* 悬停查看被截断的完整内容 */
-  let tipEl=document.getElementById('mp-tip');
-  if(!tipEl){
-    tipEl=document.createElement('div');tipEl.id='mp-tip';tipEl.className='mp-tip';
-    tipEl.setAttribute('role','tooltip');document.body.appendChild(tipEl);
-    const hideTip=()=>tipEl.classList.remove('on');
-    document.addEventListener('scroll',hideTip,true);
-    window.addEventListener('resize',hideTip);
-  }
-  rows.addEventListener('mouseover',e=>{
-    const c=e.target.closest('td[data-tip]');
-    if(!c||!c.dataset.tip)return;
-    if(c.scrollWidth<=c.clientWidth+1)return;
-    tipEl.textContent=c.dataset.tip;
-    const b=c.getBoundingClientRect();
-    tipEl.style.left=Math.max(8,Math.min(b.left,window.innerWidth-360))+'px';
-    tipEl.style.top=(b.bottom+6)+'px';
-    tipEl.classList.add('on');
-  });
-  rows.addEventListener('mouseout',e=>{
-    if(e.target.closest('td[data-tip]'))tipEl.classList.remove('on');
-  });
+  bindRowTips(rows);
   rows.addEventListener('click',e=>{
     const btn=e.target.closest('[data-act]');if(!btn)return;
     const id=btn.closest('.mp-rule').dataset.id;
@@ -4015,40 +4022,58 @@ function bindMsgPush(){
 /* ===== 类型配置：独立页面承载，区分总部级与各级单位自建类型 ===== */
 const TC_KEY='typeCfgData';
 const TC_ORGS=['中国昊华','安迪苏','扬农化工','中化蓝天','浙化院','北化机'];
-let tcData=[],tcEditId=null,tcLockScope=false,tcCurScope='hq',tcPage=1,tcPageSize=10,tcFilter={};
+const TC_LEVELS=[{id:'self',name:'仅本人'},{id:'cur',name:'仅本级'},{id:'sub',name:'本级及以下'}];
+const tcLevelName=id=>(TC_LEVELS.find(l=>l.id===id)||{}).name||'—';
+let tcData=[],tcEditId=null,tcLockScope=false,tcPage=1,tcPageSize=10,tcFilter={};
 /* 视角权限：tcRole='hq' 总部管理员可维护全部；tcRole='unit' 单位管理员仅可配置和查看本单位类型 */
 let tcRole='hq',tcRoleOrg=TC_ORGS[0];
 function tcInitData(){
-  try{const raw=localStorage.getItem(TC_KEY);if(raw){const a=JSON.parse(raw);if(Array.isArray(a)&&a.length)return a;}}catch(e){}
+  try{
+    const raw=localStorage.getItem(TC_KEY);
+    if(raw){
+      const a=JSON.parse(raw);
+      if(Array.isArray(a)&&a.length){
+        /* 旧缓存迁移：scope(hq/unit) → level(sub/cur)，补 creator */
+        const d=a.map(t=>{
+          if(!t.level)t.level=t.scope==='unit'?'cur':'sub';
+          if(!t.creator)t.creator=t.updater||'胡伟-01';
+          delete t.scope;
+          return t;
+        });
+        tcData=d;tcSave();return d;
+      }
+    }
+  }catch(e){}
   const now='2026-11-19 17:30';
-  const hq=DEFAULT_TYPE_NAMES.map((n,i)=>({id:'TC-'+(1001+i),name:n,desc:cfgTypeDesc[n]||'',scope:'hq',org:'',builtin:true,enabled:true,updater:'胡伟-01',updated:now}));
+  const hq=DEFAULT_TYPE_NAMES.map((n,i)=>({id:'TC-'+(1001+i),name:n,desc:cfgTypeDesc[n]||'',level:'sub',org:'',creator:'胡伟-01',builtin:true,enabled:true,updater:'胡伟-01',updated:now}));
   const unit=[
-    {id:'TC-2001',name:'承包商作业管理缺陷',desc:'承包商入场资质、作业监护与过程管控不到位',scope:'unit',org:'中国昊华',builtin:false,enabled:true,updater:'李明-02',updated:'2026-11-18 10:12'},
-    {id:'TC-2002',name:'特种设备检验超期',desc:'压力容器、电梯等特种设备超期未检或检验不合格',scope:'unit',org:'中化蓝天',builtin:false,enabled:true,updater:'王芳-03',updated:'2026-11-17 15:40'},
-    {id:'TC-2003',name:'自动化控制失效',desc:'DCS / SIS 联锁、可燃气体报警等自动化控制设施失效',scope:'unit',org:'扬农化工',builtin:false,enabled:true,updater:'赵强-04',updated:'2026-11-16 09:25'},
-    {id:'TC-2004',name:'储罐区防雷防静电缺陷',desc:'储罐防雷、防静电接地设施缺失或检测不合格',scope:'unit',org:'安迪苏',builtin:false,enabled:false,updater:'陈晨-05',updated:'2026-11-15 14:08'}
+    {id:'TC-2001',name:'承包商作业管理缺陷',desc:'承包商入场资质、作业监护与过程管控不到位',level:'cur',org:'中国昊华',creator:'李明-02',builtin:false,enabled:true,updater:'李明-02',updated:'2026-11-18 10:12'},
+    {id:'TC-2002',name:'特种设备检验超期',desc:'压力容器、电梯等特种设备超期未检或检验不合格',level:'sub',org:'中化蓝天',creator:'王芳-03',builtin:false,enabled:true,updater:'王芳-03',updated:'2026-11-17 15:40'},
+    {id:'TC-2003',name:'自动化控制失效',desc:'DCS / SIS 联锁、可燃气体报警等自动化控制设施失效',level:'cur',org:'扬农化工',creator:'赵强-04',builtin:false,enabled:true,updater:'赵强-04',updated:'2026-11-16 09:25'},
+    {id:'TC-2004',name:'储罐区防雷防静电缺陷',desc:'储罐防雷、防静电接地设施缺失或检测不合格',level:'cur',org:'安迪苏',creator:'陈晨-05',builtin:false,enabled:false,updater:'陈晨-05',updated:'2026-11-15 14:08'},
+    {id:'TC-2005',name:'检维修现场标识缺失',desc:'动土、受限空间作业现场警示标识设置不到位',level:'self',org:'中国昊华',creator:'张伟',builtin:false,enabled:true,updater:'张伟',updated:'2026-11-14 11:20'}
   ];
   return hq.concat(unit);
 }
 function tcSave(){try{localStorage.setItem(TC_KEY,JSON.stringify(tcData));return true;}catch(e){return false;}}
-/* 类型配置变化后同步总部级启用类型到报告配置候选池，保证报告配置页 / AI 分析口径一致 */
+/* 类型配置变化后同步总部下发的启用类型（本级及以下）到报告配置候选池，保证报告配置页 / AI 分析口径一致 */
 function tcPushToCfg(){
-  cfgTypeOptions=tcData.filter(t=>t.scope==='hq'&&t.enabled!==false).map(t=>t.name);
+  cfgTypeOptions=tcData.filter(t=>t.org===''&&t.level==='sub'&&t.enabled!==false).map(t=>t.name);
   tcData.forEach(t=>{
-    if(t.scope==='hq'){if(t.desc)cfgTypeDesc[t.name]=t.desc;else delete cfgTypeDesc[t.name];}
+    if(t.org===''&&t.level==='sub'){if(t.desc)cfgTypeDesc[t.name]=t.desc;else delete cfgTypeDesc[t.name];}
   });
   if(typeof renderCfgTypeTags==='function')renderCfgTypeTags();
 }
-/* 报告配置页新增类型时反向同步到类型配置页（总部级 / 单位自建） */
+/* 报告配置页新增类型时反向同步到类型配置页（总部下发的本级及以下类型） */
 function tcAddFromCfg(name,desc){
   tcData=tcLoad();
   if(tcData.some(t=>t.name===name))return;
-  tcData.unshift({id:'TC-'+(Date.now()%100000),name:name,desc:desc||'',scope:'hq',org:'',builtin:false,enabled:true,updater:CUR_USER_NAME,updated:mpNow()});
+  tcData.unshift({id:'TC-'+(Date.now()%100000),name:name,desc:desc||'',level:'sub',org:'',creator:CUR_USER_NAME,builtin:false,enabled:true,updater:CUR_USER_NAME,updated:mpNow()});
   tcSave();
 }
 function tcRenameFromCfg(oldName,newName,desc){
   tcData=tcLoad();
-  const t=tcData.find(x=>x.name===oldName&&x.scope==='hq');
+  const t=tcData.find(x=>x.name===oldName&&x.org===''&&x.level==='sub');
   if(t){t.name=newName;t.desc=desc||t.desc;t.updated=mpNow();t.updater=CUR_USER_NAME;tcSave();}
 }
 function tcRemoveFromCfg(name){
@@ -4074,18 +4099,14 @@ function typeCfgHTML(){
         <button class="btn-rpt-cfg primary" id="tc-add"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>新增类型</button>
       </div>
     </div>
-    <div class="tc-scope-tabs">
-      <button class="tc-scope-tab on" data-scope="hq" id="tc-tab-hq">总部级类型 <span id="tc-cnt-hq">0</span></button>
-      <button class="tc-scope-tab" data-scope="unit" id="tc-tab-unit">单位级类型 <span id="tc-cnt-unit">0</span></button>
-      <span class="tc-scope-tip" id="tc-scope-tip">总部级类型全系统通用，仅总部管理员可维护</span>
-    </div>
     <div class="mp-query">
-      <div class="mp-query-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="mp-query-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
         <div class="mp-query-item"><label for="tq-name">类型名称</label><input class="fi-input" id="tq-name" placeholder="请输入类型名称"></div>
-        <div class="mp-query-item"><label for="tq-src">类型来源</label><select class="fi-select" id="tq-src" style="appearance:auto;padding-right:8px"><option value="">请选择</option><option value="builtin">系统内置</option><option value="custom">单位自建</option></select></div>
+        <div class="mp-query-item"><label for="tq-level">适用层级</label><select class="fi-select" id="tq-level" style="appearance:auto;padding-right:8px"><option value="">请选择</option>${TC_LEVELS.map(l=>`<option value="${l.id}">${l.name}</option>`).join('')}</select></div>
+        <div class="mp-query-item"><label for="tq-src">类型来源</label><select class="fi-select" id="tq-src" style="appearance:auto;padding-right:8px"><option value="">请选择</option><option value="builtin">系统内置</option><option value="custom">自建</option></select></div>
         <div class="mp-query-item"><label for="tq-enabled">启停状态</label><select class="fi-select" id="tq-enabled" style="appearance:auto;padding-right:8px"><option value="">请选择</option><option value="1">启用</option><option value="0">停用</option></select></div>
       </div>
-      <div class="mp-query-grid" id="tq-org-row" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:10px;display:none">
+      <div class="mp-query-grid" id="tq-org-row" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-top:10px">
         <div class="mp-query-item"><label for="tq-org">所属单位</label><select class="fi-select" id="tq-org" style="appearance:auto;padding-right:8px"><option value="">请选择所属单位</option>${TC_ORGS.map(o=>`<option value="${o}">${o}</option>`).join('')}</select></div>
       </div>
       <div class="mp-query-act">
@@ -4096,16 +4117,15 @@ function typeCfgHTML(){
     <div class="mp-card mp-list-card">
       <div class="mp-list-scroll">
         <table class="mp-list-table">
-          <colgroup><col class="col-chk"><col class="col-no"><col style="width:180px"><col><col style="width:96px"><col style="width:110px"><col style="width:98px"><col style="width:110px"><col class="col-op"></colgroup>
+          <colgroup><col class="col-no"><col style="width:200px"><col><col style="width:96px"><col style="width:170px"><col style="width:98px"><col style="width:110px"><col class="col-op"></colgroup>
           <thead><tr>
-            <th class="col-chk"><input type="checkbox" id="tq-all" title="全选"></th><th>序号</th><th>类型名称</th><th>类型说明</th><th>类型来源</th><th>适用范围</th><th>启停状态</th><th>更新时间</th><th>操作</th>
+            <th>序号</th><th>类型名称</th><th>类型说明</th><th>类型来源</th><th>适用层级</th><th>启停状态</th><th>更新时间</th><th>操作</th>
           </tr></thead>
           <tbody id="tc-rows"></tbody>
         </table>
       </div>
       <div class="mp-list-foot" id="tc-list-foot">
         <div class="mp-foot-left">
-          <button id="tq-cols"><svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>列配置</button>
           <span>共 <b id="tc-count">0</b> 条</span>
         </div>
         <div class="mp-foot-right" id="tc-pager"></div>
@@ -4118,7 +4138,7 @@ function typeCfgHTML(){
       <div class="rpt-list-head">
         <div class="mp-crumb"><button class="mp-back" id="tc-form-back">← 返回列表</button><span>/ 类型配置</span></div>
         <h1 id="tc-form-title">新增类型</h1>
-        <div class="sub">类型保存后同步用于报告配置候选与 AI 分析口径，总部级类型立即全系统生效</div>
+        <div class="sub">类型保存后同步用于报告配置候选与 AI 分析口径</div>
       </div>
     </div>
     <div class="mp-card mp-form-page">
@@ -4127,14 +4147,10 @@ function typeCfgHTML(){
         <div class="tc-field">
           <div class="field-label">适用层级 <span class="req">*</span></div>
           <div class="tc-radio-cards" id="tc-scope">
-            <div class="tc-radio-card on" data-v="hq" tabindex="0" role="button"><div class="r-title"><span class="tc-radio-dot"></span>总部级类型</div><div class="r-desc">全系统通用，仅总部管理员可维护，供所有单位引用</div></div>
-            <div class="tc-radio-card" data-v="unit" tabindex="0" role="button"><div class="r-title"><span class="tc-radio-dot"></span>单位级类型</div><div class="r-desc">由各级单位自建，仅本单位可见可用</div></div>
+            <div class="tc-radio-card on" data-v="sub" tabindex="0" role="button"><div class="r-title"><span class="tc-radio-dot"></span>本级及以下</div><div class="r-desc">本单位及其下属单位均可选用</div></div>
+            <div class="tc-radio-card" data-v="cur" tabindex="0" role="button"><div class="r-title"><span class="tc-radio-dot"></span>仅本级</div><div class="r-desc">仅本单位（本部门）内可选用</div></div>
+            <div class="tc-radio-card" data-v="self" tabindex="0" role="button"><div class="r-title"><span class="tc-radio-dot"></span>仅本人</div><div class="r-desc">仅创建人本人可选用，不进入共享候选池</div></div>
           </div>
-        </div>
-        <div class="tc-field" id="tc-org-field" style="display:none">
-          <div class="field-label">所属单位 <span class="req">*</span></div>
-          <select class="fi-select" id="tc-org" style="appearance:auto;padding-right:10px;height:34px;width:100%"><option value="">请选择所属单位</option>${TC_ORGS.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>
-          <div class="tc-hint" id="tc-org-hint" style="display:none">单位管理员仅可维护本单位类型，所属单位固定为本单位</div>
         </div>
         <div class="tc-field">
           <div class="field-label">类型名称 <span class="req">*</span></div>
@@ -4159,7 +4175,14 @@ function typeCfgHTML(){
   </section>`;
 }
 function tcLoad(){tcData=tcInitData();return tcData;}
-function tcScopeList(scope){return tcData.filter(t=>t.scope===scope);}
+/* 可见性：总部管理员看全部；单位管理员看总部下发（本级及以下）+ 本单位类型；「仅本人」仅创建人可见 */
+function tcVisible(t){
+  if(tcRole==='hq')return true;
+  if(t.org==='')return t.level!=='self';
+  if(t.org!==tcRoleOrg)return false;
+  if(t.level==='self')return t.creator===CUR_USER_NAME;
+  return true;
+}
 function tcSetSwitch(on){
   const s=document.getElementById('tc-enabled');
   if(!s)return;
@@ -4167,9 +4190,9 @@ function tcSetSwitch(on){
 }
 function tcFiltered(){
   const f=tcFilter||{};
-  return tcScopeList(tcCurScope).filter(t=>{
-    if(tcRole!=='hq'&&tcCurScope==='unit'&&t.org!==tcRoleOrg)return false;
+  return tcData.filter(tcVisible).filter(t=>{
     if(f.name&&!(t.name||'').includes(f.name))return false;
+    if(f.level&&t.level!==f.level)return false;
     if(f.src&&t.builtin!==(f.src==='builtin'))return false;
     if(f.org&&t.org!==f.org)return false;
     if(f.enabled!==undefined&&f.enabled!==''&&String(!!t.enabled)!==f.enabled)return false;
@@ -4189,25 +4212,19 @@ function tcRenderPager(total){
 function renderTypeRules(){
   const wrap=document.getElementById('tc-rows');if(!wrap)return;
   tcData=tcLoad();
-  const hqN=tcScopeList('hq').length,unitN=tcRole==='hq'?tcScopeList('unit').length:tcScopeList('unit').filter(t=>t.org===tcRoleOrg).length;
-  const addBtn=document.getElementById('tc-add');
-  if(addBtn)addBtn.style.display=(tcRole!=='hq'&&tcCurScope==='hq')?'none':'';
-  const ch=document.getElementById('tc-cnt-hq'),cu=document.getElementById('tc-cnt-unit');
-  if(ch)ch.textContent=hqN;if(cu)cu.textContent=unitN;
   const list=tcFiltered(),totalPages=Math.max(1,Math.ceil(list.length/tcPageSize));
   if(tcPage>totalPages)tcPage=totalPages;
   const start=(tcPage-1)*tcPageSize,rows=list.slice(start,start+tcPageSize);
   const c=document.getElementById('tc-count');if(c)c.textContent=list.length;
   if(!rows.length){
-    wrap.innerHTML='<tr><td colspan="9" class="mp-empty">'+(tcRole!=='hq'&&tcCurScope==='unit'?'本单位暂无自建类型，点击右上角「新增类型」创建':'暂无'+(tcCurScope==='hq'?'总部级':'单位级')+'类型，点击右上角「新增类型」创建')+'</td></tr>';
-    const all=document.getElementById('tq-all');if(all)all.checked=false;
+    wrap.innerHTML='<tr><td colspan="8" class="mp-empty">暂无符合条件的类型，点击右上角「新增类型」创建</td></tr>';
     tcRenderPager(totalPages);return;
   }
   wrap.innerHTML=rows.map((t,i)=>{
     const isDef=DEFAULT_TYPE_NAMES.includes(t.name);
-    const readOnly=tcRole!=='hq'&&t.scope==='hq';
-    const srcCls=t.builtin?'builtin':'custom',srcTxt=t.builtin?'系统内置':(t.scope==='hq'?'自定义':'单位自建');
-    const scope=t.scope==='hq'?'全系统':`<span class="tc-org-badge">${dprEsc(t.org||'—')}</span>`;
+    const readOnly=tcRole!=='hq'&&t.org==='';
+    const srcCls=t.builtin?'builtin':'custom',srcTxt=t.builtin?'系统内置':'自建';
+    const scopeCell=`<td data-tip="${dprEsc((tcLevelName(t.level))+(t.org?' · '+t.org:''))}">${dprEsc(tcLevelName(t.level))}${(tcRole==='hq'&&t.org)?` <span class="tc-org-badge">${dprEsc(t.org)}</span>`:''}</td>`;
     const canDel=!(isDef&&curRole!=='admin');
     const statusCell=readOnly
       ?`<td class="mp-status"><span class="mp-status-label${t.enabled?' on':''}">${t.enabled?'启用中':'已停用'}</span></td>`
@@ -4216,19 +4233,16 @@ function renderTypeRules(){
       ?`<td><div class="mp-row-tools"><span class="mp-meta">仅总部可维护</span></div></td>`
       :`<td><div class="mp-row-tools"><button data-act="edit">编辑</button><button class="del" data-act="del" ${canDel?'':'data-lock="1"'}>删除</button></div></td>`;
     return `<tr class="tc-rule" data-id="${t.id}">
-      <td class="col-chk"><input type="checkbox" class="tc-row-check" title="选择该类型"></td>
       <td>${start+i+1}</td>
-      <td class="tc-name-cell" title="${dprEsc(t.name)}">${dprEsc(t.name)}${isDef&&curRole==='admin'?'':''}</td>
-      <td class="tc-desc-cell" title="${dprEsc(t.desc||'')}">${dprEsc(t.desc||'—')}</td>
+      <td class="tc-name-cell" data-tip="${dprEsc(t.name)}">${dprEsc(t.name)}</td>
+      <td class="tc-desc-cell" data-tip="${dprEsc(t.desc||'')}">${dprEsc(t.desc||'—')}</td>
       <td><span class="tc-src-badge ${srcCls}">${srcTxt}</span></td>
-      <td>${scope}</td>
+      ${scopeCell}
       ${statusCell}
       <td>${dprEsc(t.updated||'—')}</td>
       ${opCell}
     </tr>`;
   }).join('');
-  const all=document.getElementById('tq-all');
-  if(all)all.checked=rows.every(t=>{const el=wrap.querySelector(`.tc-rule[data-id="${t.id}"] .tc-row-check`);return el&&el.checked;});
   tcRenderPager(totalPages);
 }
 function tcShowView(view){
@@ -4251,15 +4265,15 @@ function tcScopeCard(){
 function openTcForm(id){
   tcEditId=id||null;
   const t=id?tcData.find(x=>x.id===id):null;
-  tcLockScope=!!(t&&t.builtin&&t.scope==='hq')||tcRole!=='hq';
+  tcLockScope=!!(t&&t.builtin);
   const unitView=tcRole!=='hq';
   document.getElementById('tc-form-title').textContent=t?(unitView?'编辑本单位类型':'编辑类型'):(unitView?'新增本单位类型':'新增类型');
-  document.querySelectorAll('#tc-scope .tc-radio-card').forEach(c=>c.classList.toggle('on',unitView?(c.dataset.v==='unit'):(t?(c.dataset.v===t.scope):(c.dataset.v===tcCurScope))));
-  document.getElementById('tc-org-field').style.display=unitView||(t?t.scope:tcCurScope)==='unit'?'':'none';
-  const orgSel=document.getElementById('tc-org');
-  orgSel.disabled=unitView;
-  orgSel.value=unitView?tcRoleOrg:(t?(t.org||''):'');
-  document.getElementById('tc-org-hint').style.display=unitView?'':'none';
+  /* 新增时默认层级：总部管理员 → 本级及以下；单位管理员 → 仅本级 */
+  const defLevel=t?t.level:(tcRole==='hq'?'sub':'cur');
+  document.querySelectorAll('#tc-scope .tc-radio-card').forEach(c=>{
+    c.classList.toggle('on',c.dataset.v===defLevel);
+    if(tcLockScope)c.classList.add('lock');else c.classList.remove('lock');
+  });
   const nameI=document.getElementById('tc-name');
   nameI.value=t?t.name:'';
   const lockName=!!(t&&DEFAULT_TYPE_NAMES.includes(t.name));
@@ -4274,9 +4288,8 @@ function saveTcType(){
   const nameI=document.getElementById('tc-name');
   const name=(nameI.value||'').trim();
   if(!name){showToast('请输入类型名称');nameI.focus();return;}
-  const scope=tcRole!=='hq'?'unit':tcScopeCard().dataset.v;
-  const org=scope==='unit'?(tcRole!=='hq'?tcRoleOrg:document.getElementById('tc-org').value):'';
-  if(scope==='unit'&&!org){showToast('请选择所属单位');return;}
+  const level=tcScopeCard().dataset.v;
+  const org=tcRole==='hq'?'':tcRoleOrg;
   const desc=(document.getElementById('tc-desc').value||'').trim();
   const enabled=document.getElementById('tc-enabled').classList.contains('on');
   const isDef=DEFAULT_TYPE_NAMES.includes(name);
@@ -4286,7 +4299,7 @@ function saveTcType(){
     const t=tcData.find(x=>x.id===tcEditId);
     if(!t)return;
     const oldName=t.name;
-    Object.assign(t,{name:name,desc:desc,scope:scope,org:org,enabled:enabled,updated:mpNow(),updater:CUR_USER_NAME});
+    Object.assign(t,{name:name,desc:desc,level:tcLockScope?t.level:level,enabled:enabled,updated:mpNow(),updater:CUR_USER_NAME});
     if(oldName!==name){
       cfgTypeOptions=cfgTypeOptions.map(x=>x===oldName?name:x);
       cfgTypeSel=cfgTypeSel.map(x=>x===oldName?name:x);
@@ -4298,8 +4311,8 @@ function saveTcType(){
       showToast('已更新隐患类型「'+name+'」'+(desc?'的说明':'（已清空说明）'));
     }
   }else{
-    tcData.unshift({id:'TC-'+(Date.now()%100000),name:name,desc:desc,scope:scope,org:org,builtin:isDef,enabled:enabled,updater:CUR_USER_NAME,updated:mpNow()});
-    showToast('已新增'+(scope==='hq'?'总部级':'单位「'+org+'」')+'类型「'+name+'」');
+    tcData.unshift({id:'TC-'+(Date.now()%100000),name:name,desc:desc,level:level,org:org,creator:CUR_USER_NAME,builtin:isDef,enabled:enabled,updater:CUR_USER_NAME,updated:mpNow()});
+    showToast('已新增「'+tcLevelName(level)+'」类型「'+name+'」'+(org?'（'+org+'）':''));
   }
   tcSave();tcPushToCfg();
   tcShowView('list');renderTypeRules();
@@ -4310,79 +4323,57 @@ function bindTypeCfg(){
   const page=document.getElementById('page-type-cfg');
   if(!page)return;
   const val=id=>document.getElementById(id).value;
-  const applyScope=()=>{
-    const unitView=tcRole!=='hq';
-    const tip=unitView
-      ?(tcCurScope==='hq'?'总部级类型由总部统一维护，各单位仅可查看引用':'仅展示本单位「'+tcRoleOrg+'」自建的类型，其他单位的类型不可见')
-      :(tcCurScope==='hq'?'总部级类型全系统通用，仅总部管理员可维护':'单位级类型由各级单位自建，仅本单位可见可用');
-    document.getElementById('tc-scope-tip').textContent=tip;
-    document.getElementById('tq-org-row').style.display=(tcCurScope==='unit'&&tcRole==='hq')?'grid':'none';
-    tcPage=1;renderTypeRules();
-  };
-  page.querySelectorAll('.tc-scope-tab').forEach(b=>{b.onclick=()=>{
-    tcCurScope=b.dataset.scope;
-    page.querySelectorAll('.tc-scope-tab').forEach(x=>x.classList.toggle('on',x===b));
-    applyScope();
-  };});
+  const syncOrgRow=()=>{document.getElementById('tq-org-row').style.display=tcRole==='hq'?'grid':'none';};
+  syncOrgRow();
   page.querySelector('#tc-role').onchange=function(){
     const v=this.value;
     if(v==='hq'){tcRole='hq';}
     else{tcRole='unit';tcRoleOrg=v.split(':')[1]||TC_ORGS[0];}
     document.getElementById('tq-name').value='';
-    ['tq-src','tq-enabled','tq-org'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    tcFilter={scope:tcCurScope};
-    applyScope();
+    ['tq-level','tq-src','tq-enabled','tq-org'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    tcFilter={};
+    syncOrgRow();
+    tcPage=1;renderTypeRules();
     showToast(tcRole==='hq'?'已切换至总部管理员视角，可维护全部类型':'已切换至「'+tcRoleOrg+'」单位管理员视角，仅可配置和查看本单位的类型');
   };
-  page.querySelector('#tc-add').onclick=()=>{
-    if(tcRole!=='hq'&&tcCurScope==='hq'){showToast('总部级类型仅总部管理员可新增');return;}
-    openTcForm(null);
-  };
+  page.querySelector('#tc-add').onclick=()=>openTcForm(null);
   page.querySelector('#tq-search').onclick=()=>{
-    tcFilter={scope:tcCurScope,name:val('tq-name').trim(),src:val('tq-src'),enabled:val('tq-enabled'),org:val('tq-org')};
+    tcFilter={name:val('tq-name').trim(),level:val('tq-level'),src:val('tq-src'),enabled:val('tq-enabled'),org:val('tq-org')};
     tcPage=1;renderTypeRules();
     if(!tcFiltered().length)showToast('没有符合条件的类型');
   };
   page.querySelector('#tq-reset').onclick=()=>{
     ['tq-name'].forEach(id=>{document.getElementById(id).value='';});
-    ['tq-src','tq-enabled','tq-org'].forEach(id=>{document.getElementById(id).value='';});
-    tcFilter={scope:tcCurScope};tcPage=1;renderTypeRules();
-  };
-  page.querySelector('#tq-cols').onclick=()=>showToast('列配置：可选择列表展示字段（演示）');
-  page.querySelector('#tq-all').onchange=function(){
-    document.querySelectorAll('#tc-rows .tc-row-check').forEach(c=>{c.checked=this.checked;});
+    ['tq-level','tq-src','tq-enabled','tq-org'].forEach(id=>{document.getElementById(id).value='';});
+    tcFilter={};tcPage=1;renderTypeRules();
   };
   const rows=page.querySelector('#tc-rows');
-  rows.addEventListener('change',e=>{
-    if(!e.target.classList.contains('tc-row-check'))return;
-    const cbs=[...rows.querySelectorAll('.tc-row-check')],all=document.getElementById('tq-all');
-    if(all)all.checked=cbs.length>0&&cbs.every(c=>c.checked);
-  });
+  bindRowTips(rows);
   rows.addEventListener('click',e=>{
     const btn=e.target.closest('[data-act]');if(!btn)return;
     const id=btn.closest('.tc-rule').dataset.id;
     const act=btn.dataset.act;
     if(act==='edit'){
       const t=tcData.find(x=>x.id===id);
-      if(t&&tcRole!=='hq'&&t.scope==='hq'){showToast('总部级类型仅总部管理员可维护');return;}
-      if(t&&tcRole!=='hq'&&t.scope==='unit'&&t.org!==tcRoleOrg){showToast('仅可维护本单位的类型');return;}
+      if(t&&tcRole!=='hq'&&t.org===''){showToast('总部下发的类型仅总部管理员可维护');return;}
+      if(t&&tcRole!=='hq'&&t.org&&t.org!==tcRoleOrg){showToast('仅可维护本单位的类型');return;}
       if(t&&DEFAULT_TYPE_NAMES.includes(t.name)&&curRole!=='admin'){showToast('「'+t.name+'」为默认通用隐患类型，仅管理员可编辑');return;}
       openTcForm(id);
     }else if(act==='toggle'){
       const t=tcData.find(x=>x.id===id);if(!t)return;
-      if(tcRole!=='hq'&&t.scope==='hq'){showToast('总部级类型仅总部管理员可维护');return;}
-      if(tcRole!=='hq'&&t.scope==='unit'&&t.org!==tcRoleOrg){showToast('仅可维护本单位的类型');return;}
+      if(tcRole!=='hq'&&t.org===''){showToast('总部下发的类型仅总部管理员可维护');return;}
+      if(tcRole!=='hq'&&t.org&&t.org!==tcRoleOrg){showToast('仅可维护本单位的类型');return;}
       const next=!t.enabled,verb=next?'启用':'停用';
       showConfirm('确认'+verb+'隐患类型「'+t.name+'」？'+(next?'启用后将进入候选池供配置引用。':'停用后将从候选池中移除，已有报告不受影响。'),()=>{
         t.enabled=next;tcSave();
-        if(t.scope==='hq')tcPushToCfg();
+        if(t.org===''&&t.level==='sub')tcPushToCfg();
         renderTypeRules();
         showToast('已'+verb+'隐患类型「'+t.name+'」');
       },'启停确认','确认'+verb);
     }else if(act==='del'){
       const t=tcData.find(x=>x.id===id);if(!t)return;
-      if(tcRole!=='hq'&&t.scope==='hq'){showToast('总部级类型仅总部管理员可维护');return;}
-      if(tcRole!=='hq'&&t.scope==='unit'&&t.org!==tcRoleOrg){showToast('仅可维护本单位的类型');return;}
+      if(tcRole!=='hq'&&t.org===''){showToast('总部下发的类型仅总部管理员可维护');return;}
+      if(tcRole!=='hq'&&t.org&&t.org!==tcRoleOrg){showToast('仅可维护本单位的类型');return;}
       if(DEFAULT_TYPE_NAMES.includes(t.name)&&curRole!=='admin'){showToast('「'+t.name+'」为默认通用隐患类型，仅管理员可删除');return;}
       const configured=cfgTypeSel.includes(t.name);
       showConfirm(configured?'已有用户配置此标签，是否确认删除此类型？':'是否确认删除此类型「'+t.name+'」？删除后不再作为候选类型。',()=>{
@@ -4419,10 +4410,8 @@ function bindTypeCfg(){
   page.querySelector('#tc-save').onclick=saveTcType;
   page.querySelectorAll('#tc-scope .tc-radio-card').forEach(c=>{
     c.onclick=()=>{
-      if(tcLockScope){showToast(tcRole!=='hq'?'单位管理员仅可维护本单位类型':'系统内置类型为总部级，层级不可变更');return;}
-      if(tcRole!=='hq'&&c.dataset.v==='hq'){showToast('单位管理员仅可维护本单位类型');return;}
+      if(tcLockScope){showToast('系统内置类型的适用层级不可变更');return;}
       document.querySelectorAll('#tc-scope .tc-radio-card').forEach(x=>x.classList.toggle('on',x===c));
-      document.getElementById('tc-org-field').style.display=c.dataset.v==='unit'?'':'none';
     };
   });
   document.getElementById('tc-name').addEventListener('input',tcSyncCount);
